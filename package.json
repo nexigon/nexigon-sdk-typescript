@@ -1,0 +1,49 @@
+{
+  "name": "@nexigon/hub-sdk",
+  "version": "0.0.1",
+  "description": "Nexigon Hub SDK for Node.js",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "clean": "rm -rf dist coverage",
+    "prepack": "npm run build",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/silitics/nexigon-hub.git",
+    "directory": "public/nexigon-sdk-typescript"
+  },
+  "dependencies": {
+    "@sidex/types": "^0.0.8",
+    "@sidex/validate": "^0.1.0",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.1",
+    "@types/ws": "^8.18.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.14"
+  }
+}
