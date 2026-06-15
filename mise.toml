@@ -1,0 +1,13 @@
+[tools]
+node = "latest"
+pnpm = "latest"
+
+[tasks.build]
+description = "Build the package tarball into build/."
+run = """
+set -euo pipefail
+pnpm install --frozen-lockfile
+rm -rf build
+mkdir -p build
+pnpm pack --pack-destination build
+"""
