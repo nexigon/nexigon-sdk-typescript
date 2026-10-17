@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -30,3 +32,9 @@ export type Jwt = __sidex_types.Nominal<
   __sidex_types.builtins.String,
   "::nexigon_api::jwt::Jwt"
 >
+
+export const Jwt = {
+  ...__sidex_types.checker<Jwt>(
+    (): __sidex_types.Check => __sidex_types.builtin("string"),
+  ),
+}

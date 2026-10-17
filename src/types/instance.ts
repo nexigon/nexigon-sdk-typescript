@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -26,8 +28,13 @@ import * as __validate from "@sidex/validate"
 /**
  * Get instance statistics.
  */
-export type GetInstanceStatisticsAction = Record<string, never>
+export type GetInstanceStatisticsAction = Record<string, unknown>
 
+export const GetInstanceStatisticsAction = {
+  ...__sidex_types.checker<GetInstanceStatisticsAction>(
+    (): __sidex_types.Check => __sidex_types.record([], []),
+  ),
+}
 /**
  * Instance statistics.
  */
@@ -44,11 +51,29 @@ export type GetInstanceStatisticsOutput = {
   devices: __sidex_types.builtins.U32
 }
 
+export const GetInstanceStatisticsOutput = {
+  ...__sidex_types.checker<GetInstanceStatisticsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["users", __sidex_types.builtin("u32"), false],
+          ["projects", __sidex_types.builtin("u32"), false],
+          ["devices", __sidex_types.builtin("u32"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Get the settings of the instance.
  */
-export type GetInstanceSettingsRawAction = Record<string, never>
+export type GetInstanceSettingsRawAction = Record<string, unknown>
 
+export const GetInstanceSettingsRawAction = {
+  ...__sidex_types.checker<GetInstanceSettingsRawAction>(
+    (): __sidex_types.Check => __sidex_types.record([], []),
+  ),
+}
 /**
  * Settings of the instance.
  */
@@ -56,12 +81,29 @@ export type GetInstanceSettingsRawOutput = {
   /**
    * Settings of the instance.
    */
-  settings: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  >
+  settings: { [key: string]: __schema_json.JsonValue }
 }
 
+export const GetInstanceSettingsRawOutput = {
+  ...__sidex_types.checker<GetInstanceSettingsRawOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "settings",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set a setting of the instance.
  */
@@ -74,7 +116,24 @@ export type SetInstanceSettingRawAction = {
    */
   value: __schema_json.JsonValue
 }
+
 export const SetInstanceSettingRawAction = {
+  ...__sidex_types.checker<SetInstanceSettingRawAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["key", __sidex_types.builtin("string"), false],
+          [
+            "value",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetInstanceSettingRawAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -84,7 +143,7 @@ export const SetInstanceSettingRawAction = {
       const __field_path = __path.field("key")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.key as unknown as string),
+          __validate.charCount(__instance["key"] as unknown as string),
           1,
           "min_size",
           "Setting key must be between 1 and 256 characters.",
@@ -94,7 +153,7 @@ export const SetInstanceSettingRawAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.key as unknown as string),
+          __validate.charCount(__instance["key"] as unknown as string),
           256,
           "max_size",
           "Setting key must be between 1 and 256 characters.",

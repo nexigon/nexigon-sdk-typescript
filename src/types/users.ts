@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -31,6 +33,11 @@ export type UserId = __sidex_types.Nominal<
   "::nexigon_api::users::UserId"
 >
 
+export const UserId = {
+  ...__sidex_types.checker<UserId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Unique ID of a user token.
  */
@@ -39,6 +46,11 @@ export type UserTokenId = __sidex_types.Nominal<
   "::nexigon_api::users::UserTokenId"
 >
 
+export const UserTokenId = {
+  ...__sidex_types.checker<UserTokenId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * User token.
  */
@@ -47,6 +59,11 @@ export type UserToken = __sidex_types.Nominal<
   "::nexigon_api::users::UserToken"
 >
 
+export const UserToken = {
+  ...__sidex_types.checker<UserToken>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * User session ID.
  */
@@ -55,6 +72,11 @@ export type UserSessionId = __sidex_types.Nominal<
   "::nexigon_api::users::UserSessionId"
 >
 
+export const UserSessionId = {
+  ...__sidex_types.checker<UserSessionId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * User session token.
  */
@@ -63,11 +85,21 @@ export type UserSessionToken = __sidex_types.Nominal<
   "::nexigon_api::users::UserSessionToken"
 >
 
+export const UserSessionToken = {
+  ...__sidex_types.checker<UserSessionToken>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Query the users of the instance.
  */
-export type QueryUsersAction = Record<string, never>
+export type QueryUsersAction = Record<string, unknown>
 
+export const QueryUsersAction = {
+  ...__sidex_types.checker<QueryUsersAction>(
+    (): __sidex_types.Check => __sidex_types.record([], []),
+  ),
+}
 /**
  * Output of querying the users of the instance.
  */
@@ -75,9 +107,28 @@ export type QueryUsersOutput = {
   /**
    * List of users.
    */
-  users: __sidex_types.builtins.Sequence<QueryUsersItem>
+  users: QueryUsersItem[]
 }
 
+export const QueryUsersOutput = {
+  ...__sidex_types.checker<QueryUsersOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "users",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => QueryUsersItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * User item.
  */
@@ -106,6 +157,32 @@ export type QueryUsersItem = {
   createdAt: __schema_datetime.Timestamp
 }
 
+export const QueryUsersItem = {
+  ...__sidex_types.checker<QueryUsersItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+          ["email", __sidex_types.builtin("string"), false],
+          ["displayName", __sidex_types.builtin("string"), true],
+          ["isAdmin", __sidex_types.builtin("bool"), false],
+          ["isActive", __sidex_types.builtin("bool"), false],
+          [
+            "createdAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Get information about a user.
  */
@@ -116,6 +193,21 @@ export type GetUserDetailsAction = {
   userId: UserId
 }
 
+export const GetUserDetailsAction = {
+  ...__sidex_types.checker<GetUserDetailsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Information about the user.
  */
@@ -135,11 +227,32 @@ export type GetUserDetailsOutput = {
   isAdmin: __sidex_types.builtins.Bool
 }
 
+export const GetUserDetailsOutput = {
+  ...__sidex_types.checker<GetUserDetailsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+          ["email", __sidex_types.builtin("string"), false],
+          ["displayName", __sidex_types.builtin("string"), true],
+          ["isAdmin", __sidex_types.builtin("bool"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Create a new user.
  */
 export type CreateUserAction = {
   /**
+   * Authorization for this administrative action.
+   */
+  authorization: __schema_authorization.ActionAuthorization /**
    * Email of the user.
    */
   email: __sidex_types.builtins.String /**
@@ -153,7 +266,28 @@ export type CreateUserAction = {
    */
   isAdmin?: __sidex_types.builtins.Bool
 }
+
 export const CreateUserAction = {
+  ...__sidex_types.checker<CreateUserAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "authorization",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_authorization.ActionAuthorization,
+            ),
+            false,
+          ],
+          ["email", __sidex_types.builtin("string"), false],
+          ["displayName", __sidex_types.builtin("string"), true],
+          ["password", __sidex_types.builtin("string"), true],
+          ["isAdmin", __sidex_types.builtin("bool"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: CreateUserAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -163,7 +297,7 @@ export const CreateUserAction = {
       const __field_path = __path.field("email")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.email as unknown as string),
+          __validate.charCount(__instance["email"] as unknown as string),
           3,
           "min_size",
           "Email must be between 3 and 254 characters.",
@@ -173,7 +307,7 @@ export const CreateUserAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.email as unknown as string),
+          __validate.charCount(__instance["email"] as unknown as string),
           254,
           "max_size",
           "Email must be between 3 and 254 characters.",
@@ -183,7 +317,7 @@ export const CreateUserAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.email,
+          __instance["email"],
           "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
           "format:email",
           "Email must be a valid email address.",
@@ -192,13 +326,13 @@ export const CreateUserAction = {
       )
     }
     if (
-      __instance.displayName !== undefined &&
-      __instance.displayName !== null
+      __instance["displayName"] !== undefined &&
+      __instance["displayName"] !== null
     ) {
       const __field_path = __path.field("displayName")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.displayName as unknown as string),
+          __validate.charCount(__instance["displayName"] as unknown as string),
           1,
           "min_size",
           "Display name must be between 1 and 128 characters.",
@@ -208,7 +342,7 @@ export const CreateUserAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.displayName as unknown as string),
+          __validate.charCount(__instance["displayName"] as unknown as string),
           128,
           "max_size",
           "Display name must be between 1 and 128 characters.",
@@ -216,11 +350,14 @@ export const CreateUserAction = {
         ),
       )
     }
-    if (__instance.password !== undefined && __instance.password !== null) {
+    if (
+      __instance["password"] !== undefined &&
+      __instance["password"] !== null
+    ) {
       const __field_path = __path.field("password")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.password as unknown as string),
+          __validate.charCount(__instance["password"] as unknown as string),
           8,
           "min_size",
           "Password must be between 8 and 256 characters.",
@@ -230,7 +367,7 @@ export const CreateUserAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.password as unknown as string),
+          __validate.charCount(__instance["password"] as unknown as string),
           256,
           "max_size",
           "Password must be between 8 and 256 characters.",
@@ -348,6 +485,21 @@ export type CreateUserOutput =
   | ({ result: "Created" } & CreateUserSuccess)
   | { result: "EmailAlreadyExists" }
 
+export const CreateUserOutput = {
+  ...__sidex_types.checker<CreateUserOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        [
+          "Created",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => CreateUserSuccess,
+          ),
+          null,
+        ],
+        ["EmailAlreadyExists", null, null],
+      ]),
+  ),
+}
 /**
  * User was created successfully.
  */
@@ -358,6 +510,21 @@ export type CreateUserSuccess = {
   userId: UserId
 }
 
+export const CreateUserSuccess = {
+  ...__sidex_types.checker<CreateUserSuccess>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Delete a user.
  */
@@ -368,6 +535,21 @@ export type DeleteUserAction = {
   userId: UserId
 }
 
+export const DeleteUserAction = {
+  ...__sidex_types.checker<DeleteUserAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set the display name of a user.
  */
@@ -380,7 +562,22 @@ export type SetUserDisplayNameAction = {
    */
   displayName: __sidex_types.builtins.String
 }
+
 export const SetUserDisplayNameAction = {
+  ...__sidex_types.checker<SetUserDisplayNameAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+          ["displayName", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetUserDisplayNameAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -390,7 +587,7 @@ export const SetUserDisplayNameAction = {
       const __field_path = __path.field("displayName")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.displayName as unknown as string),
+          __validate.charCount(__instance["displayName"] as unknown as string),
           1,
           "min_size",
           "Display name must be between 1 and 128 characters.",
@@ -400,7 +597,7 @@ export const SetUserDisplayNameAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.displayName as unknown as string),
+          __validate.charCount(__instance["displayName"] as unknown as string),
           128,
           "max_size",
           "Display name must be between 1 and 128 characters.",
@@ -448,6 +645,9 @@ export const SetUserDisplayNameAction = {
  */
 export type SetUserIsAdminAction = {
   /**
+   * Authorization for this administrative action.
+   */
+  authorization: __schema_authorization.ActionAuthorization /**
    * ID of the user.
    */
   userId: UserId /**
@@ -456,6 +656,30 @@ export type SetUserIsAdminAction = {
   isAdmin: __sidex_types.builtins.Bool
 }
 
+export const SetUserIsAdminAction = {
+  ...__sidex_types.checker<SetUserIsAdminAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "authorization",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_authorization.ActionAuthorization,
+            ),
+            false,
+          ],
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+          ["isAdmin", __sidex_types.builtin("bool"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set the password of a user.
  *
@@ -464,6 +688,9 @@ export type SetUserIsAdminAction = {
  */
 export type SetUserPasswordAction = {
   /**
+   * Authorization for this administrative action.
+   */
+  authorization: __schema_authorization.ActionAuthorization /**
    * ID of the user.
    */
   userId: UserId /**
@@ -471,7 +698,30 @@ export type SetUserPasswordAction = {
    */
   password: __sidex_types.builtins.String
 }
+
 export const SetUserPasswordAction = {
+  ...__sidex_types.checker<SetUserPasswordAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "authorization",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_authorization.ActionAuthorization,
+            ),
+            false,
+          ],
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+          ["password", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetUserPasswordAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -481,7 +731,7 @@ export const SetUserPasswordAction = {
       const __field_path = __path.field("password")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.password as unknown as string),
+          __validate.charCount(__instance["password"] as unknown as string),
           8,
           "min_size",
           "Password must be between 8 and 256 characters.",
@@ -491,7 +741,7 @@ export const SetUserPasswordAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.password as unknown as string),
+          __validate.charCount(__instance["password"] as unknown as string),
           256,
           "max_size",
           "Password must be between 8 and 256 characters.",
@@ -541,6 +791,9 @@ export const SetUserPasswordAction = {
  */
 export type SetUserEmailAction = {
   /**
+   * Authorization for this administrative action.
+   */
+  authorization: __schema_authorization.ActionAuthorization /**
    * ID of the user.
    */
   userId: UserId /**
@@ -548,7 +801,30 @@ export type SetUserEmailAction = {
    */
   email: __sidex_types.builtins.String
 }
+
 export const SetUserEmailAction = {
+  ...__sidex_types.checker<SetUserEmailAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "authorization",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_authorization.ActionAuthorization,
+            ),
+            false,
+          ],
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+          ["email", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetUserEmailAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -558,7 +834,7 @@ export const SetUserEmailAction = {
       const __field_path = __path.field("email")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.email as unknown as string),
+          __validate.charCount(__instance["email"] as unknown as string),
           3,
           "min_size",
           "Email must be between 3 and 254 characters.",
@@ -568,7 +844,7 @@ export const SetUserEmailAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.email as unknown as string),
+          __validate.charCount(__instance["email"] as unknown as string),
           254,
           "max_size",
           "Email must be between 3 and 254 characters.",
@@ -578,7 +854,7 @@ export const SetUserEmailAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.email,
+          __instance["email"],
           "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
           "format:email",
           "Email must be a valid email address.",
@@ -638,25 +914,57 @@ export type SetUserEmailOutput =
   | { result: "Updated" }
   | { result: "EmailAlreadyExists" }
 
+export const SetUserEmailOutput = {
+  ...__sidex_types.checker<SetUserEmailOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["Updated", null, null],
+        ["EmailAlreadyExists", null, null],
+      ]),
+  ),
+}
 /**
  * Change the password of the current user.
  *
- * Requires the user to provide their current password to re-verify their
- * identity, even if they are already authenticated.
+ * Requires account credentials in `authorization`, even if the user is
+ * already authenticated.
  */
 export type ChangeUserPasswordAction = {
   /**
+   * Credentials that re-verify the current user session.
+   */
+  authorization: __schema_authorization.ActionAuthorization /**
    * ID of the user.
    */
   userId: UserId /**
-   * Current password of the user.
-   */
-  currentPassword: __sidex_types.builtins.String /**
    * New password to set.
    */
   newPassword: __sidex_types.builtins.String
 }
+
 export const ChangeUserPasswordAction = {
+  ...__sidex_types.checker<ChangeUserPasswordAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "authorization",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_authorization.ActionAuthorization,
+            ),
+            false,
+          ],
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+          ["newPassword", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: ChangeUserPasswordAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -666,7 +974,7 @@ export const ChangeUserPasswordAction = {
       const __field_path = __path.field("newPassword")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.newPassword as unknown as string),
+          __validate.charCount(__instance["newPassword"] as unknown as string),
           8,
           "min_size",
           "Password must be between 8 and 256 characters.",
@@ -676,7 +984,7 @@ export const ChangeUserPasswordAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.newPassword as unknown as string),
+          __validate.charCount(__instance["newPassword"] as unknown as string),
           256,
           "max_size",
           "Password must be between 8 and 256 characters.",
@@ -720,32 +1028,47 @@ export const ChangeUserPasswordAction = {
   },
 }
 /**
- * Output of [`ChangeUserPasswordAction`].
- */
-export type ChangeUserPasswordOutput =
-  | { result: "Completed" }
-  | { result: "InvalidCurrentPassword" }
-
-/**
  * Initiate an email-address change for the current user.
  *
- * Requires the user to provide their current password to re-verify their
- * identity. On success, a verification link is sent to the new address and
- * a notification is sent to the current address.
+ * Requires account credentials in `authorization`. On success, a verification
+ * link is sent to the new address and a notification is sent to the current address.
  */
 export type InitiateUserEmailChangeAction = {
   /**
+   * Credentials that re-verify the current user session.
+   */
+  authorization: __schema_authorization.ActionAuthorization /**
    * ID of the user.
    */
   userId: UserId /**
-   * Current password of the user.
-   */
-  currentPassword: __sidex_types.builtins.String /**
    * New email address to switch to.
    */
   newEmail: __sidex_types.builtins.String
 }
+
 export const InitiateUserEmailChangeAction = {
+  ...__sidex_types.checker<InitiateUserEmailChangeAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "authorization",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_authorization.ActionAuthorization,
+            ),
+            false,
+          ],
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+          ["newEmail", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: InitiateUserEmailChangeAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -755,7 +1078,7 @@ export const InitiateUserEmailChangeAction = {
       const __field_path = __path.field("newEmail")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.newEmail as unknown as string),
+          __validate.charCount(__instance["newEmail"] as unknown as string),
           3,
           "min_size",
           "Email must be between 3 and 254 characters.",
@@ -765,7 +1088,7 @@ export const InitiateUserEmailChangeAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.newEmail as unknown as string),
+          __validate.charCount(__instance["newEmail"] as unknown as string),
           254,
           "max_size",
           "Email must be between 3 and 254 characters.",
@@ -775,7 +1098,7 @@ export const InitiateUserEmailChangeAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.newEmail,
+          __instance["newEmail"],
           "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
           "format:email",
           "Email must be a valid email address.",
@@ -833,10 +1156,19 @@ export const InitiateUserEmailChangeAction = {
  */
 export type InitiateUserEmailChangeOutput =
   | { result: "Pending" }
-  | { result: "InvalidCurrentPassword" }
   | { result: "SameEmail" }
   | { result: "EmailAlreadyExists" }
 
+export const InitiateUserEmailChangeOutput = {
+  ...__sidex_types.checker<InitiateUserEmailChangeOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["Pending", null, null],
+        ["SameEmail", null, null],
+        ["EmailAlreadyExists", null, null],
+      ]),
+  ),
+}
 /**
  * Complete an email-address change using a verification token.
  */
@@ -847,6 +1179,23 @@ export type CompleteUserEmailChangeAction = {
   token: __schema_jwt.Jwt
 }
 
+export const CompleteUserEmailChangeAction = {
+  ...__sidex_types.checker<CompleteUserEmailChangeAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "token",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_jwt.Jwt,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of [`CompleteUserEmailChangeAction`].
  */
@@ -855,6 +1204,16 @@ export type CompleteUserEmailChangeOutput =
   | { result: "InvalidToken" }
   | { result: "EmailAlreadyExists" }
 
+export const CompleteUserEmailChangeOutput = {
+  ...__sidex_types.checker<CompleteUserEmailChangeOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["Completed", null, null],
+        ["InvalidToken", null, null],
+        ["EmailAlreadyExists", null, null],
+      ]),
+  ),
+}
 /**
  * Reset the password of a user.
  *
@@ -866,7 +1225,15 @@ export type ResetUserPasswordAction = {
    */
   email: __sidex_types.builtins.String
 }
+
 export const ResetUserPasswordAction = {
+  ...__sidex_types.checker<ResetUserPasswordAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [["email", __sidex_types.builtin("string"), false]],
+        [],
+      ),
+  ),
   validate(
     __instance: ResetUserPasswordAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -876,7 +1243,7 @@ export const ResetUserPasswordAction = {
       const __field_path = __path.field("email")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.email as unknown as string),
+          __validate.charCount(__instance["email"] as unknown as string),
           3,
           "min_size",
           "Email must be between 3 and 254 characters.",
@@ -886,7 +1253,7 @@ export const ResetUserPasswordAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.email as unknown as string),
+          __validate.charCount(__instance["email"] as unknown as string),
           254,
           "max_size",
           "Email must be between 3 and 254 characters.",
@@ -941,7 +1308,24 @@ export type CompleteUserPasswordResetAction = {
    */
   password: __sidex_types.builtins.String
 }
+
 export const CompleteUserPasswordResetAction = {
+  ...__sidex_types.checker<CompleteUserPasswordResetAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "resetToken",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_jwt.Jwt,
+            ),
+            false,
+          ],
+          ["password", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: CompleteUserPasswordResetAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -951,7 +1335,7 @@ export const CompleteUserPasswordResetAction = {
       const __field_path = __path.field("password")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.password as unknown as string),
+          __validate.charCount(__instance["password"] as unknown as string),
           8,
           "min_size",
           "Password must be between 8 and 256 characters.",
@@ -961,7 +1345,7 @@ export const CompleteUserPasswordResetAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.password as unknown as string),
+          __validate.charCount(__instance["password"] as unknown as string),
           256,
           "max_size",
           "Password must be between 8 and 256 characters.",
@@ -1011,6 +1395,15 @@ export type CompleteUserPasswordResetOutput =
   | { result: "Completed" }
   | { result: "InvalidToken" }
 
+export const CompleteUserPasswordResetOutput = {
+  ...__sidex_types.checker<CompleteUserPasswordResetOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["Completed", null, null],
+        ["InvalidToken", null, null],
+      ]),
+  ),
+}
 /**
  * Query the tokens of a user.
  */
@@ -1021,6 +1414,21 @@ export type QueryUserTokensAction = {
   userId: UserId
 }
 
+export const QueryUserTokensAction = {
+  ...__sidex_types.checker<QueryUserTokensAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the tokens of a user.
  */
@@ -1028,9 +1436,28 @@ export type QueryUserTokensOutput = {
   /**
    * List of user tokens.
    */
-  tokens: __sidex_types.builtins.Sequence<QueryUserTokensItem>
+  tokens: QueryUserTokensItem[]
 }
 
+export const QueryUserTokensOutput = {
+  ...__sidex_types.checker<QueryUserTokensOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "tokens",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => QueryUserTokensItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * User token item.
  */
@@ -1047,6 +1474,31 @@ export type QueryUserTokensItem = {
   name?: __sidex_types.builtins.String
 }
 
+export const QueryUserTokensItem = {
+  ...__sidex_types.checker<QueryUserTokensItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "tokenId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => UserTokenId,
+            ),
+            false,
+          ],
+          [
+            "createdAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the organizations of a user.
  */
@@ -1057,6 +1509,21 @@ export type QueryUserOrganizationsAction = {
   userId: UserId
 }
 
+export const QueryUserOrganizationsAction = {
+  ...__sidex_types.checker<QueryUserOrganizationsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the organizations of a user.
  */
@@ -1064,9 +1531,29 @@ export type QueryUserOrganizationsOutput = {
   /**
    * List of organizations.
    */
-  organizations: __sidex_types.builtins.Sequence<QueryUserOrganizationsItem>
+  organizations: QueryUserOrganizationsItem[]
 }
 
+export const QueryUserOrganizationsOutput = {
+  ...__sidex_types.checker<QueryUserOrganizationsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizations",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  QueryUserOrganizationsItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Organization item.
  */
@@ -1086,6 +1573,27 @@ export type QueryUserOrganizationsItem = {
   subscriptionPlanName?: __sidex_types.builtins.String
 }
 
+export const QueryUserOrganizationsItem = {
+  ...__sidex_types.checker<QueryUserOrganizationsItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_organizations.OrganizationId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          ["requiresSubscription", __sidex_types.builtin("bool"), false],
+          ["subscriptionPlanName", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the organization invitations of a user.
  */
@@ -1096,6 +1604,21 @@ export type QueryUserOrganizationInvitationsAction = {
   userId: UserId
 }
 
+export const QueryUserOrganizationInvitationsAction = {
+  ...__sidex_types.checker<QueryUserOrganizationInvitationsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the organization invitations of a user.
  */
@@ -1103,9 +1626,29 @@ export type QueryUserOrganizationInvitationsOutput = {
   /**
    * List of organization invitations.
    */
-  invitations: __sidex_types.builtins.Sequence<QueryUserOrganizationInvitationsItem>
+  invitations: QueryUserOrganizationInvitationsItem[]
 }
 
+export const QueryUserOrganizationInvitationsOutput = {
+  ...__sidex_types.checker<QueryUserOrganizationInvitationsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "invitations",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  QueryUserOrganizationInvitationsItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Organization invitation item.
  */
@@ -1119,6 +1662,32 @@ export type QueryUserOrganizationInvitationsItem = {
   organization: QueryUserOrganizationInvitationsItemOrganization
 }
 
+export const QueryUserOrganizationInvitationsItem = {
+  ...__sidex_types.checker<QueryUserOrganizationInvitationsItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "invitationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_organizations.OrganizationInvitationId,
+            ),
+            false,
+          ],
+          [
+            "organization",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                QueryUserOrganizationInvitationsItemOrganization,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Organization invitation item organization.
  */
@@ -1132,6 +1701,25 @@ export type QueryUserOrganizationInvitationsItemOrganization = {
   name: __sidex_types.builtins.String
 }
 
+export const QueryUserOrganizationInvitationsItemOrganization = {
+  ...__sidex_types.checker<QueryUserOrganizationInvitationsItemOrganization>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_organizations.OrganizationId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the sessions of a user.
  */
@@ -1142,6 +1730,21 @@ export type QueryUserSessionsAction = {
   userId: UserId
 }
 
+export const QueryUserSessionsAction = {
+  ...__sidex_types.checker<QueryUserSessionsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the sessions of a user.
  */
@@ -1149,9 +1752,28 @@ export type QueryUserSessionsOutput = {
   /**
    * List of user sessions.
    */
-  sessions: __sidex_types.builtins.Sequence<UserSession>
+  sessions: UserSession[]
 }
 
+export const QueryUserSessionsOutput = {
+  ...__sidex_types.checker<QueryUserSessionsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "sessions",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => UserSession,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * User session.
  */
@@ -1171,6 +1793,38 @@ export type UserSession = {
   userAgent: __sidex_types.builtins.String
 }
 
+export const UserSession = {
+  ...__sidex_types.checker<UserSession>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "sessionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => UserSessionId,
+            ),
+            false,
+          ],
+          [
+            "createdAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          [
+            "expiresAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          ["userAgent", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Check the permissions of a user for a given device.
  */
@@ -1184,6 +1838,28 @@ export type GetDevicePermissionsAction = {
   deviceId: __schema_devices.DeviceId
 }
 
+export const GetDevicePermissionsAction = {
+  ...__sidex_types.checker<GetDevicePermissionsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+          [
+            "deviceId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_devices.DeviceId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of checking the permissions of a user for a given device.
  */
@@ -1194,11 +1870,23 @@ export type GetDevicePermissionsOutput = {
   hasAccess: __sidex_types.builtins.Bool
 }
 
+export const GetDevicePermissionsOutput = {
+  ...__sidex_types.checker<GetDevicePermissionsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [["hasAccess", __sidex_types.builtin("bool"), false]],
+        [],
+      ),
+  ),
+}
 /**
  * Create a user token.
  */
 export type CreateUserTokenAction = {
   /**
+   * Credentials that re-verify the current user session.
+   */
+  authorization: __schema_authorization.ActionAuthorization /**
    * ID of the user.
    */
   userId: UserId /**
@@ -1206,17 +1894,40 @@ export type CreateUserTokenAction = {
    */
   name?: __sidex_types.builtins.String
 }
+
 export const CreateUserTokenAction = {
+  ...__sidex_types.checker<CreateUserTokenAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "authorization",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_authorization.ActionAuthorization,
+            ),
+            false,
+          ],
+          [
+            "userId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: CreateUserTokenAction,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
-    if (__instance.name !== undefined && __instance.name !== null) {
+    if (__instance["name"] !== undefined && __instance["name"] !== null) {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Token name must be between 1 and 128 characters.",
@@ -1226,7 +1937,7 @@ export const CreateUserTokenAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           128,
           "max_size",
           "Token name must be between 1 and 128 characters.",
@@ -1282,6 +1993,28 @@ export type CreateUserTokenOutput = {
   token: UserToken
 }
 
+export const CreateUserTokenOutput = {
+  ...__sidex_types.checker<CreateUserTokenOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "tokenId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => UserTokenId,
+            ),
+            false,
+          ],
+          [
+            "token",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserToken),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Delete a user token.
  */
@@ -1292,6 +2025,23 @@ export type DeleteUserTokenAction = {
   tokenId: UserTokenId
 }
 
+export const DeleteUserTokenAction = {
+  ...__sidex_types.checker<DeleteUserTokenAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "tokenId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => UserTokenId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Terminate a user session.
  *
@@ -1305,6 +2055,23 @@ export type TerminateUserSessionAction = {
   sessionId: UserSessionId
 }
 
+export const TerminateUserSessionAction = {
+  ...__sidex_types.checker<TerminateUserSessionAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "sessionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => UserSessionId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Register a new user with an email and password.
  */
@@ -1328,33 +2095,47 @@ export type RegisterUserAction = {
    */
   consentedToMarketing?: __sidex_types.builtins.Bool
 }
+
 export const RegisterUserAction = {
+  ...__sidex_types.checker<RegisterUserAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["displayName", __sidex_types.builtin("string"), true],
+          ["email", __sidex_types.builtin("string"), false],
+          ["password", __sidex_types.builtin("string"), false],
+          ["consentedToTerms", __sidex_types.builtin("bool"), false],
+          ["consentedToMarketing", __sidex_types.builtin("bool"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: RegisterUserAction,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
     if (
-      __instance.displayName !== undefined &&
-      __instance.displayName !== null
+      __instance["displayName"] !== undefined &&
+      __instance["displayName"] !== null
     ) {
       const __field_path = __path.field("displayName")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.displayName as unknown as string),
+          __validate.charCount(__instance["displayName"] as unknown as string),
           1,
           "min_size",
-          "Display name must be between 1 and 128 characters.",
+          "Display name must be between 1 and 64 characters.",
           __field_path,
         ),
       )
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.displayName as unknown as string),
-          128,
+          __validate.charCount(__instance["displayName"] as unknown as string),
+          64,
           "max_size",
-          "Display name must be between 1 and 128 characters.",
+          "Display name must be between 1 and 64 characters.",
           __field_path,
         ),
       )
@@ -1363,7 +2144,7 @@ export const RegisterUserAction = {
       const __field_path = __path.field("email")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.email as unknown as string),
+          __validate.charCount(__instance["email"] as unknown as string),
           3,
           "min_size",
           "Email must be between 3 and 254 characters.",
@@ -1373,7 +2154,7 @@ export const RegisterUserAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.email as unknown as string),
+          __validate.charCount(__instance["email"] as unknown as string),
           254,
           "max_size",
           "Email must be between 3 and 254 characters.",
@@ -1383,7 +2164,7 @@ export const RegisterUserAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.email,
+          __instance["email"],
           "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
           "format:email",
           "Email must be a valid email address.",
@@ -1395,7 +2176,7 @@ export const RegisterUserAction = {
       const __field_path = __path.field("password")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.password as unknown as string),
+          __validate.charCount(__instance["password"] as unknown as string),
           8,
           "min_size",
           "Password must be between 8 and 256 characters.",
@@ -1405,7 +2186,7 @@ export const RegisterUserAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.password as unknown as string),
+          __validate.charCount(__instance["password"] as unknown as string),
           256,
           "max_size",
           "Password must be between 8 and 256 characters.",
@@ -1428,7 +2209,7 @@ export const RegisterUserAction = {
             __validate.charCount(__value as unknown as string),
             1,
             "min_size",
-            "Display name must be between 1 and 128 characters.",
+            "Display name must be between 1 and 64 characters.",
             __path,
           ),
         )
@@ -1436,9 +2217,9 @@ export const RegisterUserAction = {
         __report.merge(
           __validate.maxInclusive(
             __validate.charCount(__value as unknown as string),
-            128,
+            64,
             "max_size",
-            "Display name must be between 1 and 128 characters.",
+            "Display name must be between 1 and 64 characters.",
             __path,
           ),
         )
@@ -1516,43 +2297,21 @@ export const RegisterUserAction = {
     },
   },
 }
-/**
- * Output of registering a new user.
- */
-export type RegisterUserOutput =
-  | ({ result: "Created" } & UserRegistration)
-  | ({ result: "Pending" } & UserRegistration)
-  | { result: "EmailAlreadyExists" }
-
-/**
- * User registration.
- */
-export type UserRegistration = {
-  /**
-   * Registration status.
-   */
-  status: UserRegistrationStatus /**
-   * Optional message to show to the user.
-   */
-  message?: __sidex_types.builtins.String /**
-   * Timestamp when the registration was created.
-   */
-  createdAt: __schema_datetime.Timestamp
-}
-
-export type UserRegistrationStatus =
-  | { tag: "Pending" }
-  | { tag: "Waiting" }
-  | { tag: "Completed" }
-  | { tag: "Failed" }
-
 export type ResendRegistrationEmailAction = {
   /**
    * Email address of the user.
    */
   email: __sidex_types.builtins.String
 }
+
 export const ResendRegistrationEmailAction = {
+  ...__sidex_types.checker<ResendRegistrationEmailAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [["email", __sidex_types.builtin("string"), false]],
+        [],
+      ),
+  ),
   validate(
     __instance: ResendRegistrationEmailAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -1562,7 +2321,7 @@ export const ResendRegistrationEmailAction = {
       const __field_path = __path.field("email")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.email as unknown as string),
+          __validate.charCount(__instance["email"] as unknown as string),
           3,
           "min_size",
           "Email must be between 3 and 254 characters.",
@@ -1572,7 +2331,7 @@ export const ResendRegistrationEmailAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.email as unknown as string),
+          __validate.charCount(__instance["email"] as unknown as string),
           254,
           "max_size",
           "Email must be between 3 and 254 characters.",
@@ -1625,6 +2384,23 @@ export type CompleteRegistrationAction = {
   activationToken: __schema_jwt.Jwt
 }
 
+export const CompleteRegistrationAction = {
+  ...__sidex_types.checker<CompleteRegistrationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "activationToken",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_jwt.Jwt,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of completing the registration of a user.
  */
@@ -1632,6 +2408,15 @@ export type CompleteRegistrationOutput =
   | { result: "Completed" }
   | { result: "Failed" }
 
+export const CompleteRegistrationOutput = {
+  ...__sidex_types.checker<CompleteRegistrationOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["Completed", null, null],
+        ["Failed", null, null],
+      ]),
+  ),
+}
 /**
  * Accept a organization invitation.
  */
@@ -1640,4 +2425,23 @@ export type AcceptOrganizationInvitationAction = {
    * ID of the invitation.
    */
   invitationId: __schema_organizations.OrganizationInvitationId
+}
+
+export const AcceptOrganizationInvitationAction = {
+  ...__sidex_types.checker<AcceptOrganizationInvitationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "invitationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_organizations.OrganizationInvitationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
 }

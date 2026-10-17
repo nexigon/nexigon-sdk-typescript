@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -28,6 +30,11 @@ import * as __validate from "@sidex/validate"
  */
 export type JobId = __sidex_types.Nominal<string, "::nexigon_api::jobs::JobId">
 
+export const JobId = {
+  ...__sidex_types.checker<JobId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Job.
  */
@@ -65,6 +72,46 @@ export type Job = {
   finishedAt?: __schema_datetime.Timestamp
 }
 
+export const Job = {
+  ...__sidex_types.checker<Job>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "jobId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JobId),
+            false,
+          ],
+          [
+            "status",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JobStatus),
+            false,
+          ],
+          ["job", __sidex_types.builtin("string"), false],
+          ["queued", __sidex_types.builtin("bool"), false],
+          ["attempts", __sidex_types.builtin("u32"), false],
+          ["retryLimit", __sidex_types.builtin("u32"), true],
+          ["retryDelay", __sidex_types.builtin("u32"), false],
+          ["timeout", __sidex_types.builtin("u32"), false],
+          [
+            "createdAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          [
+            "finishedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Execution status of a job.
  */
@@ -75,11 +122,28 @@ export type JobStatus =
   | "Expired"
   | "Cancelled"
 
+export const JobStatus = {
+  ...__sidex_types.checker<JobStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Pending", null, null],
+        ["Completed", null, null],
+        ["Failed", null, null],
+        ["Expired", null, null],
+        ["Cancelled", null, null],
+      ]),
+  ),
+}
 /**
  * Query the jobs of the instance.
  */
-export type QueryJobsAction = Record<string, never>
+export type QueryJobsAction = Record<string, unknown>
 
+export const QueryJobsAction = {
+  ...__sidex_types.checker<QueryJobsAction>(
+    (): __sidex_types.Check => __sidex_types.record([], []),
+  ),
+}
 /**
  * Output of querying the jobs of the instance.
  */
@@ -87,5 +151,23 @@ export type QueryJobsOutput = {
   /**
    * List of jobs.
    */
-  jobs: __sidex_types.builtins.Sequence<Job>
+  jobs: Job[]
+}
+
+export const QueryJobsOutput = {
+  ...__sidex_types.checker<QueryJobsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "jobs",
+            __sidex_types.sequence(
+              __sidex_types.lazy((): __sidex_types.Checker<unknown> => Job),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
 }

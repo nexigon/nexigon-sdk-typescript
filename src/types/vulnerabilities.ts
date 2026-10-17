@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -29,8 +31,18 @@ import * as __validate from "@sidex/validate"
  */
 export type VexStatementOrigin = "Operator" | "Vendor" | "Scanner"
 
+export const VexStatementOrigin = {
+  ...__sidex_types.checker<VexStatementOrigin>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Operator", null, null],
+        ["Vendor", null, null],
+        ["Scanner", null, null],
+      ]),
+  ),
+}
 /**
- * Trigger indexing of every CycloneDX document referenced by the
+ * Trigger indexing of every CycloneDX or SPDX document referenced by the
  * version's artifact assets via `relations.{sbom,vdr,vex}`.
  *
  * The hub fetches the referenced documents from the repository's S3
@@ -43,6 +55,24 @@ export type IndexVersionDocumentsAction = {
   versionId: __schema_repositories.PackageVersionId
 }
 
+export const IndexVersionDocumentsAction = {
+  ...__sidex_types.checker<IndexVersionDocumentsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.PackageVersionId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of `IndexVersionDocumentsAction`.
  */
@@ -60,8 +90,21 @@ export type IndexVersionDocumentsOutput = {
   documentCount: __sidex_types.builtins.U32
 }
 
+export const IndexVersionDocumentsOutput = {
+  ...__sidex_types.checker<IndexVersionDocumentsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["indexed", __sidex_types.builtin("bool"), false],
+          ["artifactCount", __sidex_types.builtin("u32"), false],
+          ["documentCount", __sidex_types.builtin("u32"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
- * Trigger indexing of every CycloneDX document referenced by the
+ * Trigger indexing of every CycloneDX or SPDX document referenced by the
  * package's metadata via `relations.{vex}` (typically just VEX).
  *
  * Mirrors `IndexVersionDocumentsAction`. Used after attaching a new
@@ -73,11 +116,41 @@ export type IndexPackageDocumentsAction = {
   packageId: __schema_repositories.PackageId
 }
 
+export const IndexPackageDocumentsAction = {
+  ...__sidex_types.checker<IndexPackageDocumentsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.PackageId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 export type IndexPackageDocumentsOutput = {
   indexed: __sidex_types.builtins.Bool
   documentCount: __sidex_types.builtins.U32
 }
 
+export const IndexPackageDocumentsOutput = {
+  ...__sidex_types.checker<IndexPackageDocumentsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["indexed", __sidex_types.builtin("bool"), false],
+          ["documentCount", __sidex_types.builtin("u32"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Get the vulnerability overview for a package version: artifact list,
  * SBOM/VDR/VEX descriptors per artifact, package-level VEX, and
@@ -89,6 +162,24 @@ export type GetVersionVulnerabilityOverviewAction = {
   versionId: __schema_repositories.PackageVersionId
 }
 
+export const GetVersionVulnerabilityOverviewAction = {
+  ...__sidex_types.checker<GetVersionVulnerabilityOverviewAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.PackageVersionId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 export type GetVersionVulnerabilityOverviewOutput = {
   versionId: __schema_repositories.PackageVersionId /**
    * Whether the indexing feature is enabled for this organization.
@@ -97,10 +188,10 @@ export type GetVersionVulnerabilityOverviewOutput = {
    * Per-artifact descriptors. Populated by walking each artifact's
    * `relations.{sbom,vdr,vex}` metadata.
    */
-  artifacts: __sidex_types.builtins.Sequence<ArtifactDescriptor> /**
+  artifacts: ArtifactDescriptor[] /**
    * VEX documents inherited from the parent package's `relations.vex`.
    */
-  packageVex: __sidex_types.builtins.Sequence<AttachedVexDocument> /**
+  packageVex: AttachedVexDocument[] /**
    * Severity counts across the union of all artifact VDRs after VEX
    * is applied. Not set when indexing is disabled.
    */
@@ -112,6 +203,51 @@ export type GetVersionVulnerabilityOverviewOutput = {
   componentCount?: __sidex_types.builtins.U32
 }
 
+export const GetVersionVulnerabilityOverviewOutput = {
+  ...__sidex_types.checker<GetVersionVulnerabilityOverviewOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.PackageVersionId,
+            ),
+            false,
+          ],
+          ["indexingEnabled", __sidex_types.builtin("bool"), false],
+          [
+            "artifacts",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => ArtifactDescriptor,
+              ),
+            ),
+            false,
+          ],
+          [
+            "packageVex",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => AttachedVexDocument,
+              ),
+            ),
+            false,
+          ],
+          [
+            "severitySummary",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => SeveritySummary,
+            ),
+            true,
+          ],
+          ["componentCount", __sidex_types.builtin("u32"), true],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Per-artifact view of attached vulnerability documents.
  */
@@ -123,10 +259,10 @@ export type ArtifactDescriptor = {
   sbom?: AttachedDocument /**
    * All VDR documents referenced from `relations.vdr`.
    */
-  vdrs: __sidex_types.builtins.Sequence<AttachedVdrDocument> /**
+  vdrs: AttachedVdrDocument[] /**
    * All VEX documents referenced from `relations.vex`.
    */
-  vex: __sidex_types.builtins.Sequence<AttachedVexDocument> /**
+  vex: AttachedVexDocument[] /**
    * Severity rollup from this artifact's VDRs after VEX is applied.
    */
   severitySummary?: SeveritySummary /**
@@ -135,6 +271,58 @@ export type ArtifactDescriptor = {
   componentCount?: __sidex_types.builtins.U32
 }
 
+export const ArtifactDescriptor = {
+  ...__sidex_types.checker<ArtifactDescriptor>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.RepositoryAssetId,
+            ),
+            false,
+          ],
+          ["filename", __sidex_types.builtin("string"), false],
+          [
+            "sbom",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => AttachedDocument,
+            ),
+            true,
+          ],
+          [
+            "vdrs",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => AttachedVdrDocument,
+              ),
+            ),
+            false,
+          ],
+          [
+            "vex",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => AttachedVexDocument,
+              ),
+            ),
+            false,
+          ],
+          [
+            "severitySummary",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => SeveritySummary,
+            ),
+            true,
+          ],
+          ["componentCount", __sidex_types.builtin("u32"), true],
+        ],
+        [],
+      ),
+  ),
+}
 export type AttachedDocument = {
   assetId: __schema_repositories.RepositoryAssetId
   repositoryId: __schema_repositories.RepositoryId
@@ -142,18 +330,96 @@ export type AttachedDocument = {
   size: __sidex_types.builtins.U64
 }
 
+export const AttachedDocument = {
+  ...__sidex_types.checker<AttachedDocument>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.RepositoryAssetId,
+            ),
+            false,
+          ],
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.RepositoryId,
+            ),
+            false,
+          ],
+          ["filename", __sidex_types.builtin("string"), false],
+          ["size", __sidex_types.builtin("u64"), false],
+        ],
+        [],
+      ),
+  ),
+}
 export type AttachedVdrDocument = {
   document: AttachedDocument
   sourceTool?: __sidex_types.builtins.String
   severitySummary?: SeveritySummary
 }
 
+export const AttachedVdrDocument = {
+  ...__sidex_types.checker<AttachedVdrDocument>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "document",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => AttachedDocument,
+            ),
+            false,
+          ],
+          ["sourceTool", __sidex_types.builtin("string"), true],
+          [
+            "severitySummary",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => SeveritySummary,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 export type AttachedVexDocument = {
   document: AttachedDocument
   origin: VexStatementOrigin
   statementCount?: __sidex_types.builtins.U32
 }
 
+export const AttachedVexDocument = {
+  ...__sidex_types.checker<AttachedVexDocument>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "document",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => AttachedDocument,
+            ),
+            false,
+          ],
+          [
+            "origin",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => VexStatementOrigin,
+            ),
+            false,
+          ],
+          ["statementCount", __sidex_types.builtin("u32"), true],
+        ],
+        [],
+      ),
+  ),
+}
 export type SeveritySummary = {
   critical: __sidex_types.builtins.U32
   high: __sidex_types.builtins.U32
@@ -163,6 +429,22 @@ export type SeveritySummary = {
   unknown: __sidex_types.builtins.U32
 }
 
+export const SeveritySummary = {
+  ...__sidex_types.checker<SeveritySummary>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["critical", __sidex_types.builtin("u32"), false],
+          ["high", __sidex_types.builtin("u32"), false],
+          ["medium", __sidex_types.builtin("u32"), false],
+          ["low", __sidex_types.builtin("u32"), false],
+          ["info", __sidex_types.builtin("u32"), false],
+          ["unknown", __sidex_types.builtin("u32"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the components extracted from a package version's SBOMs.
  *
@@ -180,21 +462,41 @@ export type QueryPackageVersionComponentsAction = {
    */
   componentType?: __sidex_types.builtins.String
 }
+
 export const QueryPackageVersionComponentsAction = {
+  ...__sidex_types.checker<QueryPackageVersionComponentsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.PackageVersionId,
+            ),
+            false,
+          ],
+          ["artifactFilename", __sidex_types.builtin("string"), true],
+          ["search", __sidex_types.builtin("string"), true],
+          ["componentType", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: QueryPackageVersionComponentsAction,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
     if (
-      __instance.artifactFilename !== undefined &&
-      __instance.artifactFilename !== null
+      __instance["artifactFilename"] !== undefined &&
+      __instance["artifactFilename"] !== null
     ) {
       const __field_path = __path.field("artifactFilename")
       __report.merge(
         __validate.minInclusive(
           __validate.charCount(
-            __instance.artifactFilename as unknown as string,
+            __instance["artifactFilename"] as unknown as string,
           ),
           1,
           "min_size",
@@ -206,7 +508,7 @@ export const QueryPackageVersionComponentsAction = {
       __report.merge(
         __validate.maxInclusive(
           __validate.charCount(
-            __instance.artifactFilename as unknown as string,
+            __instance["artifactFilename"] as unknown as string,
           ),
           256,
           "max_size",
@@ -215,11 +517,11 @@ export const QueryPackageVersionComponentsAction = {
         ),
       )
     }
-    if (__instance.search !== undefined && __instance.search !== null) {
+    if (__instance["search"] !== undefined && __instance["search"] !== null) {
       const __field_path = __path.field("search")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.search as unknown as string),
+          __validate.charCount(__instance["search"] as unknown as string),
           1,
           "min_size",
           "Search filter must be between 1 and 256 characters.",
@@ -229,7 +531,7 @@ export const QueryPackageVersionComponentsAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.search as unknown as string),
+          __validate.charCount(__instance["search"] as unknown as string),
           256,
           "max_size",
           "Search filter must be between 1 and 256 characters.",
@@ -238,13 +540,15 @@ export const QueryPackageVersionComponentsAction = {
       )
     }
     if (
-      __instance.componentType !== undefined &&
-      __instance.componentType !== null
+      __instance["componentType"] !== undefined &&
+      __instance["componentType"] !== null
     ) {
       const __field_path = __path.field("componentType")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.componentType as unknown as string),
+          __validate.charCount(
+            __instance["componentType"] as unknown as string,
+          ),
           1,
           "min_size",
           "Component type must be between 1 and 64 characters.",
@@ -254,7 +558,9 @@ export const QueryPackageVersionComponentsAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.componentType as unknown as string),
+          __validate.charCount(
+            __instance["componentType"] as unknown as string,
+          ),
           64,
           "max_size",
           "Component type must be between 1 and 64 characters.",
@@ -357,9 +663,29 @@ export const QueryPackageVersionComponentsAction = {
 }
 export type QueryPackageVersionComponentsOutput = {
   indexingEnabled: __sidex_types.builtins.Bool
-  components: __sidex_types.builtins.Sequence<PackageVersionComponent>
+  components: PackageVersionComponent[]
 }
 
+export const QueryPackageVersionComponentsOutput = {
+  ...__sidex_types.checker<QueryPackageVersionComponentsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["indexingEnabled", __sidex_types.builtin("bool"), false],
+          [
+            "components",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => PackageVersionComponent,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 export type PackageVersionComponent = {
   /**
    * Filename of the artifact asset whose SBOM this component came from.
@@ -370,7 +696,7 @@ export type PackageVersionComponent = {
   name: __sidex_types.builtins.String
   version?: __sidex_types.builtins.String
   type: __sidex_types.builtins.String
-  licenses: __sidex_types.builtins.Sequence<__sidex_types.builtins.String>
+  licenses: __sidex_types.builtins.String[]
   supplier?: __sidex_types.builtins.String
   description?: __sidex_types.builtins.String /**
    * Vulnerability counts after VEX application.
@@ -378,6 +704,36 @@ export type PackageVersionComponent = {
   vulnSummary?: SeveritySummary
 }
 
+export const PackageVersionComponent = {
+  ...__sidex_types.checker<PackageVersionComponent>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["artifactFilename", __sidex_types.builtin("string"), false],
+          ["bomRef", __sidex_types.builtin("string"), false],
+          ["purl", __sidex_types.builtin("string"), true],
+          ["name", __sidex_types.builtin("string"), false],
+          ["version", __sidex_types.builtin("string"), true],
+          ["type", __sidex_types.builtin("string"), false],
+          [
+            "licenses",
+            __sidex_types.sequence(__sidex_types.builtin("string")),
+            false,
+          ],
+          ["supplier", __sidex_types.builtin("string"), true],
+          ["description", __sidex_types.builtin("string"), true],
+          [
+            "vulnSummary",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => SeveritySummary,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * @experimental (feature `vulnerability_management`)
  */
@@ -390,21 +746,40 @@ export type QueryPackageVersionFindingsAction = {
    */
   minSeverity?: __sidex_types.builtins.String
 }
+
 export const QueryPackageVersionFindingsAction = {
+  ...__sidex_types.checker<QueryPackageVersionFindingsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.PackageVersionId,
+            ),
+            false,
+          ],
+          ["artifactFilename", __sidex_types.builtin("string"), true],
+          ["minSeverity", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: QueryPackageVersionFindingsAction,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
     if (
-      __instance.artifactFilename !== undefined &&
-      __instance.artifactFilename !== null
+      __instance["artifactFilename"] !== undefined &&
+      __instance["artifactFilename"] !== null
     ) {
       const __field_path = __path.field("artifactFilename")
       __report.merge(
         __validate.minInclusive(
           __validate.charCount(
-            __instance.artifactFilename as unknown as string,
+            __instance["artifactFilename"] as unknown as string,
           ),
           1,
           "min_size",
@@ -416,7 +791,7 @@ export const QueryPackageVersionFindingsAction = {
       __report.merge(
         __validate.maxInclusive(
           __validate.charCount(
-            __instance.artifactFilename as unknown as string,
+            __instance["artifactFilename"] as unknown as string,
           ),
           256,
           "max_size",
@@ -426,13 +801,13 @@ export const QueryPackageVersionFindingsAction = {
       )
     }
     if (
-      __instance.minSeverity !== undefined &&
-      __instance.minSeverity !== null
+      __instance["minSeverity"] !== undefined &&
+      __instance["minSeverity"] !== null
     ) {
       const __field_path = __path.field("minSeverity")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.minSeverity as unknown as string),
+          __validate.charCount(__instance["minSeverity"] as unknown as string),
           1,
           "min_size",
           "Severity must be between 1 and 32 characters.",
@@ -442,7 +817,7 @@ export const QueryPackageVersionFindingsAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.minSeverity as unknown as string),
+          __validate.charCount(__instance["minSeverity"] as unknown as string),
           32,
           "max_size",
           "Severity must be between 1 and 32 characters.",
@@ -516,9 +891,29 @@ export const QueryPackageVersionFindingsAction = {
 }
 export type QueryPackageVersionFindingsOutput = {
   indexingEnabled: __sidex_types.builtins.Bool
-  findings: __sidex_types.builtins.Sequence<PackageVersionFinding>
+  findings: PackageVersionFinding[]
 }
 
+export const QueryPackageVersionFindingsOutput = {
+  ...__sidex_types.checker<QueryPackageVersionFindingsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["indexingEnabled", __sidex_types.builtin("bool"), false],
+          [
+            "findings",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => PackageVersionFinding,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 export type PackageVersionFinding = {
   artifactFilename: __sidex_types.builtins.String
   componentPurl: __sidex_types.builtins.String
@@ -538,6 +933,41 @@ export type PackageVersionFinding = {
    * `will_not_fix`, `update`, `workaround_available`). Empty when
    * no statement applies or the statement records no responses.
    */
-  responses: __sidex_types.builtins.Sequence<__sidex_types.builtins.String>
+  responses: __sidex_types.builtins.String[]
   stateOrigin?: VexStatementOrigin
+}
+
+export const PackageVersionFinding = {
+  ...__sidex_types.checker<PackageVersionFinding>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["artifactFilename", __sidex_types.builtin("string"), false],
+          ["componentPurl", __sidex_types.builtin("string"), false],
+          ["componentName", __sidex_types.builtin("string"), false],
+          ["componentVersion", __sidex_types.builtin("string"), true],
+          ["vulnerabilityId", __sidex_types.builtin("string"), false],
+          ["severity", __sidex_types.builtin("string"), false],
+          ["cvssScore", __sidex_types.builtin("f64"), true],
+          ["description", __sidex_types.builtin("string"), true],
+          ["sourceTool", __sidex_types.builtin("string"), true],
+          ["effectiveState", __sidex_types.builtin("string"), false],
+          ["justification", __sidex_types.builtin("string"), true],
+          ["detail", __sidex_types.builtin("string"), true],
+          [
+            "responses",
+            __sidex_types.sequence(__sidex_types.builtin("string")),
+            false,
+          ],
+          [
+            "stateOrigin",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => VexStatementOrigin,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
 }

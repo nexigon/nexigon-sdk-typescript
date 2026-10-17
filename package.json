@@ -25,7 +25,7 @@
     "test": "vitest run"
   },
   "engines": {
-    "node": ">=20"
+    "node": "^20.19.0 || >=22.12.0"
   },
   "publishConfig": {
     "access": "public"
@@ -36,8 +36,8 @@
     "directory": "public/nexigon-sdk-typescript"
   },
   "dependencies": {
-    "@sidex/types": "^0.0.8",
-    "@sidex/validate": "^0.1.0",
+    "@sidex/types": "^0.4.1",
+    "@sidex/validate": "^0.4.1",
     "ws": "^8.18.3"
   },
   "devDependencies": {

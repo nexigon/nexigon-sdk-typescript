@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -35,16 +37,76 @@ export type Actor =
   | ({ actor: "ClusterNode" } & ClusterNodeActor)
   | ({ actor: "OrganizationApiToken" } & OrganizationApiTokenActor)
 
+export const Actor = {
+  ...__sidex_types.checker<Actor>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "actor", [
+        [
+          "Anonymous",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => AnonymousActor,
+          ),
+          null,
+        ],
+        [
+          "System",
+          __sidex_types.lazy((): __sidex_types.Checker<unknown> => SystemActor),
+          null,
+        ],
+        [
+          "Device",
+          __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceActor),
+          null,
+        ],
+        [
+          "User",
+          __sidex_types.lazy((): __sidex_types.Checker<unknown> => UserActor),
+          null,
+        ],
+        [
+          "UserToken",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => UserTokenActor,
+          ),
+          null,
+        ],
+        [
+          "ClusterNode",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => ClusterNodeActor,
+          ),
+          null,
+        ],
+        [
+          "OrganizationApiToken",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => OrganizationApiTokenActor,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
 /**
  * Anonymous actor, typically used for unauthenticated actions.
  */
-export type AnonymousActor = Record<string, never>
+export type AnonymousActor = Record<string, unknown>
 
+export const AnonymousActor = {
+  ...__sidex_types.checker<AnonymousActor>(
+    (): __sidex_types.Check => __sidex_types.record([], []),
+  ),
+}
 /**
  * System actor, typically used for internal actions.
  */
-export type SystemActor = Record<string, never>
+export type SystemActor = Record<string, unknown>
 
+export const SystemActor = {
+  ...__sidex_types.checker<SystemActor>(
+    (): __sidex_types.Check => __sidex_types.record([], []),
+  ),
+}
 /**
  * Device authenticated via a specific deployment token.
  */
@@ -58,6 +120,31 @@ export type DeviceActor = {
   tokenId: __schema_projects.DeploymentTokenId
 }
 
+export const DeviceActor = {
+  ...__sidex_types.checker<DeviceActor>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_devices.DeviceId,
+            ),
+            false,
+          ],
+          [
+            "tokenId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_projects.DeploymentTokenId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * User authenticated via a user session.
  */
@@ -68,6 +155,23 @@ export type UserActor = {
   userId: __schema_users.UserId
 }
 
+export const UserActor = {
+  ...__sidex_types.checker<UserActor>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "userId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_users.UserId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * User authenticated via a specific token.
  */
@@ -81,6 +185,30 @@ export type UserTokenActor = {
   tokenId: __schema_users.UserTokenId
 }
 
+export const UserTokenActor = {
+  ...__sidex_types.checker<UserTokenActor>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "userId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_users.UserId,
+            ),
+            false,
+          ],
+          [
+            "tokenId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_users.UserTokenId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Cluster node.
  */
@@ -91,6 +219,24 @@ export type ClusterNodeActor = {
   nodeId: __schema_cluster.ClusterNodeId
 }
 
+export const ClusterNodeActor = {
+  ...__sidex_types.checker<ClusterNodeActor>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "nodeId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_cluster.ClusterNodeId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Organization API token actor.
  */
@@ -104,13 +250,44 @@ export type OrganizationApiTokenActor = {
   tokenId: __schema_organizations.OrganizationApiTokenId
 }
 
+export const OrganizationApiTokenActor = {
+  ...__sidex_types.checker<OrganizationApiTokenActor>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_organizations.OrganizationId,
+            ),
+            false,
+          ],
+          [
+            "tokenId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_organizations.OrganizationApiTokenId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Get the actor.
  *
  * This action is used to get the actor that is used to invoke the action.
  */
-export type GetActorAction = Record<string, never>
+export type GetActorAction = Record<string, unknown>
 
+export const GetActorAction = {
+  ...__sidex_types.checker<GetActorAction>(
+    (): __sidex_types.Check => __sidex_types.record([], []),
+  ),
+}
 /**
  * Output of getting the actor.
  */
@@ -119,4 +296,20 @@ export type GetActorOutput = {
    * The actor.
    */
   actor: Actor
+}
+
+export const GetActorOutput = {
+  ...__sidex_types.checker<GetActorOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "actor",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => Actor),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
 }

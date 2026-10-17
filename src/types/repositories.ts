@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -31,6 +33,11 @@ export type RepositoryId = __sidex_types.Nominal<
   "::nexigon_api::repositories::RepositoryId"
 >
 
+export const RepositoryId = {
+  ...__sidex_types.checker<RepositoryId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Unique ID of a repository asset.
  */
@@ -39,6 +46,11 @@ export type RepositoryAssetId = __sidex_types.Nominal<
   "::nexigon_api::repositories::RepositoryAssetId"
 >
 
+export const RepositoryAssetId = {
+  ...__sidex_types.checker<RepositoryAssetId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Unique ID of a package.
  */
@@ -47,6 +59,11 @@ export type PackageId = __sidex_types.Nominal<
   "::nexigon_api::repositories::PackageId"
 >
 
+export const PackageId = {
+  ...__sidex_types.checker<PackageId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Unique ID of a package version.
  */
@@ -55,18 +72,101 @@ export type PackageVersionId = __sidex_types.Nominal<
   "::nexigon_api::repositories::PackageVersionId"
 >
 
+export const PackageVersionId = {
+  ...__sidex_types.checker<PackageVersionId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Asset status.
  */
 export type RepositoryAssetStatus = "Dangling" | "Available" | "Deleting"
 
+export const RepositoryAssetStatus = {
+  ...__sidex_types.checker<RepositoryAssetStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Dangling", null, null],
+        ["Available", null, null],
+        ["Deleting", null, null],
+      ]),
+  ),
+}
+/**
+ * Result of the latest non-destructive object-storage check.
+ */
+export type RepositoryAssetStorageStatus =
+  | "Unknown"
+  | "Present"
+  | "Verified"
+  | "Missing"
+  | "Mismatched"
+  | "Error"
+
+export const RepositoryAssetStorageStatus = {
+  ...__sidex_types.checker<RepositoryAssetStorageStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Unknown", null, null],
+        ["Present", null, null],
+        ["Verified", null, null],
+        ["Missing", null, null],
+        ["Mismatched", null, null],
+        ["Error", null, null],
+      ]),
+  ),
+}
+/**
+ * Latest object-storage check for an asset.
+ */
+export type RepositoryAssetStorage = {
+  status: RepositoryAssetStorageStatus
+  checkedAt?: __schema_datetime.Timestamp
+  detail?: __sidex_types.builtins.String
+}
+
+export const RepositoryAssetStorage = {
+  ...__sidex_types.checker<RepositoryAssetStorage>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                RepositoryAssetStorageStatus,
+            ),
+            false,
+          ],
+          [
+            "checkedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          ["detail", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Repository visibility.
  */
 export type RepositoryVisibility = "Public" | "Private"
 
+export const RepositoryVisibility = {
+  ...__sidex_types.checker<RepositoryVisibility>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Public", null, null],
+        ["Private", null, null],
+      ]),
+  ),
+}
 /**
- * Repository S3 config.
+ * S3 connection settings for a repository or organization.
  */
 export type RepositoryS3Config = {
   /**
@@ -79,9 +179,13 @@ export type RepositoryS3Config = {
    * AWS region (required by AWS, may be NULL for MinIO/other providers).
    */
   region?: __sidex_types.builtins.String /**
-   * Optional prefix inside the bucket to scope this repository.
+   * Optional bucket prefix. Organization storage adds `repositories/<repository-id>/`.
    */
   prefix?: __sidex_types.builtins.String /**
+   * Force path-style bucket addressing.
+   * By default, Nexigon uses virtual-hosted addressing.
+   */
+  forcePathStyle?: __sidex_types.builtins.Bool /**
    * S3 access key ID (not sensitive, can be plain text).
    */
   accessKeyId: __sidex_types.builtins.String /**
@@ -89,7 +193,23 @@ export type RepositoryS3Config = {
    */
   secretAccessKey?: __sidex_types.builtins.String
 }
+
 export const RepositoryS3Config = {
+  ...__sidex_types.checker<RepositoryS3Config>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["endpoint", __sidex_types.builtin("string"), false],
+          ["bucket", __sidex_types.builtin("string"), false],
+          ["region", __sidex_types.builtin("string"), true],
+          ["prefix", __sidex_types.builtin("string"), true],
+          ["forcePathStyle", __sidex_types.builtin("bool"), true],
+          ["accessKeyId", __sidex_types.builtin("string"), false],
+          ["secretAccessKey", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: RepositoryS3Config,
     __path: __validate.Path = __validate.Path.root(),
@@ -99,7 +219,7 @@ export const RepositoryS3Config = {
       const __field_path = __path.field("endpoint")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.endpoint as unknown as string),
+          __validate.charCount(__instance["endpoint"] as unknown as string),
           1,
           "min_size",
           "S3 endpoint must be between 1 and 2048 characters.",
@@ -109,7 +229,7 @@ export const RepositoryS3Config = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.endpoint as unknown as string),
+          __validate.charCount(__instance["endpoint"] as unknown as string),
           2048,
           "max_size",
           "S3 endpoint must be between 1 and 2048 characters.",
@@ -119,7 +239,7 @@ export const RepositoryS3Config = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.endpoint,
+          __instance["endpoint"],
           "^https?://",
           "format:url",
           "S3 endpoint must be an HTTP(S) URL.",
@@ -131,7 +251,7 @@ export const RepositoryS3Config = {
       const __field_path = __path.field("bucket")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.bucket as unknown as string),
+          __validate.charCount(__instance["bucket"] as unknown as string),
           3,
           "min_size",
           "S3 bucket name must be between 3 and 63 characters.",
@@ -141,7 +261,7 @@ export const RepositoryS3Config = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.bucket as unknown as string),
+          __validate.charCount(__instance["bucket"] as unknown as string),
           63,
           "max_size",
           "S3 bucket name must be between 3 and 63 characters.",
@@ -151,7 +271,7 @@ export const RepositoryS3Config = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.bucket,
+          __instance["bucket"],
           "^[a-z0-9][a-z0-9.-]*[a-z0-9]$",
           "format:s3_bucket",
           "S3 bucket name must use only lowercase letters, digits, dots, and hyphens, and start and end with a letter or digit.",
@@ -159,11 +279,11 @@ export const RepositoryS3Config = {
         ),
       )
     }
-    if (__instance.region !== undefined && __instance.region !== null) {
+    if (__instance["region"] !== undefined && __instance["region"] !== null) {
       const __field_path = __path.field("region")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.region as unknown as string),
+          __validate.charCount(__instance["region"] as unknown as string),
           1,
           "min_size",
           "AWS region must be between 1 and 64 characters.",
@@ -173,7 +293,7 @@ export const RepositoryS3Config = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.region as unknown as string),
+          __validate.charCount(__instance["region"] as unknown as string),
           64,
           "max_size",
           "AWS region must be between 1 and 64 characters.",
@@ -181,11 +301,11 @@ export const RepositoryS3Config = {
         ),
       )
     }
-    if (__instance.prefix !== undefined && __instance.prefix !== null) {
+    if (__instance["prefix"] !== undefined && __instance["prefix"] !== null) {
       const __field_path = __path.field("prefix")
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.prefix as unknown as string),
+          __validate.charCount(__instance["prefix"] as unknown as string),
           1024,
           "max_size",
           "Bucket prefix must be at most 1024 characters.",
@@ -197,7 +317,7 @@ export const RepositoryS3Config = {
       const __field_path = __path.field("accessKeyId")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.accessKeyId as unknown as string),
+          __validate.charCount(__instance["accessKeyId"] as unknown as string),
           1,
           "min_size",
           "Access key ID must be between 1 and 256 characters.",
@@ -207,7 +327,7 @@ export const RepositoryS3Config = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.accessKeyId as unknown as string),
+          __validate.charCount(__instance["accessKeyId"] as unknown as string),
           256,
           "max_size",
           "Access key ID must be between 1 and 256 characters.",
@@ -216,13 +336,15 @@ export const RepositoryS3Config = {
       )
     }
     if (
-      __instance.secretAccessKey !== undefined &&
-      __instance.secretAccessKey !== null
+      __instance["secretAccessKey"] !== undefined &&
+      __instance["secretAccessKey"] !== null
     ) {
       const __field_path = __path.field("secretAccessKey")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.secretAccessKey as unknown as string),
+          __validate.charCount(
+            __instance["secretAccessKey"] as unknown as string,
+          ),
           1,
           "min_size",
           "Secret access key must be between 1 and 256 characters.",
@@ -232,7 +354,9 @@ export const RepositoryS3Config = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.secretAccessKey as unknown as string),
+          __validate.charCount(
+            __instance["secretAccessKey"] as unknown as string,
+          ),
           256,
           "max_size",
           "Secret access key must be between 1 and 256 characters.",
@@ -439,7 +563,15 @@ export type ResolveRepositoryNameAction = {
    */
   repository: __sidex_types.builtins.String
 }
+
 export const ResolveRepositoryNameAction = {
+  ...__sidex_types.checker<ResolveRepositoryNameAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [["repository", __sidex_types.builtin("string"), false]],
+        [],
+      ),
+  ),
   validate(
     __instance: ResolveRepositoryNameAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -449,7 +581,7 @@ export const ResolveRepositoryNameAction = {
       const __field_path = __path.field("repository")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.repository as unknown as string),
+          __validate.charCount(__instance["repository"] as unknown as string),
           1,
           "min_size",
           "Repository name must be between 1 and 128 characters.",
@@ -459,7 +591,7 @@ export const ResolveRepositoryNameAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.repository as unknown as string),
+          __validate.charCount(__instance["repository"] as unknown as string),
           128,
           "max_size",
           "Repository name must be between 1 and 128 characters.",
@@ -469,7 +601,7 @@ export const ResolveRepositoryNameAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.repository,
+          __instance["repository"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:repository_name",
           "Repository name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -529,6 +661,21 @@ export type ResolveRepositoryNameOutput =
   | { result: "Found"; repositoryId: RepositoryId }
   | { result: "NotFound" }
 
+export const ResolveRepositoryNameOutput = {
+  ...__sidex_types.checker<ResolveRepositoryNameOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        [
+          "Found",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => RepositoryId,
+          ),
+          "repositoryId",
+        ],
+        ["NotFound", null, null],
+      ]),
+  ),
+}
 /**
  * Get information about a repository.
  */
@@ -539,6 +686,23 @@ export type GetRepositoryDetailsAction = {
   repositoryId: RepositoryId
 }
 
+export const GetRepositoryDetailsAction = {
+  ...__sidex_types.checker<GetRepositoryDetailsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of getting information about a repository.
  */
@@ -571,6 +735,35 @@ export type GetRepositoryDetailsOutput = {
   assetCount: __sidex_types.builtins.U64
 }
 
+export const GetRepositoryDetailsOutput = {
+  ...__sidex_types.checker<GetRepositoryDetailsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+          ["displayName", __sidex_types.builtin("string"), false],
+          ["slug", __sidex_types.builtin("string"), true],
+          ["publicName", __sidex_types.builtin("string"), false],
+          [
+            "visibility",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryVisibility,
+            ),
+            false,
+          ],
+          ["packageCount", __sidex_types.builtin("u64"), false],
+          ["assetCount", __sidex_types.builtin("u64"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Create a new repository.
  */
@@ -591,7 +784,32 @@ export type CreateRepositoryAction = {
    */
   visibility?: RepositoryVisibility
 }
+
 export const CreateRepositoryAction = {
+  ...__sidex_types.checker<CreateRepositoryAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_organizations.OrganizationId,
+            ),
+            false,
+          ],
+          ["displayName", __sidex_types.builtin("string"), false],
+          [
+            "visibility",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryVisibility,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: CreateRepositoryAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -601,7 +819,7 @@ export const CreateRepositoryAction = {
       const __field_path = __path.field("displayName")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.displayName as unknown as string),
+          __validate.charCount(__instance["displayName"] as unknown as string),
           1,
           "min_size",
           "Display name must be between 1 and 128 characters.",
@@ -611,7 +829,7 @@ export const CreateRepositoryAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.displayName as unknown as string),
+          __validate.charCount(__instance["displayName"] as unknown as string),
           128,
           "max_size",
           "Display name must be between 1 and 128 characters.",
@@ -661,6 +879,21 @@ export type CreateRepositoryOutput =
   | { result: "NameAlreadyExists" }
   | ({ result: "Created" } & CreateRepositorySuccess)
 
+export const CreateRepositoryOutput = {
+  ...__sidex_types.checker<CreateRepositoryOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["NameAlreadyExists", null, null],
+        [
+          "Created",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => CreateRepositorySuccess,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
 /**
  * Successfully created a repository.
  */
@@ -671,6 +904,23 @@ export type CreateRepositorySuccess = {
   repositoryId: RepositoryId
 }
 
+export const CreateRepositorySuccess = {
+  ...__sidex_types.checker<CreateRepositorySuccess>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Delete a repository.
  */
@@ -681,6 +931,23 @@ export type DeleteRepositoryAction = {
   repositoryId: RepositoryId
 }
 
+export const DeleteRepositoryAction = {
+  ...__sidex_types.checker<DeleteRepositoryAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set the visibility of a repository.
  */
@@ -694,6 +961,30 @@ export type SetRepositoryVisibilityAction = {
   visibility: RepositoryVisibility
 }
 
+export const SetRepositoryVisibilityAction = {
+  ...__sidex_types.checker<SetRepositoryVisibilityAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+          [
+            "visibility",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryVisibility,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set the display name of a repository.
  */
@@ -706,7 +997,24 @@ export type SetRepositoryDisplayNameAction = {
    */
   displayName: __sidex_types.builtins.String
 }
+
 export const SetRepositoryDisplayNameAction = {
+  ...__sidex_types.checker<SetRepositoryDisplayNameAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+          ["displayName", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetRepositoryDisplayNameAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -716,7 +1024,7 @@ export const SetRepositoryDisplayNameAction = {
       const __field_path = __path.field("displayName")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.displayName as unknown as string),
+          __validate.charCount(__instance["displayName"] as unknown as string),
           1,
           "min_size",
           "Display name must be between 1 and 128 characters.",
@@ -726,7 +1034,7 @@ export const SetRepositoryDisplayNameAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.displayName as unknown as string),
+          __validate.charCount(__instance["displayName"] as unknown as string),
           128,
           "max_size",
           "Display name must be between 1 and 128 characters.",
@@ -783,7 +1091,24 @@ export type SetRepositorySlugAction = {
    */
   slug: __sidex_types.builtins.String
 }
+
 export const SetRepositorySlugAction = {
+  ...__sidex_types.checker<SetRepositorySlugAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+          ["slug", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetRepositorySlugAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -793,7 +1118,7 @@ export const SetRepositorySlugAction = {
       const __field_path = __path.field("slug")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.slug as unknown as string),
+          __validate.charCount(__instance["slug"] as unknown as string),
           1,
           "min_size",
           "Repository slug must be between 1 and 128 characters.",
@@ -803,7 +1128,7 @@ export const SetRepositorySlugAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.slug as unknown as string),
+          __validate.charCount(__instance["slug"] as unknown as string),
           128,
           "max_size",
           "Repository slug must be between 1 and 128 characters.",
@@ -813,7 +1138,7 @@ export const SetRepositorySlugAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.slug,
+          __instance["slug"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:repository_slug",
           "Repository slug must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -873,6 +1198,15 @@ export type SetRepositorySlugOutput =
   | { result: "SlugAlreadyExists" }
   | { result: "Success" }
 
+export const SetRepositorySlugOutput = {
+  ...__sidex_types.checker<SetRepositorySlugOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["SlugAlreadyExists", null, null],
+        ["Success", null, null],
+      ]),
+  ),
+}
 /**
  * Query the packages of a repository.
  */
@@ -883,6 +1217,23 @@ export type QueryRepositoryPackagesAction = {
   repositoryId: RepositoryId
 }
 
+export const QueryRepositoryPackagesAction = {
+  ...__sidex_types.checker<QueryRepositoryPackagesAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the packages of a repository.
  */
@@ -890,14 +1241,37 @@ export type QueryRepositoryPackagesOutput = {
   /**
    * List of packages.
    */
-  packages: __sidex_types.builtins.Sequence<QueryRepositoryPackagesItem>
+  packages: QueryRepositoryPackagesItem[]
 }
 
+export const QueryRepositoryPackagesOutput = {
+  ...__sidex_types.checker<QueryRepositoryPackagesOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packages",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  QueryRepositoryPackagesItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Package query item.
  */
 export type QueryRepositoryPackagesItem = {
   /**
+   * Human-readable name, falling back to `name` when absent.
+   */
+  displayName?: __sidex_types.builtins.String /**
    * ID of the package.
    */
   packageId: PackageId /**
@@ -912,6 +1286,31 @@ export type QueryRepositoryPackagesItem = {
   createdAt: __schema_datetime.Timestamp
 }
 
+export const QueryRepositoryPackagesItem = {
+  ...__sidex_types.checker<QueryRepositoryPackagesItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["displayName", __sidex_types.builtin("string"), true],
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          ["kind", __sidex_types.builtin("string"), true],
+          [
+            "createdAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the assets of a repository.
  */
@@ -919,9 +1318,86 @@ export type QueryRepositoryAssetsAction = {
   /**
    * ID of the repository.
    */
-  repositoryId: RepositoryId
+  repositoryId: RepositoryId /**
+   * Bounded cursor page. Omission preserves the legacy unbounded response.
+   */
+  page?: __schema_pagination.PageRequest /**
+   * Defaults to all assets. Totals always cover the whole repository.
+   */
+  filter?: RepositoryAssetFilter /**
+   * Defaults to largest first for pages, creation order for legacy requests.
+   */
+  sort?: RepositoryAssetSort
 }
 
+export const QueryRepositoryAssetsAction = {
+  ...__sidex_types.checker<QueryRepositoryAssetsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageRequest,
+            ),
+            true,
+          ],
+          [
+            "filter",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetFilter,
+            ),
+            true,
+          ],
+          [
+            "sort",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetSort,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Restrict the asset inventory without changing repository totals.
+ */
+export type RepositoryAssetFilter = "All" | "Unused" | "Issues"
+
+export const RepositoryAssetFilter = {
+  ...__sidex_types.checker<RepositoryAssetFilter>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["All", null, null],
+        ["Unused", null, null],
+        ["Issues", null, null],
+      ]),
+  ),
+}
+/**
+ * Asset ordering, with a stable internal ID as the tie breaker.
+ */
+export type RepositoryAssetSort = "Largest" | "CleanupDate"
+
+export const RepositoryAssetSort = {
+  ...__sidex_types.checker<RepositoryAssetSort>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Largest", null, null],
+        ["CleanupDate", null, null],
+      ]),
+  ),
+}
 /**
  * Output of querying the assets of a repository.
  */
@@ -929,14 +1405,376 @@ export type QueryRepositoryAssetsOutput = {
   /**
    * List of assets.
    */
-  assets: __sidex_types.builtins.Sequence<QueryRepositoryAssetsItem>
+  assets: QueryRepositoryAssetsItem[] /**
+   * Repository-wide storage totals. Absent on older Hubs.
+   */
+  usage?: RepositoryAssetUsage /**
+   * Automatic cleanup policy. Absent on older Hubs.
+   */
+  cleanup?: RepositoryAssetCleanupSettings /**
+   * Continuation for a requested page. Absent for legacy requests.
+   */
+  page?: __schema_pagination.PageInfo
 }
 
+export const QueryRepositoryAssetsOutput = {
+  ...__sidex_types.checker<QueryRepositoryAssetsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "assets",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => QueryRepositoryAssetsItem,
+              ),
+            ),
+            false,
+          ],
+          [
+            "usage",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetUsage,
+            ),
+            true,
+          ],
+          [
+            "cleanup",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                RepositoryAssetCleanupSettings,
+            ),
+            true,
+          ],
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageInfo,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Automatic cleanup policy for unused repository assets.
+ */
+export type RepositoryAssetCleanupSettings = {
+  enabled: __sidex_types.builtins.Bool /**
+   * Whole days without package references before automatic deletion.
+   */
+  graceDays: __sidex_types.builtins.U16 /**
+   * Most recent enablement. Existing unused assets receive a full grace period.
+   */
+  enabledAt?: __schema_datetime.Timestamp
+}
+
+export const RepositoryAssetCleanupSettings = {
+  ...__sidex_types.checker<RepositoryAssetCleanupSettings>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["enabled", __sidex_types.builtin("bool"), false],
+          ["graceDays", __sidex_types.builtin("u16"), false],
+          [
+            "enabledAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Storage totals count each asset once, regardless of its reference count.
+ */
+export type RepositoryAssetUsage = {
+  assetCount: __sidex_types.builtins.U64 /**
+   * Bytes of objects last observed present or verified, including pending deletions.
+   */
+  storedBytes: __sidex_types.builtins.U64 /**
+   * Stored bytes with at least one package or version attachment.
+   */
+  referencedBytes: __sidex_types.builtins.U64 /**
+   * Stored bytes without package or version attachments.
+   */
+  unusedBytes: __sidex_types.builtins.U64 /**
+   * Declared bytes whose presence is unknown, missing, or inconsistent.
+   */
+  unconfirmedBytes: __sidex_types.builtins.U64 /**
+   * Number of assets with unknown, missing, inconsistent, or failed storage checks.
+   */
+  unconfirmedCount: __sidex_types.builtins.U64 /**
+   * Number of assets with a failed deletion attempt.
+   */
+  cleanupErrorCount: __sidex_types.builtins.U64 /**
+   * Oldest storage observation among stored assets.
+   */
+  checkedAt?: __schema_datetime.Timestamp
+}
+
+export const RepositoryAssetUsage = {
+  ...__sidex_types.checker<RepositoryAssetUsage>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["assetCount", __sidex_types.builtin("u64"), false],
+          ["storedBytes", __sidex_types.builtin("u64"), false],
+          ["referencedBytes", __sidex_types.builtin("u64"), false],
+          ["unusedBytes", __sidex_types.builtin("u64"), false],
+          ["unconfirmedBytes", __sidex_types.builtin("u64"), false],
+          ["unconfirmedCount", __sidex_types.builtin("u64"), false],
+          ["cleanupErrorCount", __sidex_types.builtin("u64"), false],
+          [
+            "checkedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Retention information, independent of object-storage verification.
+ */
+export type RepositoryAssetLifecycle = {
+  referenceCount: __sidex_types.builtins.U64
+  unreferencedSince?: __schema_datetime.Timestamp /**
+   * Earliest automatic deletion time; absent while cleanup is disabled or referenced.
+   */
+  eligibleAt?: __schema_datetime.Timestamp
+  deletionStartedAt?: __schema_datetime.Timestamp /**
+   * Sanitized reason for the latest cleanup failure.
+   */
+  deletionError?: __sidex_types.builtins.String
+}
+
+export const RepositoryAssetLifecycle = {
+  ...__sidex_types.checker<RepositoryAssetLifecycle>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["referenceCount", __sidex_types.builtin("u64"), false],
+          [
+            "unreferencedSince",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          [
+            "eligibleAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          [
+            "deletionStartedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          ["deletionError", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Configure automatic cleanup. Requires permission to manage repository settings.
+ */
+export type SetRepositoryAssetCleanupAction = {
+  repositoryId: RepositoryId
+  enabled: __sidex_types.builtins.Bool
+  graceDays: __sidex_types.builtins.U16
+}
+
+export const SetRepositoryAssetCleanupAction = {
+  ...__sidex_types.checker<SetRepositoryAssetCleanupAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+          ["enabled", __sidex_types.builtin("bool"), false],
+          ["graceDays", __sidex_types.builtin("u16"), false],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: SetRepositoryAssetCleanupAction,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("graceDays")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.numeric(__instance["graceDays"] as any),
+          1,
+          "min",
+          "Grace period must be at least one day.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    graceDays: {
+      validate(
+        __value: __sidex_types.builtins.U16,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.numeric(__value as any),
+            1,
+            "min",
+            "Grace period must be at least one day.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * List the package attachments retaining a repository asset.
+ */
+export type GetAssetReferencesAction = {
+  assetId: RepositoryAssetId /**
+   * Bounded cursor page. Omission preserves the legacy unbounded response.
+   */
+  page?: __schema_pagination.PageRequest
+}
+
+export const GetAssetReferencesAction = {
+  ...__sidex_types.checker<GetAssetReferencesAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+            ),
+            false,
+          ],
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageRequest,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+export type GetAssetReferencesOutput = {
+  references: RepositoryAssetReference[] /**
+   * Package attachments precede version attachments, each in stable ID order.
+   */
+  page?: __schema_pagination.PageInfo
+}
+
+export const GetAssetReferencesOutput = {
+  ...__sidex_types.checker<GetAssetReferencesOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "references",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => RepositoryAssetReference,
+              ),
+            ),
+            false,
+          ],
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageInfo,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * One retaining package or version attachment.
+ */
+export type RepositoryAssetReference = {
+  packageId: PackageId
+  packageName: __sidex_types.builtins.String /**
+   * Absent for a package-level attachment.
+   */
+  versionId?: PackageVersionId
+  versionName?: __sidex_types.builtins.String
+  filename: __sidex_types.builtins.String
+}
+
+export const RepositoryAssetReference = {
+  ...__sidex_types.checker<RepositoryAssetReference>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          ["packageName", __sidex_types.builtin("string"), false],
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            true,
+          ],
+          ["versionName", __sidex_types.builtin("string"), true],
+          ["filename", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Asset query item.
  */
 export type QueryRepositoryAssetsItem = {
   /**
+   * Reference count and cleanup status. Absent on older Hubs.
+   */
+  lifecycle?: RepositoryAssetLifecycle /**
    * ID of the asset.
    */
   assetId: RepositoryAssetId /**
@@ -945,9 +1783,51 @@ export type QueryRepositoryAssetsItem = {
   size: __sidex_types.builtins.U64 /**
    * Digest of the asset.
    */
-  digest: __schema_digest.Digest
+  digest: __schema_digest.Digest /**
+   * Latest storage check. Absent when connected to an older Hub.
+   */
+  storage?: RepositoryAssetStorage
 }
 
+export const QueryRepositoryAssetsItem = {
+  ...__sidex_types.checker<QueryRepositoryAssetsItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "lifecycle",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetLifecycle,
+            ),
+            true,
+          ],
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+            ),
+            false,
+          ],
+          ["size", __sidex_types.builtin("u64"), false],
+          [
+            "digest",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_digest.Digest,
+            ),
+            false,
+          ],
+          [
+            "storage",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetStorage,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query repository projects.
  */
@@ -958,6 +1838,23 @@ export type QueryRepositoryProjectsAction = {
   repositoryId: RepositoryId
 }
 
+export const QueryRepositoryProjectsAction = {
+  ...__sidex_types.checker<QueryRepositoryProjectsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the projects of a repository.
  */
@@ -965,9 +1862,29 @@ export type QueryRepositoryProjectsOutput = {
   /**
    * List of projects.
    */
-  projects: __sidex_types.builtins.Sequence<QueryRepositoryProjectsItem>
+  projects: QueryRepositoryProjectsItem[]
 }
 
+export const QueryRepositoryProjectsOutput = {
+  ...__sidex_types.checker<QueryRepositoryProjectsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projects",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  QueryRepositoryProjectsItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Project item.
  */
@@ -981,6 +1898,24 @@ export type QueryRepositoryProjectsItem = {
   name: __sidex_types.builtins.String
 }
 
+export const QueryRepositoryProjectsItem = {
+  ...__sidex_types.checker<QueryRepositoryProjectsItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Resolve a package by its path.
  */
@@ -993,7 +1928,18 @@ export type ResolvePackageByPathAction = {
    */
   package: __sidex_types.builtins.String
 }
+
 export const ResolvePackageByPathAction = {
+  ...__sidex_types.checker<ResolvePackageByPathAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["repository", __sidex_types.builtin("string"), false],
+          ["package", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: ResolvePackageByPathAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -1003,7 +1949,7 @@ export const ResolvePackageByPathAction = {
       const __field_path = __path.field("repository")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.repository as unknown as string),
+          __validate.charCount(__instance["repository"] as unknown as string),
           1,
           "min_size",
           "Repository name must be between 1 and 128 characters.",
@@ -1013,7 +1959,7 @@ export const ResolvePackageByPathAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.repository as unknown as string),
+          __validate.charCount(__instance["repository"] as unknown as string),
           128,
           "max_size",
           "Repository name must be between 1 and 128 characters.",
@@ -1023,7 +1969,7 @@ export const ResolvePackageByPathAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.repository,
+          __instance["repository"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:repository_name",
           "Repository name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -1035,7 +1981,7 @@ export const ResolvePackageByPathAction = {
       const __field_path = __path.field("package")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.package as unknown as string),
+          __validate.charCount(__instance["package"] as unknown as string),
           1,
           "min_size",
           "Package name must be between 1 and 128 characters.",
@@ -1045,7 +1991,7 @@ export const ResolvePackageByPathAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.package as unknown as string),
+          __validate.charCount(__instance["package"] as unknown as string),
           128,
           "max_size",
           "Package name must be between 1 and 128 characters.",
@@ -1055,7 +2001,7 @@ export const ResolvePackageByPathAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.package,
+          __instance["package"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:package_name",
           "Package name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -1154,6 +2100,21 @@ export type ResolvePackageByPathOutput =
   | ({ result: "Found" } & ResolvePackageByPathSuccess)
   | { result: "NotFound" }
 
+export const ResolvePackageByPathOutput = {
+  ...__sidex_types.checker<ResolvePackageByPathOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        [
+          "Found",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => ResolvePackageByPathSuccess,
+          ),
+          null,
+        ],
+        ["NotFound", null, null],
+      ]),
+  ),
+}
 /**
  * Successfully resolved package by path.
  */
@@ -1167,6 +2128,28 @@ export type ResolvePackageByPathSuccess = {
   packageId: PackageId
 }
 
+export const ResolvePackageByPathSuccess = {
+  ...__sidex_types.checker<ResolvePackageByPathSuccess>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Get information about a package.
  */
@@ -1177,11 +2160,32 @@ export type GetPackageDetailsAction = {
   packageId: PackageId
 }
 
+export const GetPackageDetailsAction = {
+  ...__sidex_types.checker<GetPackageDetailsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of getting information about a package.
  */
 export type GetPackageDetailsOutput = {
   /**
+   * Optional display information. Absent on older Hub versions.
+   */
+  presentation?: PackagePresentation /**
+   * Image upload limits configured by this Hub. Absent on older Hub versions.
+   */
+  imageLimits?: PackageImageLimits /**
    * ID of the package.
    */
   packageId: PackageId /**
@@ -1194,19 +2198,77 @@ export type GetPackageDetailsOutput = {
    * Number of versions of the package.
    */
   versionCount: __sidex_types.builtins.U64 /**
+   * Package retention policy. Absent on older Hub versions.
+   */
+  retention?: PackageVersionRetention /**
    * Package-level metadata.
    */
-  metadata: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  > /**
+  metadata: { [key: string]: __schema_json.JsonValue } /**
    * Assets attached to the package itself (independent of versions).
    * Used by the package-level VEX flow but generic — anything that
    * wants to live on the package can be attached here.
    */
-  assets: __sidex_types.builtins.Sequence<PackageAsset>
+  assets: PackageAsset[]
 }
 
+export const GetPackageDetailsOutput = {
+  ...__sidex_types.checker<GetPackageDetailsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "presentation",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackagePresentation,
+            ),
+            true,
+          ],
+          [
+            "imageLimits",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageImageLimits,
+            ),
+            true,
+          ],
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          ["kind", __sidex_types.builtin("string"), true],
+          ["versionCount", __sidex_types.builtin("u64"), false],
+          [
+            "retention",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionRetention,
+            ),
+            true,
+          ],
+          [
+            "metadata",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            false,
+          ],
+          [
+            "assets",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => PackageAsset,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * One asset attached at the package level.
  */
@@ -1215,13 +2277,63 @@ export type PackageAsset = {
   filename: __sidex_types.builtins.String
   size: __sidex_types.builtins.U64
   digest: __schema_digest.Digest
-  status: RepositoryAssetStatus
-  metadata: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  >
+  status: RepositoryAssetStatus /**
+   * Latest storage check. Absent when connected to an older Hub.
+   */
+  storage?: RepositoryAssetStorage
+  metadata: { [key: string]: __schema_json.JsonValue }
 }
 
+export const PackageAsset = {
+  ...__sidex_types.checker<PackageAsset>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+            ),
+            false,
+          ],
+          ["filename", __sidex_types.builtin("string"), false],
+          ["size", __sidex_types.builtin("u64"), false],
+          [
+            "digest",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_digest.Digest,
+            ),
+            false,
+          ],
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetStatus,
+            ),
+            false,
+          ],
+          [
+            "storage",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetStorage,
+            ),
+            true,
+          ],
+          [
+            "metadata",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Attach a repository asset to a package under the given filename.
  *
@@ -1234,12 +2346,41 @@ export type AddPackageAssetAction = {
   packageId: PackageId
   assetId: RepositoryAssetId
   filename: __sidex_types.builtins.String
-  metadata?: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  >
+  metadata?: { [key: string]: __schema_json.JsonValue }
 }
+
 export const AddPackageAssetAction = {
+  ...__sidex_types.checker<AddPackageAssetAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+            ),
+            false,
+          ],
+          ["filename", __sidex_types.builtin("string"), false],
+          [
+            "metadata",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: AddPackageAssetAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -1249,7 +2390,7 @@ export const AddPackageAssetAction = {
       const __field_path = __path.field("filename")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           1,
           "min_size",
           "Filename must be between 1 and 256 characters.",
@@ -1259,7 +2400,7 @@ export const AddPackageAssetAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           256,
           "max_size",
           "Filename must be between 1 and 256 characters.",
@@ -1309,6 +2450,15 @@ export type AddPackageAssetOutput =
   | { result: "FilenameAlreadyExists" }
   | { result: "Added" }
 
+export const AddPackageAssetOutput = {
+  ...__sidex_types.checker<AddPackageAssetOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["FilenameAlreadyExists", null, null],
+        ["Added", null, null],
+      ]),
+  ),
+}
 /**
  * Remove a package asset by filename.
  */
@@ -1316,7 +2466,22 @@ export type RemovePackageAssetAction = {
   packageId: PackageId
   filename: __sidex_types.builtins.String
 }
+
 export const RemovePackageAssetAction = {
+  ...__sidex_types.checker<RemovePackageAssetAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          ["filename", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: RemovePackageAssetAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -1326,7 +2491,7 @@ export const RemovePackageAssetAction = {
       const __field_path = __path.field("filename")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           1,
           "min_size",
           "Filename must be between 1 and 256 characters.",
@@ -1336,7 +2501,7 @@ export const RemovePackageAssetAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           256,
           "max_size",
           "Filename must be between 1 and 256 characters.",
@@ -1385,12 +2550,34 @@ export const RemovePackageAssetAction = {
 export type SetPackageAssetMetadataAction = {
   packageId: PackageId
   filename: __sidex_types.builtins.String
-  metadata: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  >
+  metadata: { [key: string]: __schema_json.JsonValue }
 }
+
 export const SetPackageAssetMetadataAction = {
+  ...__sidex_types.checker<SetPackageAssetMetadataAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          ["filename", __sidex_types.builtin("string"), false],
+          [
+            "metadata",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetPackageAssetMetadataAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -1400,7 +2587,7 @@ export const SetPackageAssetMetadataAction = {
       const __field_path = __path.field("filename")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           1,
           "min_size",
           "Filename must be between 1 and 256 characters.",
@@ -1410,7 +2597,7 @@ export const SetPackageAssetMetadataAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           256,
           "max_size",
           "Filename must be between 1 and 256 characters.",
@@ -1458,6 +2645,9 @@ export const SetPackageAssetMetadataAction = {
  */
 export type CreatePackageAction = {
   /**
+   * Optional initial display information.
+   */
+  presentation?: PackagePresentationUpdate /**
    * ID of the repository.
    */
   repositoryId: RepositoryId /**
@@ -1469,12 +2659,44 @@ export type CreatePackageAction = {
   kind?: __sidex_types.builtins.String /**
    * Optional initial metadata.
    */
-  metadata?: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  >
+  metadata?: { [key: string]: __schema_json.JsonValue }
 }
+
 export const CreatePackageAction = {
+  ...__sidex_types.checker<CreatePackageAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "presentation",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackagePresentationUpdate,
+            ),
+            true,
+          ],
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          ["kind", __sidex_types.builtin("string"), true],
+          [
+            "metadata",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: CreatePackageAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -1484,7 +2706,7 @@ export const CreatePackageAction = {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Package name must be between 1 and 128 characters.",
@@ -1494,7 +2716,7 @@ export const CreatePackageAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           128,
           "max_size",
           "Package name must be between 1 and 128 characters.",
@@ -1504,7 +2726,7 @@ export const CreatePackageAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.name,
+          __instance["name"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:package_name",
           "Package name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -1512,11 +2734,11 @@ export const CreatePackageAction = {
         ),
       )
     }
-    if (__instance.kind !== undefined && __instance.kind !== null) {
+    if (__instance["kind"] !== undefined && __instance["kind"] !== null) {
       const __field_path = __path.field("kind")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.kind as unknown as string),
+          __validate.charCount(__instance["kind"] as unknown as string),
           1,
           "min_size",
           "Package kind must be between 1 and 64 characters.",
@@ -1526,7 +2748,7 @@ export const CreatePackageAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.kind as unknown as string),
+          __validate.charCount(__instance["kind"] as unknown as string),
           64,
           "max_size",
           "Package kind must be between 1 and 64 characters.",
@@ -1609,12 +2831,262 @@ export const CreatePackageAction = {
   },
 }
 /**
+ * Display information for a package, independent of its URL-safe name.
+ */
+export type PackagePresentation = {
+  /**
+   * Human-readable name. Absent when the URL-safe package name is used.
+   */
+  displayName?: __sidex_types.builtins.String /**
+   * CommonMark description. Raw HTML is not rendered by the Hub UI.
+   */
+  description?: __sidex_types.builtins.String /**
+   * Root-relative URL for the PNG on this Hub. Absent when no image is set.
+   * Fetch with the same credentials as package details. Supports ETag validation.
+   */
+  imageUrl?: __sidex_types.builtins.String
+}
+
+export const PackagePresentation = {
+  ...__sidex_types.checker<PackagePresentation>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["displayName", __sidex_types.builtin("string"), true],
+          ["description", __sidex_types.builtin("string"), true],
+          ["imageUrl", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Replace display text and optionally change the package image.
+ */
+export type PackagePresentationUpdate = {
+  /**
+   * Human-readable name. Omit to display the URL-safe package name.
+   */
+  displayName?: __sidex_types.builtins.String /**
+   * CommonMark description. Raw HTML is not rendered by the Hub UI.
+   */
+  description?: __sidex_types.builtins.String /**
+   * Omit to preserve the current image, or leave a new package without an image.
+   */
+  image?: PackageImageUpdate
+}
+
+export const PackagePresentationUpdate = {
+  ...__sidex_types.checker<PackagePresentationUpdate>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["displayName", __sidex_types.builtin("string"), true],
+          ["description", __sidex_types.builtin("string"), true],
+          [
+            "image",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageImageUpdate,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: PackagePresentationUpdate,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    if (
+      __instance["displayName"] !== undefined &&
+      __instance["displayName"] !== null
+    ) {
+      const __field_path = __path.field("displayName")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["displayName"] as unknown as string),
+          1,
+          "min_size",
+          "Display name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["displayName"] as unknown as string),
+          128,
+          "max_size",
+          "Display name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+    }
+    if (
+      __instance["description"] !== undefined &&
+      __instance["description"] !== null
+    ) {
+      const __field_path = __path.field("description")
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["description"] as unknown as string),
+          65536,
+          "max_size",
+          "Description must be at most 65536 characters.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    displayName: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Display name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            128,
+            "max_size",
+            "Display name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+    description: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            65536,
+            "max_size",
+            "Description must be at most 65536 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Change the image while saving package display information.
+ */
+export type PackageImageUpdate =
+  | { tag: "Replace"; imagePng: __sidex_types.builtins.String }
+  | { tag: "Remove" }
+
+export const PackageImageUpdate = {
+  ...__sidex_types.checker<PackageImageUpdate>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "tag", [
+        ["Replace", __sidex_types.builtin("string"), "imagePng"],
+        ["Remove", null, null],
+      ]),
+  ),
+}
+/**
+ * Limits for a package image, applied before it is stored.
+ */
+export type PackageImageLimits = {
+  /**
+   * Maximum decoded file size in bytes.
+   */
+  maxBytes: __sidex_types.builtins.U32 /**
+   * Maximum width and height in pixels.
+   */
+  maxDimension: __sidex_types.builtins.U32
+}
+
+export const PackageImageLimits = {
+  ...__sidex_types.checker<PackageImageLimits>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["maxBytes", __sidex_types.builtin("u32"), false],
+          ["maxDimension", __sidex_types.builtin("u32"), false],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Replace display text and optionally change the image.
+ * Omitted display name and description are cleared; an omitted image is preserved.
+ */
+export type SetPackagePresentationAction = {
+  packageId: PackageId
+  presentation: PackagePresentationUpdate
+}
+
+export const SetPackagePresentationAction = {
+  ...__sidex_types.checker<SetPackagePresentationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          [
+            "presentation",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackagePresentationUpdate,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
  * Output of creating a package.
  */
 export type CreatePackageOutput =
   | { result: "NameAlreadyExists" }
   | ({ result: "Created" } & CreatePackageSuccess)
 
+export const CreatePackageOutput = {
+  ...__sidex_types.checker<CreatePackageOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["NameAlreadyExists", null, null],
+        [
+          "Created",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => CreatePackageSuccess,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
 /**
  * Successfully created a package.
  */
@@ -1625,6 +3097,21 @@ export type CreatePackageSuccess = {
   packageId: PackageId
 }
 
+export const CreatePackageSuccess = {
+  ...__sidex_types.checker<CreatePackageSuccess>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Delete a package.
  */
@@ -1635,6 +3122,21 @@ export type DeletePackageAction = {
   packageId: PackageId
 }
 
+export const DeletePackageAction = {
+  ...__sidex_types.checker<DeletePackageAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set metadata on a package.
  */
@@ -1645,12 +3147,34 @@ export type SetPackageMetadataAction = {
   packageId: PackageId /**
    * Metadata to set (replaces existing metadata).
    */
-  metadata: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  >
+  metadata: { [key: string]: __schema_json.JsonValue }
 }
 
+export const SetPackageMetadataAction = {
+  ...__sidex_types.checker<SetPackageMetadataAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          [
+            "metadata",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set the kind of a package.
  */
@@ -1663,17 +3187,32 @@ export type SetPackageKindAction = {
    */
   kind?: __sidex_types.builtins.String
 }
+
 export const SetPackageKindAction = {
+  ...__sidex_types.checker<SetPackageKindAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          ["kind", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetPackageKindAction,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
-    if (__instance.kind !== undefined && __instance.kind !== null) {
+    if (__instance["kind"] !== undefined && __instance["kind"] !== null) {
       const __field_path = __path.field("kind")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.kind as unknown as string),
+          __validate.charCount(__instance["kind"] as unknown as string),
           1,
           "min_size",
           "Package kind must be between 1 and 64 characters.",
@@ -1683,7 +3222,7 @@ export const SetPackageKindAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.kind as unknown as string),
+          __validate.charCount(__instance["kind"] as unknown as string),
           64,
           "max_size",
           "Package kind must be between 1 and 64 characters.",
@@ -1738,7 +3277,22 @@ export type SetPackageNameAction = {
    */
   name: __sidex_types.builtins.String
 }
+
 export const SetPackageNameAction = {
+  ...__sidex_types.checker<SetPackageNameAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetPackageNameAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -1748,7 +3302,7 @@ export const SetPackageNameAction = {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Package name must be between 1 and 128 characters.",
@@ -1758,7 +3312,7 @@ export const SetPackageNameAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           128,
           "max_size",
           "Package name must be between 1 and 128 characters.",
@@ -1768,7 +3322,7 @@ export const SetPackageNameAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.name,
+          __instance["name"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:package_name",
           "Package name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -1828,6 +3382,15 @@ export type SetPackageNameOutput =
   | { result: "NameAlreadyExists" }
   | { result: "Success" }
 
+export const SetPackageNameOutput = {
+  ...__sidex_types.checker<SetPackageNameOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["NameAlreadyExists", null, null],
+        ["Success", null, null],
+      ]),
+  ),
+}
 /**
  * Query the versions of a package.
  */
@@ -1838,6 +3401,21 @@ export type QueryPackageVersionsAction = {
   packageId: PackageId
 }
 
+export const QueryPackageVersionsAction = {
+  ...__sidex_types.checker<QueryPackageVersionsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the versions of a package.
  */
@@ -1845,9 +3423,28 @@ export type QueryPackageVersionsOutput = {
   /**
    * List of package versions.
    */
-  versions: __sidex_types.builtins.Sequence<QueryPackageVersionsItem>
+  versions: QueryPackageVersionsItem[]
 }
 
+export const QueryPackageVersionsOutput = {
+  ...__sidex_types.checker<QueryPackageVersionsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versions",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => QueryPackageVersionsItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Package version query item.
  */
@@ -1862,11 +3459,69 @@ export type QueryPackageVersionsItem = {
    * Timestamp when the package version was created.
    */
   createdAt: __schema_datetime.Timestamp /**
+   * Explicit deletion deadline. Package retention can delete the version earlier.
+   */
+  deleteAt?: __schema_datetime.Timestamp /**
+   * Sealed versions reject content changes and all deletion. Absent on older Hub versions.
+   */
+  sealed?: __sidex_types.builtins.Bool /**
    * Tags of the package version.
    */
-  tags: __sidex_types.builtins.Sequence<PackageVersionTag>
+  tags: PackageVersionTag[] /**
+   * Version that a device must run before installing this version.
+   */
+  baseVersionId?: PackageVersionId
 }
 
+export const QueryPackageVersionsItem = {
+  ...__sidex_types.checker<QueryPackageVersionsItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), true],
+          [
+            "createdAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          [
+            "deleteAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          ["sealed", __sidex_types.builtin("bool"), true],
+          [
+            "tags",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => PackageVersionTag,
+              ),
+            ),
+            false,
+          ],
+          [
+            "baseVersionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Package version tag.
  */
@@ -1877,9 +3532,31 @@ export type PackageVersionTag = {
   tag: __sidex_types.builtins.String /**
    * Indicates whether the tag is locked.
    */
-  locked: __sidex_types.builtins.Bool
+  locked: __sidex_types.builtins.Bool /**
+   * Time at which the tag was assigned to the version. Absent on older Hub versions.
+   */
+  assignedAt?: __schema_datetime.Timestamp
 }
 
+export const PackageVersionTag = {
+  ...__sidex_types.checker<PackageVersionTag>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["tag", __sidex_types.builtin("string"), false],
+          ["locked", __sidex_types.builtin("bool"), false],
+          [
+            "assignedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Add tag item.
  */
@@ -1899,7 +3576,19 @@ export type AddTagItem = {
    */
   reassign?: __sidex_types.builtins.Bool
 }
+
 export const AddTagItem = {
+  ...__sidex_types.checker<AddTagItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["tag", __sidex_types.builtin("string"), false],
+          ["locked", __sidex_types.builtin("bool"), true],
+          ["reassign", __sidex_types.builtin("bool"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: AddTagItem,
     __path: __validate.Path = __validate.Path.root(),
@@ -1909,7 +3598,7 @@ export const AddTagItem = {
       const __field_path = __path.field("tag")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.tag as unknown as string),
+          __validate.charCount(__instance["tag"] as unknown as string),
           1,
           "min_size",
           "Tag must be between 1 and 128 characters.",
@@ -1919,7 +3608,7 @@ export const AddTagItem = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.tag as unknown as string),
+          __validate.charCount(__instance["tag"] as unknown as string),
           128,
           "max_size",
           "Tag must be between 1 and 128 characters.",
@@ -1929,10 +3618,10 @@ export const AddTagItem = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.tag,
-          "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+          __instance["tag"],
+          "^[a-zA-Z0-9][a-zA-Z0-9._+-]*$",
           "format:tag",
-          "Tag must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+          "Tag must start with a letter or digit and contain only letters, digits, dots, plus signs, underscores, or hyphens.",
           __field_path,
         ),
       )
@@ -1970,9 +3659,9 @@ export const AddTagItem = {
         __report.merge(
           __validate.regexMatch(
             __value,
-            "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+            "^[a-zA-Z0-9][a-zA-Z0-9._+-]*$",
             "format:tag",
-            "Tag must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+            "Tag must start with a letter or digit and contain only letters, digits, dots, plus signs, underscores, or hyphens.",
             __path,
           ),
         )
@@ -1991,7 +3680,15 @@ export type RemoveTagItem = {
    */
   tag: __sidex_types.builtins.String
 }
+
 export const RemoveTagItem = {
+  ...__sidex_types.checker<RemoveTagItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [["tag", __sidex_types.builtin("string"), false]],
+        [],
+      ),
+  ),
   validate(
     __instance: RemoveTagItem,
     __path: __validate.Path = __validate.Path.root(),
@@ -2001,7 +3698,7 @@ export const RemoveTagItem = {
       const __field_path = __path.field("tag")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.tag as unknown as string),
+          __validate.charCount(__instance["tag"] as unknown as string),
           1,
           "min_size",
           "Tag must be between 1 and 128 characters.",
@@ -2011,7 +3708,7 @@ export const RemoveTagItem = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.tag as unknown as string),
+          __validate.charCount(__instance["tag"] as unknown as string),
           128,
           "max_size",
           "Tag must be between 1 and 128 characters.",
@@ -2021,10 +3718,10 @@ export const RemoveTagItem = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.tag,
-          "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+          __instance["tag"],
+          "^[a-zA-Z0-9][a-zA-Z0-9._+-]*$",
           "format:tag",
-          "Tag must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+          "Tag must start with a letter or digit and contain only letters, digits, dots, plus signs, underscores, or hyphens.",
           __field_path,
         ),
       )
@@ -2062,9 +3759,9 @@ export const RemoveTagItem = {
         __report.merge(
           __validate.regexMatch(
             __value,
-            "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+            "^[a-zA-Z0-9][a-zA-Z0-9._+-]*$",
             "format:tag",
-            "Tag must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+            "Tag must start with a letter or digit and contain only letters, digits, dots, plus signs, underscores, or hyphens.",
             __path,
           ),
         )
@@ -2094,14 +3791,64 @@ export type PackageVersionAsset = {
    * Status of the asset.
    */
   status: RepositoryAssetStatus /**
+   * Latest storage check. Absent when connected to an older Hub.
+   */
+  storage?: RepositoryAssetStorage /**
    * Arbitrary metadata associated with this asset in the version.
    */
-  metadata: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  >
+  metadata: { [key: string]: __schema_json.JsonValue }
 }
 
+export const PackageVersionAsset = {
+  ...__sidex_types.checker<PackageVersionAsset>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["filename", __sidex_types.builtin("string"), false],
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+            ),
+            false,
+          ],
+          ["size", __sidex_types.builtin("u64"), false],
+          [
+            "digest",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_digest.Digest,
+            ),
+            false,
+          ],
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetStatus,
+            ),
+            false,
+          ],
+          [
+            "storage",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetStorage,
+            ),
+            true,
+          ],
+          [
+            "metadata",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Resolve a package version by its path.
  */
@@ -2117,7 +3864,19 @@ export type ResolvePackageVersionByPathAction = {
    */
   tag: __sidex_types.builtins.String
 }
+
 export const ResolvePackageVersionByPathAction = {
+  ...__sidex_types.checker<ResolvePackageVersionByPathAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["repository", __sidex_types.builtin("string"), false],
+          ["package", __sidex_types.builtin("string"), false],
+          ["tag", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: ResolvePackageVersionByPathAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -2127,7 +3886,7 @@ export const ResolvePackageVersionByPathAction = {
       const __field_path = __path.field("repository")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.repository as unknown as string),
+          __validate.charCount(__instance["repository"] as unknown as string),
           1,
           "min_size",
           "Repository name must be between 1 and 128 characters.",
@@ -2137,7 +3896,7 @@ export const ResolvePackageVersionByPathAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.repository as unknown as string),
+          __validate.charCount(__instance["repository"] as unknown as string),
           128,
           "max_size",
           "Repository name must be between 1 and 128 characters.",
@@ -2147,7 +3906,7 @@ export const ResolvePackageVersionByPathAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.repository,
+          __instance["repository"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:repository_name",
           "Repository name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -2159,7 +3918,7 @@ export const ResolvePackageVersionByPathAction = {
       const __field_path = __path.field("package")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.package as unknown as string),
+          __validate.charCount(__instance["package"] as unknown as string),
           1,
           "min_size",
           "Package name must be between 1 and 128 characters.",
@@ -2169,7 +3928,7 @@ export const ResolvePackageVersionByPathAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.package as unknown as string),
+          __validate.charCount(__instance["package"] as unknown as string),
           128,
           "max_size",
           "Package name must be between 1 and 128 characters.",
@@ -2179,7 +3938,7 @@ export const ResolvePackageVersionByPathAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.package,
+          __instance["package"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:package_name",
           "Package name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -2191,7 +3950,7 @@ export const ResolvePackageVersionByPathAction = {
       const __field_path = __path.field("tag")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.tag as unknown as string),
+          __validate.charCount(__instance["tag"] as unknown as string),
           1,
           "min_size",
           "Tag must be between 1 and 128 characters.",
@@ -2201,7 +3960,7 @@ export const ResolvePackageVersionByPathAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.tag as unknown as string),
+          __validate.charCount(__instance["tag"] as unknown as string),
           128,
           "max_size",
           "Tag must be between 1 and 128 characters.",
@@ -2211,10 +3970,10 @@ export const ResolvePackageVersionByPathAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.tag,
-          "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+          __instance["tag"],
+          "^[a-zA-Z0-9][a-zA-Z0-9._+-]*$",
           "format:tag",
-          "Tag must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+          "Tag must start with a letter or digit and contain only letters, digits, dots, plus signs, underscores, or hyphens.",
           __field_path,
         ),
       )
@@ -2330,9 +4089,9 @@ export const ResolvePackageVersionByPathAction = {
         __report.merge(
           __validate.regexMatch(
             __value,
-            "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+            "^[a-zA-Z0-9][a-zA-Z0-9._+-]*$",
             "format:tag",
-            "Tag must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+            "Tag must start with a letter or digit and contain only letters, digits, dots, plus signs, underscores, or hyphens.",
             __path,
           ),
         )
@@ -2349,6 +4108,22 @@ export type ResolvePackageVersionByPathOutput =
   | ({ result: "Found" } & ResolvePackageVersionByPathSuccess)
   | { result: "NotFound" }
 
+export const ResolvePackageVersionByPathOutput = {
+  ...__sidex_types.checker<ResolvePackageVersionByPathOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        [
+          "Found",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> =>
+              ResolvePackageVersionByPathSuccess,
+          ),
+          null,
+        ],
+        ["NotFound", null, null],
+      ]),
+  ),
+}
 /**
  * Successfully resolved package version by path.
  */
@@ -2365,6 +4140,35 @@ export type ResolvePackageVersionByPathSuccess = {
   versionId: PackageVersionId
 }
 
+export const ResolvePackageVersionByPathSuccess = {
+  ...__sidex_types.checker<ResolvePackageVersionByPathSuccess>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Get information about a package version.
  */
@@ -2375,6 +4179,23 @@ export type GetPackageVersionDetailsAction = {
   versionId: PackageVersionId
 }
 
+export const GetPackageVersionDetailsAction = {
+  ...__sidex_types.checker<GetPackageVersionDetailsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of getting information about a package version.
  */
@@ -2394,18 +4215,97 @@ export type GetPackageVersionDetailsOutput = {
   name?: __sidex_types.builtins.String /**
    * Assets of the version.
    */
-  assets: __sidex_types.builtins.Sequence<PackageVersionAsset> /**
+  assets: PackageVersionAsset[] /**
    * Tags of the version.
    */
-  tags: __sidex_types.builtins.Sequence<PackageVersionTag> /**
+  tags: PackageVersionTag[] /**
    * Version-level metadata.
    */
-  metadata: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  >
+  metadata: { [key: string]: __schema_json.JsonValue } /**
+   * Explicit deletion deadline. Package retention can delete the version earlier.
+   */
+  deleteAt?: __schema_datetime.Timestamp /**
+   * Sealed versions reject content changes and all deletion. Absent on older Hub versions.
+   */
+  sealed?: __sidex_types.builtins.Bool /**
+   * Version that a device must run before installing this version.
+   */
+  baseVersionId?: PackageVersionId
 }
 
+export const GetPackageVersionDetailsOutput = {
+  ...__sidex_types.checker<GetPackageVersionDetailsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), true],
+          [
+            "assets",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => PackageVersionAsset,
+              ),
+            ),
+            false,
+          ],
+          [
+            "tags",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => PackageVersionTag,
+              ),
+            ),
+            false,
+          ],
+          [
+            "metadata",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            false,
+          ],
+          [
+            "deleteAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          ["sealed", __sidex_types.builtin("bool"), true],
+          [
+            "baseVersionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Create a new package version.
  */
@@ -2417,27 +4317,81 @@ export type CreatePackageVersionAction = {
    * Optional name of the version.
    */
   name?: __sidex_types.builtins.String /**
+   * Earliest automatic deletion time; must be in the future. Package retention applies independently.
+   * Removes the version and all tags. Unused assets follow repository cleanup policy.
+   */
+  deleteAt?: __schema_datetime.Timestamp /**
    * Tags to add to the package version.
    */
-  tags?: __sidex_types.builtins.Sequence<AddTagItem> /**
+  tags?: AddTagItem[] /**
    * Optional initial metadata.
    */
-  metadata?: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  >
+  metadata?: { [key: string]: __schema_json.JsonValue } /**
+   * Version that a device must run before installing this version.
+   *
+   * Must belong to the same package and must not be scheduled for deletion.
+   */
+  baseVersionId?: PackageVersionId
 }
+
 export const CreatePackageVersionAction = {
+  ...__sidex_types.checker<CreatePackageVersionAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), true],
+          [
+            "deleteAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          [
+            "tags",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => AddTagItem,
+              ),
+            ),
+            true,
+          ],
+          [
+            "metadata",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            true,
+          ],
+          [
+            "baseVersionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: CreatePackageVersionAction,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
-    if (__instance.name !== undefined && __instance.name !== null) {
+    if (__instance["name"] !== undefined && __instance["name"] !== null) {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Version name must be between 1 and 128 characters.",
@@ -2447,7 +4401,7 @@ export const CreatePackageVersionAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           128,
           "max_size",
           "Version name must be between 1 and 128 characters.",
@@ -2497,6 +4451,20 @@ export type CreatePackageVersionOutput = {
   result: "Created"
 } & CreatePackageVersionSuccess
 
+export const CreatePackageVersionOutput = {
+  ...__sidex_types.checker<CreatePackageVersionOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        [
+          "Created",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => CreatePackageVersionSuccess,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
 /**
  * Package version creation has been successful.
  */
@@ -2507,8 +4475,27 @@ export type CreatePackageVersionSuccess = {
   versionId: PackageVersionId
 }
 
+export const CreatePackageVersionSuccess = {
+  ...__sidex_types.checker<CreatePackageVersionSuccess>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Delete a package version.
+ *
+ * A version that is the base of another version cannot be deleted.
  */
 export type DeletePackageVersionAction = {
   /**
@@ -2517,6 +4504,61 @@ export type DeletePackageVersionAction = {
   versionId: PackageVersionId
 }
 
+export const DeletePackageVersionAction = {
+  ...__sidex_types.checker<DeletePackageVersionAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Schedule or cancel automatic deletion. Requires permission to manage versions.
+ * Deletion removes the version and all tags, including locked tags. It does not
+ * check device installations. Unused assets follow the repository cleanup policy.
+ * A version that is the base of another version cannot be scheduled.
+ */
+export type SetPackageVersionDeletionScheduleAction = {
+  versionId: PackageVersionId /**
+   * Future deadline. Null or omission cancels this schedule; package retention still applies.
+   * A deadline makes deletion eligible; background processing may delay it.
+   */
+  deleteAt?: __schema_datetime.Timestamp
+}
+
+export const SetPackageVersionDeletionScheduleAction = {
+  ...__sidex_types.checker<SetPackageVersionDeletionScheduleAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+          [
+            "deleteAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set the name of a package version.
  */
@@ -2529,17 +4571,34 @@ export type SetPackageVersionNameAction = {
    */
   name?: __sidex_types.builtins.String
 }
+
 export const SetPackageVersionNameAction = {
+  ...__sidex_types.checker<SetPackageVersionNameAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetPackageVersionNameAction,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
-    if (__instance.name !== undefined && __instance.name !== null) {
+    if (__instance["name"] !== undefined && __instance["name"] !== null) {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Version name must be between 1 and 128 characters.",
@@ -2549,7 +4608,7 @@ export const SetPackageVersionNameAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           128,
           "max_size",
           "Version name must be between 1 and 128 characters.",
@@ -2593,6 +4652,47 @@ export const SetPackageVersionNameAction = {
   },
 }
 /**
+ * Set or clear the base of a package version. Requires permission to manage versions.
+ *
+ * The base must belong to the same package, must not be scheduled for deletion, and
+ * must not lead back to the version through its own bases. Sealed versions reject
+ * changes to their base.
+ */
+export type SetPackageVersionBaseAction = {
+  /**
+   * ID of the package version.
+   */
+  versionId: PackageVersionId /**
+   * New base version. Omit to clear the base.
+   */
+  baseVersionId?: PackageVersionId
+}
+
+export const SetPackageVersionBaseAction = {
+  ...__sidex_types.checker<SetPackageVersionBaseAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+          [
+            "baseVersionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
  * Set metadata on a package version.
  */
 export type SetPackageVersionMetadataAction = {
@@ -2602,12 +4702,36 @@ export type SetPackageVersionMetadataAction = {
   versionId: PackageVersionId /**
    * Metadata to set (replaces existing metadata).
    */
-  metadata: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  >
+  metadata: { [key: string]: __schema_json.JsonValue }
 }
 
+export const SetPackageVersionMetadataAction = {
+  ...__sidex_types.checker<SetPackageVersionMetadataAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+          [
+            "metadata",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Add an asset to a package version.
  */
@@ -2624,12 +4748,43 @@ export type AddPackageVersionAssetAction = {
   filename: __sidex_types.builtins.String /**
    * Optional metadata to associate with this asset in the version.
    */
-  metadata?: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  >
+  metadata?: { [key: string]: __schema_json.JsonValue }
 }
+
 export const AddPackageVersionAssetAction = {
+  ...__sidex_types.checker<AddPackageVersionAssetAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+            ),
+            false,
+          ],
+          ["filename", __sidex_types.builtin("string"), false],
+          [
+            "metadata",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: AddPackageVersionAssetAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -2639,7 +4794,7 @@ export const AddPackageVersionAssetAction = {
       const __field_path = __path.field("filename")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           1,
           "min_size",
           "Filename must be between 1 and 256 characters.",
@@ -2649,7 +4804,7 @@ export const AddPackageVersionAssetAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           256,
           "max_size",
           "Filename must be between 1 and 256 characters.",
@@ -2699,6 +4854,15 @@ export type AddPackageVersionAssetOutput =
   | { result: "FilenameAlreadyExists" }
   | { result: "Added" }
 
+export const AddPackageVersionAssetOutput = {
+  ...__sidex_types.checker<AddPackageVersionAssetOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["FilenameAlreadyExists", null, null],
+        ["Added", null, null],
+      ]),
+  ),
+}
 /**
  * Remove an asset from a package version.
  */
@@ -2711,7 +4875,24 @@ export type RemovePackageVersionAssetAction = {
    */
   filename: __sidex_types.builtins.String
 }
+
 export const RemovePackageVersionAssetAction = {
+  ...__sidex_types.checker<RemovePackageVersionAssetAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+          ["filename", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: RemovePackageVersionAssetAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -2721,7 +4902,7 @@ export const RemovePackageVersionAssetAction = {
       const __field_path = __path.field("filename")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           1,
           "min_size",
           "Filename must be between 1 and 256 characters.",
@@ -2731,7 +4912,7 @@ export const RemovePackageVersionAssetAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           256,
           "max_size",
           "Filename must be between 1 and 256 characters.",
@@ -2787,12 +4968,36 @@ export type SetPackageVersionAssetMetadataAction = {
   filename: __sidex_types.builtins.String /**
    * Metadata to set (replaces existing metadata).
    */
-  metadata: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  >
+  metadata: { [key: string]: __schema_json.JsonValue }
 }
+
 export const SetPackageVersionAssetMetadataAction = {
+  ...__sidex_types.checker<SetPackageVersionAssetMetadataAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+          ["filename", __sidex_types.builtin("string"), false],
+          [
+            "metadata",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetPackageVersionAssetMetadataAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -2802,7 +5007,7 @@ export const SetPackageVersionAssetMetadataAction = {
       const __field_path = __path.field("filename")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           1,
           "min_size",
           "Filename must be between 1 and 256 characters.",
@@ -2812,7 +5017,7 @@ export const SetPackageVersionAssetMetadataAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           256,
           "max_size",
           "Filename must be between 1 and 256 characters.",
@@ -2865,9 +5070,35 @@ export type TagPackageVersionAction = {
   versionId: PackageVersionId /**
    * Tags to add.
    */
-  tags: __sidex_types.builtins.Sequence<AddTagItem>
+  tags: AddTagItem[]
 }
 
+export const TagPackageVersionAction = {
+  ...__sidex_types.checker<TagPackageVersionAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+          [
+            "tags",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => AddTagItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Remove tags from a version.
  */
@@ -2878,9 +5109,35 @@ export type UntagPackageVersionAction = {
   versionId: PackageVersionId /**
    * Tags to remove.
    */
-  tags: __sidex_types.builtins.Sequence<RemoveTagItem>
+  tags: RemoveTagItem[]
 }
 
+export const UntagPackageVersionAction = {
+  ...__sidex_types.checker<UntagPackageVersionAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+          [
+            "tags",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => RemoveTagItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Resolve a version asset by its path.
  */
@@ -2899,7 +5156,20 @@ export type ResolvePackageVersionAssetByPathAction = {
    */
   filename: __sidex_types.builtins.String
 }
+
 export const ResolvePackageVersionAssetByPathAction = {
+  ...__sidex_types.checker<ResolvePackageVersionAssetByPathAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["repository", __sidex_types.builtin("string"), false],
+          ["package", __sidex_types.builtin("string"), false],
+          ["tag", __sidex_types.builtin("string"), false],
+          ["filename", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: ResolvePackageVersionAssetByPathAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -2909,7 +5179,7 @@ export const ResolvePackageVersionAssetByPathAction = {
       const __field_path = __path.field("repository")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.repository as unknown as string),
+          __validate.charCount(__instance["repository"] as unknown as string),
           1,
           "min_size",
           "Repository name must be between 1 and 128 characters.",
@@ -2919,7 +5189,7 @@ export const ResolvePackageVersionAssetByPathAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.repository as unknown as string),
+          __validate.charCount(__instance["repository"] as unknown as string),
           128,
           "max_size",
           "Repository name must be between 1 and 128 characters.",
@@ -2929,7 +5199,7 @@ export const ResolvePackageVersionAssetByPathAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.repository,
+          __instance["repository"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:repository_name",
           "Repository name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -2941,7 +5211,7 @@ export const ResolvePackageVersionAssetByPathAction = {
       const __field_path = __path.field("package")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.package as unknown as string),
+          __validate.charCount(__instance["package"] as unknown as string),
           1,
           "min_size",
           "Package name must be between 1 and 128 characters.",
@@ -2951,7 +5221,7 @@ export const ResolvePackageVersionAssetByPathAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.package as unknown as string),
+          __validate.charCount(__instance["package"] as unknown as string),
           128,
           "max_size",
           "Package name must be between 1 and 128 characters.",
@@ -2961,7 +5231,7 @@ export const ResolvePackageVersionAssetByPathAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.package,
+          __instance["package"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:package_name",
           "Package name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -2973,7 +5243,7 @@ export const ResolvePackageVersionAssetByPathAction = {
       const __field_path = __path.field("tag")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.tag as unknown as string),
+          __validate.charCount(__instance["tag"] as unknown as string),
           1,
           "min_size",
           "Tag must be between 1 and 128 characters.",
@@ -2983,7 +5253,7 @@ export const ResolvePackageVersionAssetByPathAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.tag as unknown as string),
+          __validate.charCount(__instance["tag"] as unknown as string),
           128,
           "max_size",
           "Tag must be between 1 and 128 characters.",
@@ -2993,10 +5263,10 @@ export const ResolvePackageVersionAssetByPathAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.tag,
-          "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+          __instance["tag"],
+          "^[a-zA-Z0-9][a-zA-Z0-9._+-]*$",
           "format:tag",
-          "Tag must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+          "Tag must start with a letter or digit and contain only letters, digits, dots, plus signs, underscores, or hyphens.",
           __field_path,
         ),
       )
@@ -3005,7 +5275,7 @@ export const ResolvePackageVersionAssetByPathAction = {
       const __field_path = __path.field("filename")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           1,
           "min_size",
           "Filename must be between 1 and 256 characters.",
@@ -3015,7 +5285,7 @@ export const ResolvePackageVersionAssetByPathAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           256,
           "max_size",
           "Filename must be between 1 and 256 characters.",
@@ -3134,9 +5404,9 @@ export const ResolvePackageVersionAssetByPathAction = {
         __report.merge(
           __validate.regexMatch(
             __value,
-            "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+            "^[a-zA-Z0-9][a-zA-Z0-9._+-]*$",
             "format:tag",
-            "Tag must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+            "Tag must start with a letter or digit and contain only letters, digits, dots, plus signs, underscores, or hyphens.",
             __path,
           ),
         )
@@ -3182,6 +5452,22 @@ export type ResolvePackageVersionAssetByPathOutput =
   | ({ result: "Found" } & ResolvePackageVersionAssetByPathSuccess)
   | { result: "NotFound" }
 
+export const ResolvePackageVersionAssetByPathOutput = {
+  ...__sidex_types.checker<ResolvePackageVersionAssetByPathOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        [
+          "Found",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> =>
+              ResolvePackageVersionAssetByPathSuccess,
+          ),
+          null,
+        ],
+        ["NotFound", null, null],
+      ]),
+  ),
+}
 /**
  * Successfully resolved version asset by path.
  */
@@ -3201,6 +5487,42 @@ export type ResolvePackageVersionAssetByPathSuccess = {
   assetId: RepositoryAssetId
 }
 
+export const ResolvePackageVersionAssetByPathSuccess = {
+  ...__sidex_types.checker<ResolvePackageVersionAssetByPathSuccess>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set the S3 configuration for the repository.
  */
@@ -3214,6 +5536,30 @@ export type SetRepositoryS3ConfigAction = {
   s3Config: RepositoryS3Config
 }
 
+export const SetRepositoryS3ConfigAction = {
+  ...__sidex_types.checker<SetRepositoryS3ConfigAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+          [
+            "s3Config",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryS3Config,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Get the S3 configuration for the repository.
  */
@@ -3224,6 +5570,23 @@ export type GetRepositoryS3ConfigAction = {
   repositoryId: RepositoryId
 }
 
+export const GetRepositoryS3ConfigAction = {
+  ...__sidex_types.checker<GetRepositoryS3ConfigAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of getting the S3 configuration for the repository.
  *
@@ -3231,11 +5594,38 @@ export type GetRepositoryS3ConfigAction = {
  */
 export type GetRepositoryS3ConfigOutput = {
   /**
+   * Effective storage source. Inherited credentials are not exposed here.
+   */
+  source: RepositoryStorageSource /**
    * S3 config for the repository.
    */
   s3Config: RepositoryS3Config
 }
 
+export const GetRepositoryS3ConfigOutput = {
+  ...__sidex_types.checker<GetRepositoryS3ConfigOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "source",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryStorageSource,
+            ),
+            false,
+          ],
+          [
+            "s3Config",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryS3Config,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Get information about an asset.
  */
@@ -3246,6 +5636,23 @@ export type GetAssetDetailsAction = {
   assetId: RepositoryAssetId
 }
 
+export const GetAssetDetailsAction = {
+  ...__sidex_types.checker<GetAssetDetailsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of getting information about an asset.
  */
@@ -3263,11 +5670,54 @@ export type GetAssetDetailsOutput = {
    * Status of the asset.
    */
   status: RepositoryAssetStatus /**
-   * Number of package versions that refer to the asset.
+   * Latest storage check. Absent when connected to an older Hub.
+   */
+  storage?: RepositoryAssetStorage /**
+   * Number of package and package-version attachments that retain the asset.
    */
   referenceCount: __sidex_types.builtins.U64
 }
 
+export const GetAssetDetailsOutput = {
+  ...__sidex_types.checker<GetAssetDetailsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+            ),
+            false,
+          ],
+          ["size", __sidex_types.builtin("u64"), false],
+          [
+            "digest",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_digest.Digest,
+            ),
+            false,
+          ],
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetStatus,
+            ),
+            false,
+          ],
+          [
+            "storage",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetStorage,
+            ),
+            true,
+          ],
+          ["referenceCount", __sidex_types.builtin("u64"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Create an asset.
  */
@@ -3284,6 +5734,31 @@ export type CreateAssetAction = {
   digest: __schema_digest.Digest
 }
 
+export const CreateAssetAction = {
+  ...__sidex_types.checker<CreateAssetAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+          ["size", __sidex_types.builtin("u64"), false],
+          [
+            "digest",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_digest.Digest,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of creating an asset.
  */
@@ -3291,8 +5766,30 @@ export type CreateAssetOutput =
   | { result: "AssetAlreadyExists"; assetId: RepositoryAssetId }
   | { result: "Created"; assetId: RepositoryAssetId }
 
+export const CreateAssetOutput = {
+  ...__sidex_types.checker<CreateAssetOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        [
+          "AssetAlreadyExists",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+          ),
+          "assetId",
+        ],
+        [
+          "Created",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+          ),
+          "assetId",
+        ],
+      ]),
+  ),
+}
 /**
- * Delete an asset.
+ * Schedule deletion of an unused asset. Referenced assets are rejected.
+ * The asset remains visible until object-storage deletion completes.
  */
 export type DeleteAssetAction = {
   /**
@@ -3301,6 +5798,23 @@ export type DeleteAssetAction = {
   assetId: RepositoryAssetId
 }
 
+export const DeleteAssetAction = {
+  ...__sidex_types.checker<DeleteAssetAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Issue a URL for downloading an asset.
  */
@@ -3313,17 +5827,37 @@ export type IssueAssetDownloadUrlAction = {
    */
   filename?: __sidex_types.builtins.String
 }
+
 export const IssueAssetDownloadUrlAction = {
+  ...__sidex_types.checker<IssueAssetDownloadUrlAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+            ),
+            false,
+          ],
+          ["filename", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: IssueAssetDownloadUrlAction,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
-    if (__instance.filename !== undefined && __instance.filename !== null) {
+    if (
+      __instance["filename"] !== undefined &&
+      __instance["filename"] !== null
+    ) {
       const __field_path = __path.field("filename")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           1,
           "min_size",
           "Filename must be between 1 and 256 characters.",
@@ -3333,7 +5867,7 @@ export const IssueAssetDownloadUrlAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.filename as unknown as string),
+          __validate.charCount(__instance["filename"] as unknown as string),
           256,
           "max_size",
           "Filename must be between 1 and 256 characters.",
@@ -3386,6 +5920,15 @@ export type IssueAssetDownloadUrlOutput = {
   url: __sidex_types.builtins.String
 }
 
+export const IssueAssetDownloadUrlOutput = {
+  ...__sidex_types.checker<IssueAssetDownloadUrlOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [["url", __sidex_types.builtin("string"), false]],
+        [],
+      ),
+  ),
+}
 /**
  * Issue a URL for uploading an asset.
  */
@@ -3396,32 +5939,409 @@ export type IssueAssetUploadUrlAction = {
   assetId: RepositoryAssetId
 }
 
+export const IssueAssetUploadUrlAction = {
+  ...__sidex_types.checker<IssueAssetUploadUrlAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of issuing a URL for uploading an asset.
  */
 export type IssueAssetUploadUrlOutput = {
   /**
-   * URL for uploading the asset.
+   * Compatibility URL for uploading the asset without verification headers.
+   *
+   * Objects uploaded through this URL remain dangling. New clients should use
+   * `verified_url`, apply every entry in `headers`, and finalize the upload.
    */
-  url: __sidex_types.builtins.String
+  url: __sidex_types.builtins.String /**
+   * URL for an upload whose digest and ownership can be verified by the hub.
+   */
+  verifiedUrl?: __sidex_types.builtins.String /**
+   * Headers that must accompany a request to `verified_url`.
+   */
+  headers?: { [key: string]: __sidex_types.builtins.String }
 }
 
+export const IssueAssetUploadUrlOutput = {
+  ...__sidex_types.checker<IssueAssetUploadUrlOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["url", __sidex_types.builtin("string"), false],
+          ["verifiedUrl", __sidex_types.builtin("string"), true],
+          [
+            "headers",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.builtin("string"),
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Verify an uploaded object and make its asset available.
+ *
+ * This action is idempotent: finalizing an already available asset succeeds.
+ */
+export type FinalizeAssetUploadAction = {
+  /**
+   * ID of the pending asset to finalize.
+   */
+  assetId: RepositoryAssetId
+}
+
+export const FinalizeAssetUploadAction = {
+  ...__sidex_types.checker<FinalizeAssetUploadAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "assetId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryAssetId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the audit log of the repository.
  */
 export type QueryAuditLogEventsAction = {
   /**
+   * Opt into cursor pagination. Without this field, the existing limit applies.
+   */
+  page?: __schema_pagination.PageRequest /**
    * ID of the repository.
    */
   repositoryId: RepositoryId
 }
 
+export const QueryAuditLogEventsAction = {
+  ...__sidex_types.checker<QueryAuditLogEventsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageRequest,
+            ),
+            true,
+          ],
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the audit log of the repository.
  */
 export type QueryAuditLogEventsOutput = {
   /**
+   * Present when cursor pagination was requested.
+   */
+  page?: __schema_pagination.PageInfo /**
    * List of audit log events.
    */
-  events: __sidex_types.builtins.Sequence<__schema_audit.AuditLogEvent>
+  events: __schema_audit.AuditLogEvent[]
+}
+
+export const QueryAuditLogEventsOutput = {
+  ...__sidex_types.checker<QueryAuditLogEventsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageInfo,
+            ),
+            true,
+          ],
+          [
+            "events",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  __schema_audit.AuditLogEvent,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * The scope supplying repository storage.
+ */
+export type RepositoryStorageSource =
+  | "Unconfigured"
+  | "Repository"
+  | "Organization"
+
+export const RepositoryStorageSource = {
+  ...__sidex_types.checker<RepositoryStorageSource>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Unconfigured", null, null],
+        ["Repository", null, null],
+        ["Organization", null, null],
+      ]),
+  ),
+}
+/**
+ * Remove a repository override and use organization storage when configured.
+ */
+export type DeleteRepositoryS3ConfigAction = { repositoryId: RepositoryId }
+
+export const DeleteRepositoryS3ConfigAction = {
+  ...__sidex_types.checker<DeleteRepositoryS3ConfigAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RepositoryId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Opt-in retention of unsealed versions, evaluated per package by creation time.
+ * Either exceeded limit makes a version eligible for deletion, including existing versions.
+ * Retention skips versions that are the base of another version.
+ */
+export type PackageVersionRetention = {
+  enabled: __sidex_types.builtins.Bool /**
+   * Maximum number of newest unsealed versions to keep. Sealed versions do not count.
+   */
+  maxVersions?: __sidex_types.builtins.U32 /**
+   * Maximum age in fixed 24-hour days. This can expire every unsealed version.
+   */
+  maxAgeDays?: __sidex_types.builtins.U32
+}
+
+export const PackageVersionRetention = {
+  ...__sidex_types.checker<PackageVersionRetention>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["enabled", __sidex_types.builtin("bool"), false],
+          ["maxVersions", __sidex_types.builtin("u32"), true],
+          ["maxAgeDays", __sidex_types.builtin("u32"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: PackageVersionRetention,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    if (
+      __instance["maxVersions"] !== undefined &&
+      __instance["maxVersions"] !== null
+    ) {
+      const __field_path = __path.field("maxVersions")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.numeric(__instance["maxVersions"] as any),
+          1,
+          "min",
+          "Version count must be a positive integer.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.numeric(__instance["maxVersions"] as any),
+          2147483647,
+          "max",
+          "Version count must be a positive integer.",
+          __field_path,
+        ),
+      )
+    }
+    if (
+      __instance["maxAgeDays"] !== undefined &&
+      __instance["maxAgeDays"] !== null
+    ) {
+      const __field_path = __path.field("maxAgeDays")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.numeric(__instance["maxAgeDays"] as any),
+          1,
+          "min",
+          "Maximum age must be a positive number of days.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.numeric(__instance["maxAgeDays"] as any),
+          2147483647,
+          "max",
+          "Maximum age must be a positive number of days.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    maxVersions: {
+      validate(
+        __value: __sidex_types.builtins.U32,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.numeric(__value as any),
+            1,
+            "min",
+            "Version count must be a positive integer.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.numeric(__value as any),
+            2147483647,
+            "max",
+            "Version count must be a positive integer.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+    maxAgeDays: {
+      validate(
+        __value: __sidex_types.builtins.U32,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.numeric(__value as any),
+            1,
+            "min",
+            "Maximum age must be a positive number of days.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.numeric(__value as any),
+            2147483647,
+            "max",
+            "Maximum age must be a positive number of days.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Replace the package retention policy. Requires permission to manage versions.
+ */
+export type SetPackageVersionRetentionAction = {
+  packageId: PackageId
+  retention: PackageVersionRetention
+}
+
+export const SetPackageVersionRetentionAction = {
+  ...__sidex_types.checker<SetPackageVersionRetentionAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "packageId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => PackageId),
+            false,
+          ],
+          [
+            "retention",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionRetention,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Permanently seal a version. Requires permission to manage versions.
+ * Sealing cancels scheduled deletion and blocks changes to the name, metadata,
+ * base version, and attachments, as well as deletion of the version, package,
+ * or repository.
+ * Tags remain editable. Sealing cannot be reversed.
+ */
+export type SealPackageVersionAction = { versionId: PackageVersionId }
+
+export const SealPackageVersionAction = {
+  ...__sidex_types.checker<SealPackageVersionAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "versionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => PackageVersionId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
 }

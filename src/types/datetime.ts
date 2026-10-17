@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -26,19 +28,23 @@ import * as __validate from "@sidex/validate"
 /**
  * ISO 8601 formatted date and time string.
  */
-export type Timestamp = __sidex_types.Nominal<
-  string,
-  "::nexigon_api::datetime::Timestamp"
->
+export type Timestamp = __sidex_types.builtins.Timestamp
 
+export const Timestamp = {
+  ...__sidex_types.checker<Timestamp>(
+    (): __sidex_types.Check => __sidex_types.builtin("timestamp"),
+  ),
+}
 /**
  * Date string without time zone.
  */
-export type Date = __sidex_types.Nominal<
-  string,
-  "::nexigon_api::datetime::Date"
->
+export type Date = __sidex_types.builtins.Date
 
+export const Date = {
+  ...__sidex_types.checker<Date>(
+    (): __sidex_types.Check => __sidex_types.builtin("date"),
+  ),
+}
 /**
  * Date span with start and end dates.
  *
@@ -54,4 +60,25 @@ export type DateSpan = {
    * **The end date itself is not included in the span.**
    */
   end: Date
+}
+
+export const DateSpan = {
+  ...__sidex_types.checker<DateSpan>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "start",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => Date),
+            false,
+          ],
+          [
+            "end",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => Date),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
 }

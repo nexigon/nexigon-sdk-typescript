@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -31,6 +33,11 @@ export type AuditLogActionId = __sidex_types.Nominal<
   "::nexigon_api::audit::AuditLogActionId"
 >
 
+export const AuditLogActionId = {
+  ...__sidex_types.checker<AuditLogActionId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Unique ID of an audit log event.
  */
@@ -39,6 +46,11 @@ export type AuditLogEventId = __sidex_types.Nominal<
   "::nexigon_api::audit::AuditLogEventId"
 >
 
+export const AuditLogEventId = {
+  ...__sidex_types.checker<AuditLogEventId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Event recorded in the audit log.
  *
@@ -69,6 +81,59 @@ export type AuditLogEvent = {
   job?: AuditLogEventJob
 }
 
+export const AuditLogEvent = {
+  ...__sidex_types.checker<AuditLogEvent>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "eventId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => AuditLogEventId,
+            ),
+            false,
+          ],
+          [
+            "actor",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_actor.Actor,
+            ),
+            false,
+          ],
+          ["event", __sidex_types.builtin("string"), false],
+          [
+            "data",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+          [
+            "createdAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          [
+            "action",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => AuditLogEventAction,
+            ),
+            true,
+          ],
+          [
+            "job",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => AuditLogEventJob,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Action that caused an event.
  */
@@ -79,6 +144,23 @@ export type AuditLogEventAction = {
   actionId: AuditLogActionId
 }
 
+export const AuditLogEventAction = {
+  ...__sidex_types.checker<AuditLogEventAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "actionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => AuditLogActionId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Job that caused an event.
  */
@@ -89,6 +171,23 @@ export type AuditLogEventJob = {
   jobId: __schema_jobs.JobId
 }
 
+export const AuditLogEventJob = {
+  ...__sidex_types.checker<AuditLogEventJob>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "jobId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_jobs.JobId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Action recorded in the audit log.
  *
@@ -107,10 +206,7 @@ export type AuditLogAction = {
   action: __sidex_types.builtins.String /**
    * Additional audit data associated with the action.
    */
-  data: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  > /**
+  data: { [key: string]: __schema_json.JsonValue } /**
    * Status associated with the action
    */
   status: AuditLogActionStatus /**
@@ -119,6 +215,55 @@ export type AuditLogAction = {
   createdAt: __schema_datetime.Timestamp
 }
 
+export const AuditLogAction = {
+  ...__sidex_types.checker<AuditLogAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "actionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => AuditLogActionId,
+            ),
+            false,
+          ],
+          [
+            "actor",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_actor.Actor,
+            ),
+            false,
+          ],
+          ["action", __sidex_types.builtin("string"), false],
+          [
+            "data",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            false,
+          ],
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => AuditLogActionStatus,
+            ),
+            false,
+          ],
+          [
+            "createdAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Status associated with an audit log action.
  */
@@ -129,36 +274,155 @@ export type AuditLogActionStatus =
   | "Failed"
   | "Pending"
 
+export const AuditLogActionStatus = {
+  ...__sidex_types.checker<AuditLogActionStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Rejected", null, null],
+        ["Panicked", null, null],
+        ["Succeeded", null, null],
+        ["Failed", null, null],
+        ["Pending", null, null],
+      ]),
+  ),
+}
 /**
  * Query the events recorded in the audit log.
  *
  * Requires administrator permissions.
  */
-export type QueryAuditLogEventsAction = Record<string, never>
+export type QueryAuditLogEventsAction = {
+  /**
+   * Opt into cursor pagination. Without this field, the existing limit applies.
+   */
+  page?: __schema_pagination.PageRequest
+}
 
+export const QueryAuditLogEventsAction = {
+  ...__sidex_types.checker<QueryAuditLogEventsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageRequest,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the events recorded in the audit log.
  */
 export type QueryAuditLogEventsOutput = {
   /**
+   * Present when cursor pagination was requested.
+   */
+  page?: __schema_pagination.PageInfo /**
    * List of audit events.
    */
-  events: __sidex_types.builtins.Sequence<AuditLogEvent>
+  events: AuditLogEvent[]
 }
 
+export const QueryAuditLogEventsOutput = {
+  ...__sidex_types.checker<QueryAuditLogEventsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageInfo,
+            ),
+            true,
+          ],
+          [
+            "events",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => AuditLogEvent,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the actions recorded in the audit log.
  *
  * Requires administrator permissions.
  */
-export type QueryAuditLogActionsAction = Record<string, never>
+export type QueryAuditLogActionsAction = {
+  /**
+   * Opt into cursor pagination. Without this field, the existing limit applies.
+   */
+  page?: __schema_pagination.PageRequest
+}
 
+export const QueryAuditLogActionsAction = {
+  ...__sidex_types.checker<QueryAuditLogActionsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageRequest,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the actions recorded in the audit log.
  */
 export type QueryAuditLogActionsOutput = {
   /**
+   * Present when cursor pagination was requested.
+   */
+  page?: __schema_pagination.PageInfo /**
    * List of actions.
    */
-  actions: __sidex_types.builtins.Sequence<AuditLogAction>
+  actions: AuditLogAction[]
+}
+
+export const QueryAuditLogActionsOutput = {
+  ...__sidex_types.checker<QueryAuditLogActionsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageInfo,
+            ),
+            true,
+          ],
+          [
+            "actions",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => AuditLogAction,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
 }
