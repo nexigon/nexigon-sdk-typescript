@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -38,7 +40,31 @@ export type SetFleetPropertyAction = {
    */
   value: __schema_json.JsonValue
 }
+
 export const SetFleetPropertyAction = {
+  ...__sidex_types.checker<SetFleetPropertyAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "value",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetFleetPropertyAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -48,7 +74,7 @@ export const SetFleetPropertyAction = {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Property name must be between 1 and 256 characters.",
@@ -58,7 +84,7 @@ export const SetFleetPropertyAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           256,
           "max_size",
           "Property name must be between 1 and 256 characters.",
@@ -68,7 +94,7 @@ export const SetFleetPropertyAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.name,
+          __instance["name"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:property_name",
           "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -133,7 +159,24 @@ export type GetFleetPropertyAction = {
    */
   name: __sidex_types.builtins.String
 }
+
 export const GetFleetPropertyAction = {
+  ...__sidex_types.checker<GetFleetPropertyAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: GetFleetPropertyAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -143,7 +186,7 @@ export const GetFleetPropertyAction = {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Property name must be between 1 and 256 characters.",
@@ -153,7 +196,7 @@ export const GetFleetPropertyAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           256,
           "max_size",
           "Property name must be between 1 and 256 characters.",
@@ -163,7 +206,7 @@ export const GetFleetPropertyAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.name,
+          __instance["name"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:property_name",
           "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -223,6 +266,21 @@ export type GetFleetPropertyOutput =
   | { result: "NotFound" }
   | ({ result: "Found" } & FleetProperty)
 
+export const GetFleetPropertyOutput = {
+  ...__sidex_types.checker<GetFleetPropertyOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["NotFound", null, null],
+        [
+          "Found",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => FleetProperty,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
 /**
  * Remove a fleet property.
  *
@@ -238,7 +296,24 @@ export type RemoveFleetPropertyAction = {
    */
   name: __sidex_types.builtins.String
 }
+
 export const RemoveFleetPropertyAction = {
+  ...__sidex_types.checker<RemoveFleetPropertyAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: RemoveFleetPropertyAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -248,7 +323,7 @@ export const RemoveFleetPropertyAction = {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Property name must be between 1 and 256 characters.",
@@ -258,7 +333,7 @@ export const RemoveFleetPropertyAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           256,
           "max_size",
           "Property name must be between 1 and 256 characters.",
@@ -268,7 +343,7 @@ export const RemoveFleetPropertyAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.name,
+          __instance["name"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:property_name",
           "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -328,6 +403,15 @@ export type RemoveFleetPropertyOutput =
   | { result: "NotFound" }
   | { result: "Removed" }
 
+export const RemoveFleetPropertyOutput = {
+  ...__sidex_types.checker<RemoveFleetPropertyOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["NotFound", null, null],
+        ["Removed", null, null],
+      ]),
+  ),
+}
 /**
  * Query all fleet properties of a project.
  */
@@ -338,6 +422,23 @@ export type QueryFleetPropertiesAction = {
   projectId: __schema_projects.ProjectId
 }
 
+export const QueryFleetPropertiesAction = {
+  ...__sidex_types.checker<QueryFleetPropertiesAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying fleet properties.
  */
@@ -345,12 +446,29 @@ export type QueryFleetPropertiesOutput = {
   /**
    * Properties keyed by name.
    */
-  properties: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    FleetProperty
-  >
+  properties: { [key: string]: FleetProperty }
 }
 
+export const QueryFleetPropertiesOutput = {
+  ...__sidex_types.checker<QueryFleetPropertiesOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "properties",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => FleetProperty,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * How a fleet property is managed.
  */
@@ -359,6 +477,16 @@ export type FleetPropertyKind =
   | { kind: "Computed" }
   | { kind: "Builtin" }
 
+export const FleetPropertyKind = {
+  ...__sidex_types.checker<FleetPropertyKind>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "kind", [
+        ["Manual", null, null],
+        ["Computed", null, null],
+        ["Builtin", null, null],
+      ]),
+  ),
+}
 /**
  * A fleet property.
  */
@@ -384,6 +512,40 @@ export type FleetProperty = {
   lastUpdated: __schema_datetime.Timestamp
 }
 
+export const FleetProperty = {
+  ...__sidex_types.checker<FleetProperty>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "value",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+          [
+            "kind",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => FleetPropertyKind,
+            ),
+            false,
+          ],
+          ["version", __sidex_types.builtin("u64"), false],
+          ["error", __sidex_types.builtin("string"), true],
+          [
+            "lastUpdated",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Define a computed fleet property.
  *
@@ -399,7 +561,7 @@ export type DefineComputedFleetPropertyAction = {
   name: __sidex_types.builtins.String /**
    * Device property names fed into the strategy's map function.
    */
-  inputProperties: __sidex_types.builtins.Sequence<__sidex_types.builtins.String> /**
+  inputProperties: __sidex_types.builtins.String[] /**
    * Name of the computation strategy.
    */
   strategy: __sidex_types.builtins.String /**
@@ -407,7 +569,37 @@ export type DefineComputedFleetPropertyAction = {
    */
   config?: __schema_json.JsonValue
 }
+
 export const DefineComputedFleetPropertyAction = {
+  ...__sidex_types.checker<DefineComputedFleetPropertyAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "inputProperties",
+            __sidex_types.sequence(__sidex_types.builtin("string")),
+            false,
+          ],
+          ["strategy", __sidex_types.builtin("string"), false],
+          [
+            "config",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: DefineComputedFleetPropertyAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -417,7 +609,7 @@ export const DefineComputedFleetPropertyAction = {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Property name must be between 1 and 256 characters.",
@@ -427,7 +619,7 @@ export const DefineComputedFleetPropertyAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           256,
           "max_size",
           "Property name must be between 1 and 256 characters.",
@@ -437,7 +629,7 @@ export const DefineComputedFleetPropertyAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.name,
+          __instance["name"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:property_name",
           "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -449,7 +641,7 @@ export const DefineComputedFleetPropertyAction = {
       const __field_path = __path.field("strategy")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.strategy as unknown as string),
+          __validate.charCount(__instance["strategy"] as unknown as string),
           1,
           "min_size",
           "Strategy name must be between 1 and 128 characters.",
@@ -459,7 +651,7 @@ export const DefineComputedFleetPropertyAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.strategy as unknown as string),
+          __validate.charCount(__instance["strategy"] as unknown as string),
           128,
           "max_size",
           "Strategy name must be between 1 and 128 characters.",
@@ -553,6 +745,23 @@ export type QueryComputedFleetPropertyDefinitionsAction = {
   projectId: __schema_projects.ProjectId
 }
 
+export const QueryComputedFleetPropertyDefinitionsAction = {
+  ...__sidex_types.checker<QueryComputedFleetPropertyDefinitionsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying computed fleet property definitions.
  *
@@ -562,9 +771,29 @@ export type QueryComputedFleetPropertyDefinitionsOutput = {
   /**
    * List of definitions.
    */
-  definitions: __sidex_types.builtins.Sequence<ComputedFleetPropertyDefinition>
+  definitions: ComputedFleetPropertyDefinition[]
 }
 
+export const QueryComputedFleetPropertyDefinitionsOutput = {
+  ...__sidex_types.checker<QueryComputedFleetPropertyDefinitionsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "definitions",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  ComputedFleetPropertyDefinition,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * A computed fleet property definition.
  *
@@ -577,7 +806,7 @@ export type ComputedFleetPropertyDefinition = {
   name: __sidex_types.builtins.String /**
    * Device property names fed into the strategy's map function.
    */
-  inputProperties: __sidex_types.builtins.Sequence<__sidex_types.builtins.String> /**
+  inputProperties: __sidex_types.builtins.String[] /**
    * Name of the computation strategy.
    */
   strategy: __sidex_types.builtins.String /**
@@ -587,4 +816,1767 @@ export type ComputedFleetPropertyDefinition = {
    * When the definition was created.
    */
   createdAt: __schema_datetime.Timestamp
+}
+
+export const ComputedFleetPropertyDefinition = {
+  ...__sidex_types.checker<ComputedFleetPropertyDefinition>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "inputProperties",
+            __sidex_types.sequence(__sidex_types.builtin("string")),
+            false,
+          ],
+          ["strategy", __sidex_types.builtin("string"), false],
+          [
+            "config",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+          [
+            "createdAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Unique ID of a fleet operation.
+ */
+export type FleetOperationId = __sidex_types.Nominal<
+  string,
+  "::nexigon_api::fleet::FleetOperationId"
+>
+
+export const FleetOperationId = {
+  ...__sidex_types.checker<FleetOperationId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
+/**
+ * Device selection within a single project. All supplied conditions must hold.
+ */
+export type FleetOperationTargetSelector = {
+  /**
+   * Optional explicit allow-list. An empty list matches no devices.
+   */
+  deviceIds?: __schema_devices.DeviceId[] /**
+   * Property expressions, evaluated in order until the first false or error.
+   * NamedValue reads a device property by its exact name. Errors are reported
+   * separately from non-matches. Metadata conditions are evaluated first.
+   */
+  predicates: __schema_json.JsonExpr[]
+  groups?: __schema_devices.DeviceGroupSelector /**
+   * Case-insensitive substring of device name, hostname, or ID.
+   */
+  search?: __sidex_types.builtins.String /**
+   * Current combined health and connection status.
+   */
+  status?: __schema_devices.DeviceStatus
+}
+
+export const FleetOperationTargetSelector = {
+  ...__sidex_types.checker<FleetOperationTargetSelector>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceIds",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_devices.DeviceId,
+              ),
+            ),
+            true,
+          ],
+          [
+            "predicates",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonExpr,
+              ),
+            ),
+            false,
+          ],
+          [
+            "groups",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_devices.DeviceGroupSelector,
+            ),
+            true,
+          ],
+          ["search", __sidex_types.builtin("string"), true],
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_devices.DeviceStatus,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * One stage in a fleet operation.
+ */
+export type FleetOperationStage = {
+  /**
+   * Human-readable stage name.
+   */
+  name: __sidex_types.builtins.String /**
+   * Percent of matching devices included in this stage.
+   *
+   * Uses deterministic sampling so stage membership is stable for a
+   * given fleet operation and device. Defaults to 100.
+   */
+  percentage?: __sidex_types.builtins.U32 /**
+   * Whether to automatically activate the next stage once this stage's
+   * guard criteria pass.
+   */
+  autoAdvance?: __sidex_types.builtins.Bool /**
+   * Guard checked before advancing past this stage.
+   */
+  guard?: FleetOperationStageGuard
+}
+
+export const FleetOperationStage = {
+  ...__sidex_types.checker<FleetOperationStage>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), false],
+          ["percentage", __sidex_types.builtin("u32"), true],
+          ["autoAdvance", __sidex_types.builtin("bool"), true],
+          [
+            "guard",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => FleetOperationStageGuard,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: FleetOperationStage,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("name")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          1,
+          "min_size",
+          "Stage name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          128,
+          "max_size",
+          "Stage name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+    }
+    if (
+      __instance["percentage"] !== undefined &&
+      __instance["percentage"] !== null
+    ) {
+      const __field_path = __path.field("percentage")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.numeric(__instance["percentage"] as any),
+          1,
+          "min",
+          "Stage percentage must be between 1 and 100.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.numeric(__instance["percentage"] as any),
+          100,
+          "max",
+          "Stage percentage must be between 1 and 100.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    name: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Stage name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            128,
+            "max_size",
+            "Stage name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+    percentage: {
+      validate(
+        __value: __sidex_types.builtins.U32,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.numeric(__value as any),
+            1,
+            "min",
+            "Stage percentage must be between 1 and 100.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.numeric(__value as any),
+            100,
+            "max",
+            "Stage percentage must be between 1 and 100.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Guard checked before a stage can be advanced.
+ */
+export type FleetOperationStageGuard = {
+  /**
+   * Required percent of selected targets that must have succeeded.
+   */
+  minSuccessPercent?: __sidex_types.builtins.U32 /**
+   * Maximum percent of selected targets that may have failed.
+   */
+  maxFailurePercent?: __sidex_types.builtins.U32 /**
+   * Additional observed gates that must pass before advancing.
+   */
+  gates: FleetOperationStageGate[]
+}
+
+export const FleetOperationStageGuard = {
+  ...__sidex_types.checker<FleetOperationStageGuard>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["minSuccessPercent", __sidex_types.builtin("u32"), true],
+          ["maxFailurePercent", __sidex_types.builtin("u32"), true],
+          [
+            "gates",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => FleetOperationStageGate,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: FleetOperationStageGuard,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    if (
+      __instance["minSuccessPercent"] !== undefined &&
+      __instance["minSuccessPercent"] !== null
+    ) {
+      const __field_path = __path.field("minSuccessPercent")
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.numeric(__instance["minSuccessPercent"] as any),
+          100,
+          "max",
+          "Success percentage must be between 0 and 100.",
+          __field_path,
+        ),
+      )
+    }
+    if (
+      __instance["maxFailurePercent"] !== undefined &&
+      __instance["maxFailurePercent"] !== null
+    ) {
+      const __field_path = __path.field("maxFailurePercent")
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.numeric(__instance["maxFailurePercent"] as any),
+          100,
+          "max",
+          "Failure percentage must be between 0 and 100.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    minSuccessPercent: {
+      validate(
+        __value: __sidex_types.builtins.U32,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.numeric(__value as any),
+            100,
+            "max",
+            "Success percentage must be between 0 and 100.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+    maxFailurePercent: {
+      validate(
+        __value: __sidex_types.builtins.U32,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.numeric(__value as any),
+            100,
+            "max",
+            "Failure percentage must be between 0 and 100.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Observed gate checked before a stage can advance.
+ */
+export type FleetOperationStageGate =
+  | ({ kind: "DeviceProperty" } & FleetOperationDevicePropertyGate)
+  | ({ kind: "NotBefore" } & FleetOperationNotBeforeGate)
+
+export const FleetOperationStageGate = {
+  ...__sidex_types.checker<FleetOperationStageGate>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "kind", [
+        [
+          "DeviceProperty",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> =>
+              FleetOperationDevicePropertyGate,
+          ),
+          null,
+        ],
+        [
+          "NotBefore",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => FleetOperationNotBeforeGate,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
+/**
+ * Gate over target device properties.
+ */
+export type FleetOperationDevicePropertyGate = {
+  /**
+   * Boolean expression evaluated against selected targets' properties.
+   *
+   * A missing property is a non-match. Other evaluation errors block the
+   * gate and are reported in its status.
+   */
+  predicate: __schema_json.JsonExpr /**
+   * Required percent of selected targets that must match.
+   */
+  minMatchPercent: __sidex_types.builtins.U32
+}
+
+export const FleetOperationDevicePropertyGate = {
+  ...__sidex_types.checker<FleetOperationDevicePropertyGate>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "predicate",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonExpr,
+            ),
+            false,
+          ],
+          ["minMatchPercent", __sidex_types.builtin("u32"), false],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: FleetOperationDevicePropertyGate,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("minMatchPercent")
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.numeric(__instance["minMatchPercent"] as any),
+          100,
+          "max",
+          "Match percentage must be between 0 and 100.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    minMatchPercent: {
+      validate(
+        __value: __sidex_types.builtins.U32,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.numeric(__value as any),
+            100,
+            "max",
+            "Match percentage must be between 0 and 100.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Gate that passes once hub server time has reached a timestamp.
+ */
+export type FleetOperationNotBeforeGate = {
+  /**
+   * Earliest timestamp at which the stage can advance.
+   */
+  notBefore: __schema_datetime.Timestamp
+}
+
+export const FleetOperationNotBeforeGate = {
+  ...__sidex_types.checker<FleetOperationNotBeforeGate>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "notBefore",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Fleet operation lifecycle status.
+ */
+export type FleetOperationStatus =
+  | "Draft"
+  | "Running"
+  | "Paused"
+  | "Completed"
+  | "Failed"
+  | "Cancelled"
+
+export const FleetOperationStatus = {
+  ...__sidex_types.checker<FleetOperationStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Draft", null, null],
+        ["Running", null, null],
+        ["Paused", null, null],
+        ["Completed", null, null],
+        ["Failed", null, null],
+        ["Cancelled", null, null],
+      ]),
+  ),
+}
+/**
+ * Summary of a fleet operation.
+ */
+export type FleetOperationSummary = {
+  /**
+   * ID of the fleet operation.
+   */
+  fleetOperationId: FleetOperationId /**
+   * Project the fleet operation belongs to.
+   */
+  projectId: __schema_projects.ProjectId /**
+   * Name of the fleet operation.
+   */
+  name: __sidex_types.builtins.String /**
+   * Optional description.
+   */
+  description?: __sidex_types.builtins.String /**
+   * Lifecycle status.
+   */
+  status: FleetOperationStatus /**
+   * How often the selector is re-evaluated to enroll newly matching devices.
+   *
+   * Absence means snapshot enrollment: the selector is evaluated exactly once.
+   * Presence makes the operation dynamic: the selector is re-evaluated while the
+   * operation remains running. The instance clamps this to a minimum when scheduling,
+   * so the interval actually used may be longer than the one requested here.
+   */
+  enrollmentIntervalSecs?: __sidex_types.builtins.U32 /**
+   * When the selector was last evaluated. Absent until the first enrollment pass.
+   */
+  lastEnrollmentAt?: __schema_datetime.Timestamp /**
+   * Whether the operation automatically completes once all of its targets
+   * converge to a terminal state.
+   *
+   * Always `true` when `enrollment_interval_secs` is absent. When an interval is
+   * present, `false` keeps the operation running indefinitely, continuing to enroll
+   * newly matching devices until explicitly cancelled.
+   */
+  closeWhenConverged: __sidex_types.builtins.Bool /**
+   * Highest activated stage index.
+   *
+   * All stages up to and including this index can continue progressing.
+   * The guard for this index controls advancement to the next stage.
+   */
+  activeStageIndex: __sidex_types.builtins.U32 /**
+   * Number of stages.
+   */
+  stageCount: __sidex_types.builtins.U32 /**
+   * Progress across selected targets.
+   */
+  progress: FleetOperationProgress /**
+   * Creation time.
+   */
+  createdAt: __schema_datetime.Timestamp /**
+   * Start time.
+   */
+  startedAt?: __schema_datetime.Timestamp /**
+   * Completion time.
+   */
+  completedAt?: __schema_datetime.Timestamp
+}
+
+export const FleetOperationSummary = {
+  ...__sidex_types.checker<FleetOperationSummary>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "fleetOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => FleetOperationId,
+            ),
+            false,
+          ],
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          ["description", __sidex_types.builtin("string"), true],
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => FleetOperationStatus,
+            ),
+            false,
+          ],
+          ["enrollmentIntervalSecs", __sidex_types.builtin("u32"), true],
+          [
+            "lastEnrollmentAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          ["closeWhenConverged", __sidex_types.builtin("bool"), false],
+          ["activeStageIndex", __sidex_types.builtin("u32"), false],
+          ["stageCount", __sidex_types.builtin("u32"), false],
+          [
+            "progress",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => FleetOperationProgress,
+            ),
+            false,
+          ],
+          [
+            "createdAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          [
+            "startedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          [
+            "completedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Fleet operation details.
+ */
+export type FleetOperationDetails = {
+  /**
+   * Summary.
+   */
+  summary: FleetOperationSummary /**
+   * Target selector.
+   */
+  selector: FleetOperationTargetSelector /**
+   * Stages.
+   */
+  stages: FleetOperationStage[] /**
+   * Ordered steps for each selected device.
+   */
+  steps: __schema_devices.DeviceOperationStep[]
+}
+
+export const FleetOperationDetails = {
+  ...__sidex_types.checker<FleetOperationDetails>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "summary",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => FleetOperationSummary,
+            ),
+            false,
+          ],
+          [
+            "selector",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                FleetOperationTargetSelector,
+            ),
+            false,
+          ],
+          [
+            "stages",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => FleetOperationStage,
+              ),
+            ),
+            false,
+          ],
+          [
+            "steps",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  __schema_devices.DeviceOperationStep,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Progress counts for selected targets.
+ */
+export type FleetOperationProgress = {
+  total: __sidex_types.builtins.U32
+  pending: __sidex_types.builtins.U32
+  running: __sidex_types.builtins.U32
+  succeeded: __sidex_types.builtins.U32
+  failed: __sidex_types.builtins.U32
+  timedOut: __sidex_types.builtins.U32
+  cancelled: __sidex_types.builtins.U32
+}
+
+export const FleetOperationProgress = {
+  ...__sidex_types.checker<FleetOperationProgress>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["total", __sidex_types.builtin("u32"), false],
+          ["pending", __sidex_types.builtin("u32"), false],
+          ["running", __sidex_types.builtin("u32"), false],
+          ["succeeded", __sidex_types.builtin("u32"), false],
+          ["failed", __sidex_types.builtin("u32"), false],
+          ["timedOut", __sidex_types.builtin("u32"), false],
+          ["cancelled", __sidex_types.builtin("u32"), false],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * A device the target selector could not be evaluated against.
+ *
+ * The device is not a target: the operation could not establish that it even applies to
+ * it. The error is recorded so that a broken selector is visible instead of silently
+ * narrowing the fleet, and the operation retries the device on its next enrollment pass.
+ */
+export type FleetOperationSelectionError = {
+  /**
+   * Device the selector failed on.
+   */
+  deviceId: __schema_devices.DeviceId /**
+   * Why evaluating the selector failed.
+   */
+  error: __sidex_types.builtins.String /**
+   * When the error was last observed.
+   */
+  updatedAt: __schema_datetime.Timestamp
+}
+
+export const FleetOperationSelectionError = {
+  ...__sidex_types.checker<FleetOperationSelectionError>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_devices.DeviceId,
+            ),
+            false,
+          ],
+          ["error", __sidex_types.builtin("string"), false],
+          [
+            "updatedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * A device a fleet operation applies to, and how its work is faring.
+ *
+ * A device becomes a target when the operation's selector matches it and it is given a
+ * device operation. That device operation is what actually executes; the fields below
+ * report its progress.
+ */
+export type FleetOperationTarget = {
+  /**
+   * Device the fleet operation applies to.
+   */
+  deviceId: __schema_devices.DeviceId /**
+   * ID of the device operation carrying out the work on that device.
+   */
+  deviceOperationId: __schema_devices.DeviceOperationId
+  stageIndex: __sidex_types.builtins.U32
+  stepIndex: __sidex_types.builtins.U32
+  status: __schema_devices.DeviceOperationStatus
+  lastError?: __sidex_types.builtins.String
+  updatedAt: __schema_datetime.Timestamp /**
+   * State for steps that have started, one entry per step reached so far.
+   *
+   * A step with no entry here has not been reached yet. Correlate entries
+   * with `FleetOperationDetails.steps` by `step_index`, not array position
+   * or length — this list isn't guaranteed to stay dense or gapless as a
+   * matter of API contract, even though the current driver happens to
+   * fill it in strictly in order.
+   */
+  stepStates: __schema_devices.DeviceOperationStepState[]
+}
+
+export const FleetOperationTarget = {
+  ...__sidex_types.checker<FleetOperationTarget>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_devices.DeviceId,
+            ),
+            false,
+          ],
+          [
+            "deviceOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_devices.DeviceOperationId,
+            ),
+            false,
+          ],
+          ["stageIndex", __sidex_types.builtin("u32"), false],
+          ["stepIndex", __sidex_types.builtin("u32"), false],
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_devices.DeviceOperationStatus,
+            ),
+            false,
+          ],
+          ["lastError", __sidex_types.builtin("string"), true],
+          [
+            "updatedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          [
+            "stepStates",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  __schema_devices.DeviceOperationStepState,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Query fleet operations for a project.
+ */
+export type QueryFleetOperationsAction = {
+  /**
+   * ID of the project.
+   */
+  projectId: __schema_projects.ProjectId
+}
+
+export const QueryFleetOperationsAction = {
+  ...__sidex_types.checker<QueryFleetOperationsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Output of querying fleet operations.
+ */
+export type QueryFleetOperationsOutput = {
+  /**
+   * Fleet operations.
+   */
+  operations: FleetOperationSummary[]
+}
+
+export const QueryFleetOperationsOutput = {
+  ...__sidex_types.checker<QueryFleetOperationsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "operations",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => FleetOperationSummary,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Get fleet operation details.
+ */
+export type GetFleetOperationAction = {
+  /**
+   * ID of the fleet operation.
+   */
+  fleetOperationId: FleetOperationId
+}
+
+export const GetFleetOperationAction = {
+  ...__sidex_types.checker<GetFleetOperationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "fleetOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => FleetOperationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Output of getting fleet operation details.
+ */
+export type GetFleetOperationOutput =
+  | { result: "NotFound" }
+  | ({ result: "Found" } & FleetOperationDetails)
+
+export const GetFleetOperationOutput = {
+  ...__sidex_types.checker<GetFleetOperationOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["NotFound", null, null],
+        [
+          "Found",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => FleetOperationDetails,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
+/**
+ * Create a fleet operation.
+ */
+export type CreateFleetOperationAction = {
+  /**
+   * Project the fleet operation belongs to.
+   */
+  projectId: __schema_projects.ProjectId /**
+   * Fleet operation name.
+   */
+  name: __sidex_types.builtins.String /**
+   * Optional description.
+   */
+  description?: __sidex_types.builtins.String /**
+   * How often to re-evaluate the selector, in seconds, to enroll devices that
+   * have started matching since the operation was created.
+   *
+   * Presence makes the operation dynamic. Absence means snapshot enrollment and
+   * evaluates the selector exactly once. The instance enforces a minimum when
+   * scheduling, so a shorter interval than the instance permits is accepted but
+   * enrolled no more often than policy allows.
+   */
+  enrollmentIntervalSecs?: __sidex_types.builtins.U32 /**
+   * Whether to automatically complete the operation once all of its targets
+   * converge to a terminal state. Defaults to `true`.
+   *
+   * Can only be set to `false` when `enrollment_interval_secs` is present.
+   */
+  closeWhenConverged?: __sidex_types.builtins.Bool /**
+   * Target selector.
+   */
+  selector: FleetOperationTargetSelector /**
+   * Ordered stages.
+   */
+  stages: FleetOperationStage[] /**
+   * Ordered steps for each selected device.
+   */
+  steps: __schema_devices.DeviceOperationStep[]
+}
+
+export const CreateFleetOperationAction = {
+  ...__sidex_types.checker<CreateFleetOperationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          ["description", __sidex_types.builtin("string"), true],
+          ["enrollmentIntervalSecs", __sidex_types.builtin("u32"), true],
+          ["closeWhenConverged", __sidex_types.builtin("bool"), true],
+          [
+            "selector",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                FleetOperationTargetSelector,
+            ),
+            false,
+          ],
+          [
+            "stages",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => FleetOperationStage,
+              ),
+            ),
+            false,
+          ],
+          [
+            "steps",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  __schema_devices.DeviceOperationStep,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: CreateFleetOperationAction,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("name")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          1,
+          "min_size",
+          "Fleet operation name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          128,
+          "max_size",
+          "Fleet operation name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+    }
+    if (
+      __instance["description"] !== undefined &&
+      __instance["description"] !== null
+    ) {
+      const __field_path = __path.field("description")
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["description"] as unknown as string),
+          4096,
+          "max_size",
+          "Fleet operation description must be at most 4096 characters.",
+          __field_path,
+        ),
+      )
+    }
+    if (
+      __instance["enrollmentIntervalSecs"] !== undefined &&
+      __instance["enrollmentIntervalSecs"] !== null
+    ) {
+      const __field_path = __path.field("enrollmentIntervalSecs")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.numeric(__instance["enrollmentIntervalSecs"] as any),
+          1,
+          "min",
+          "Enrollment interval must be at least one second.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    name: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Fleet operation name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            128,
+            "max_size",
+            "Fleet operation name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+    description: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            4096,
+            "max_size",
+            "Fleet operation description must be at most 4096 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+    enrollmentIntervalSecs: {
+      validate(
+        __value: __sidex_types.builtins.U32,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.numeric(__value as any),
+            1,
+            "min",
+            "Enrollment interval must be at least one second.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Output of creating a fleet operation.
+ */
+export type CreateFleetOperationOutput = {
+  /**
+   * ID of the created fleet operation.
+   */
+  fleetOperationId: FleetOperationId
+}
+
+export const CreateFleetOperationOutput = {
+  ...__sidex_types.checker<CreateFleetOperationOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "fleetOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => FleetOperationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Preview the devices a target selector currently matches.
+ *
+ * Evaluates the selector against the current state of every device in the
+ * project. A preview does not freeze membership; operations resolve their
+ * targets when they enroll devices.
+ */
+export type PreviewFleetOperationTargetsAction = {
+  /**
+   * Project to evaluate the selector against.
+   */
+  projectId: __schema_projects.ProjectId /**
+   * Target selector.
+   */
+  selector: FleetOperationTargetSelector /**
+   * Maximum number of devices and errors to return. Defaults to `20`.
+   */
+  limit?: __sidex_types.builtins.U32
+}
+
+export const PreviewFleetOperationTargetsAction = {
+  ...__sidex_types.checker<PreviewFleetOperationTargetsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          [
+            "selector",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                FleetOperationTargetSelector,
+            ),
+            false,
+          ],
+          ["limit", __sidex_types.builtin("u32"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: PreviewFleetOperationTargetsAction,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    if (__instance["limit"] !== undefined && __instance["limit"] !== null) {
+      const __field_path = __path.field("limit")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.numeric(__instance["limit"] as any),
+          1,
+          "min",
+          "Limit must be between 1 and 1000.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.numeric(__instance["limit"] as any),
+          1000,
+          "max",
+          "Limit must be between 1 and 1000.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    limit: {
+      validate(
+        __value: __sidex_types.builtins.U32,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.numeric(__value as any),
+            1,
+            "min",
+            "Limit must be between 1 and 1000.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.numeric(__value as any),
+            1000,
+            "max",
+            "Limit must be between 1 and 1000.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Output of previewing fleet operation targets.
+ */
+export type PreviewFleetOperationTargetsOutput = {
+  /**
+   * Number of matching devices.
+   */
+  matchingCount: __sidex_types.builtins.U32 /**
+   * Newest matching devices, up to the requested limit.
+   */
+  devices: __schema_projects.QueryProjectDevicesItem[] /**
+   * Number of devices whose property predicates failed evaluation.
+   */
+  errorCount: __sidex_types.builtins.U32 /**
+   * Devices whose property predicates failed evaluation, up to the requested
+   * limit.
+   */
+  selectionErrors: __schema_devices.DeviceSelectionError[]
+}
+
+export const PreviewFleetOperationTargetsOutput = {
+  ...__sidex_types.checker<PreviewFleetOperationTargetsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["matchingCount", __sidex_types.builtin("u32"), false],
+          [
+            "devices",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  __schema_projects.QueryProjectDevicesItem,
+              ),
+            ),
+            false,
+          ],
+          ["errorCount", __sidex_types.builtin("u32"), false],
+          [
+            "selectionErrors",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  __schema_devices.DeviceSelectionError,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Start a draft fleet operation.
+ */
+export type StartFleetOperationAction = {
+  /**
+   * ID of the fleet operation.
+   */
+  fleetOperationId: FleetOperationId
+}
+
+export const StartFleetOperationAction = {
+  ...__sidex_types.checker<StartFleetOperationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "fleetOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => FleetOperationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Advance the fleet operation to the next stage.
+ */
+export type AdvanceFleetOperationStageAction = {
+  /**
+   * ID of the fleet operation.
+   */
+  fleetOperationId: FleetOperationId
+}
+
+export const AdvanceFleetOperationStageAction = {
+  ...__sidex_types.checker<AdvanceFleetOperationStageAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "fleetOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => FleetOperationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Output of advancing a fleet operation stage.
+ */
+export type AdvanceFleetOperationStageOutput =
+  | { result: "Advanced" }
+  | { result: "AlreadyFinalStage" }
+  | ({ result: "GuardBlocked" } & FleetOperationStageGuardStatus)
+
+export const AdvanceFleetOperationStageOutput = {
+  ...__sidex_types.checker<AdvanceFleetOperationStageOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["Advanced", null, null],
+        ["AlreadyFinalStage", null, null],
+        [
+          "GuardBlocked",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> =>
+              FleetOperationStageGuardStatus,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
+/**
+ * Guard status when advancement is blocked.
+ */
+export type FleetOperationStageGuardStatus = {
+  /**
+   * Required success percentage.
+   */
+  minSuccessPercent?: __sidex_types.builtins.U32 /**
+   * Actual success percentage.
+   */
+  successPercent: __sidex_types.builtins.U32 /**
+   * Maximum allowed failure percentage.
+   */
+  maxFailurePercent?: __sidex_types.builtins.U32 /**
+   * Actual failure percentage.
+   */
+  failurePercent: __sidex_types.builtins.U32 /**
+   * Observed gate results.
+   */
+  gates: FleetOperationStageGateStatus[]
+}
+
+export const FleetOperationStageGuardStatus = {
+  ...__sidex_types.checker<FleetOperationStageGuardStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["minSuccessPercent", __sidex_types.builtin("u32"), true],
+          ["successPercent", __sidex_types.builtin("u32"), false],
+          ["maxFailurePercent", __sidex_types.builtin("u32"), true],
+          ["failurePercent", __sidex_types.builtin("u32"), false],
+          [
+            "gates",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  FleetOperationStageGateStatus,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Observed gate result.
+ */
+export type FleetOperationStageGateStatus = {
+  /**
+   * Gate index in the stage guard.
+   */
+  gateIndex: __sidex_types.builtins.U32 /**
+   * Whether the gate passed.
+   */
+  passed: __sidex_types.builtins.Bool /**
+   * Human-readable summary.
+   */
+  summary: __sidex_types.builtins.String /**
+   * Actual observed percentage for the gate.
+   */
+  actualPercent: __sidex_types.builtins.U32 /**
+   * Required threshold percentage.
+   */
+  thresholdPercent: __sidex_types.builtins.U32 /**
+   * Number of targets whose gate expression produced a non-missing error.
+   */
+  evaluationErrorCount: __sidex_types.builtins.U32 /**
+   * One representative evaluation error, when any occurred.
+   */
+  evaluationError?: __sidex_types.builtins.String
+}
+
+export const FleetOperationStageGateStatus = {
+  ...__sidex_types.checker<FleetOperationStageGateStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["gateIndex", __sidex_types.builtin("u32"), false],
+          ["passed", __sidex_types.builtin("bool"), false],
+          ["summary", __sidex_types.builtin("string"), false],
+          ["actualPercent", __sidex_types.builtin("u32"), false],
+          ["thresholdPercent", __sidex_types.builtin("u32"), false],
+          ["evaluationErrorCount", __sidex_types.builtin("u32"), false],
+          ["evaluationError", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Query the devices a fleet operation applies to, its *targets*.
+ *
+ * A target is a device the selector matched, reported together with the device operation
+ * carrying out the work on it and the stage that gates it. Devices in stages the rollout
+ * has not reached yet are included, and are `Pending`.
+ *
+ * This is a separate query rather than part of the operation's details because the list
+ * grows with the fleet, and most reads of an operation do not want it.
+ */
+export type QueryFleetOperationTargetsAction = {
+  /**
+   * ID of the fleet operation.
+   */
+  fleetOperationId: FleetOperationId
+}
+
+export const QueryFleetOperationTargetsAction = {
+  ...__sidex_types.checker<QueryFleetOperationTargetsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "fleetOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => FleetOperationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Output of querying the devices a fleet operation applies to.
+ */
+export type QueryFleetOperationTargetsOutput = {
+  /**
+   * Devices the fleet operation applies to.
+   */
+  targets: FleetOperationTarget[]
+}
+
+export const QueryFleetOperationTargetsOutput = {
+  ...__sidex_types.checker<QueryFleetOperationTargetsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "targets",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => FleetOperationTarget,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Query the devices whose selector evaluation failed for a fleet operation.
+ *
+ * Normally empty. A non-empty result means the selector could not be evaluated against
+ * those devices, so the operation cannot tell whether it applies to them.
+ */
+export type QueryFleetOperationSelectionErrorsAction = {
+  /**
+   * ID of the fleet operation.
+   */
+  fleetOperationId: FleetOperationId
+}
+
+export const QueryFleetOperationSelectionErrorsAction = {
+  ...__sidex_types.checker<QueryFleetOperationSelectionErrorsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "fleetOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => FleetOperationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Output of querying a fleet operation's selection errors.
+ */
+export type QueryFleetOperationSelectionErrorsOutput = {
+  /**
+   * Devices the selector could not be evaluated against.
+   */
+  errors: FleetOperationSelectionError[]
+}
+
+export const QueryFleetOperationSelectionErrorsOutput = {
+  ...__sidex_types.checker<QueryFleetOperationSelectionErrorsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "errors",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  FleetOperationSelectionError,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Pause a running fleet operation.
+ *
+ * Pausing halts the rollout without undoing any of it. No new devices are enrolled, no
+ * device operation makes progress, and devices are handed no new work. Nothing is
+ * cancelled and no state is lost.
+ *
+ * A device that already took a work item and has carried it out can still report the
+ * result, and the result is recorded: pausing stops new work being generated, it does not
+ * discard work that was genuinely done.
+ *
+ * Resume with `fleet_StartOperation`, which picks the rollout up exactly where it left
+ * off. Time spent paused does not count towards step timeouts: the clock on any step that
+ * was in flight restarts on resume, so a long pause cannot time work out.
+ */
+export type PauseFleetOperationAction = {
+  /**
+   * ID of the fleet operation.
+   */
+  fleetOperationId: FleetOperationId
+}
+
+export const PauseFleetOperationAction = {
+  ...__sidex_types.checker<PauseFleetOperationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "fleetOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => FleetOperationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Cancel a fleet operation.
+ */
+export type CancelFleetOperationAction = {
+  /**
+   * ID of the fleet operation.
+   */
+  fleetOperationId: FleetOperationId
+}
+
+export const CancelFleetOperationAction = {
+  ...__sidex_types.checker<CancelFleetOperationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "fleetOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => FleetOperationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
 }

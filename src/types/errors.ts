@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -29,9 +31,26 @@ import * as __validate from "@sidex/validate"
 export type ActionErrorKind =
   | "Invalid"
   | "Forbidden"
+  | "OperationAuthorizationRequired"
+  | "MfaEnrollmentRequired"
   | "Internal"
   | "RateLimited"
+  | "Unavailable"
 
+export const ActionErrorKind = {
+  ...__sidex_types.checker<ActionErrorKind>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Invalid", null, null],
+        ["Forbidden", null, null],
+        ["OperationAuthorizationRequired", null, null],
+        ["MfaEnrollmentRequired", null, null],
+        ["Internal", null, null],
+        ["RateLimited", null, null],
+        ["Unavailable", null, null],
+      ]),
+  ),
+}
 /**
  * Action error.
  */
@@ -42,12 +61,67 @@ export type ActionError = {
   kind: ActionErrorKind /**
    * Message of the error.
    */
-  message: __sidex_types.builtins.String
+  message: __sidex_types.builtins.String /**
+   * Minimum number of seconds to wait before retrying.
+   */
+  retryAfterSeconds?: __sidex_types.builtins.U64
 }
 
+export const ActionError = {
+  ...__sidex_types.checker<ActionError>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "kind",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => ActionErrorKind,
+            ),
+            false,
+          ],
+          ["message", __sidex_types.builtin("string"), false],
+          ["retryAfterSeconds", __sidex_types.builtin("u64"), true],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Action result.
  */
 export type ActionResult<T> =
   | { result: "Ok"; value: T }
   | { result: "Error"; error: ActionError }
+
+export const ActionResult = {
+  checker<T>(
+    __check_T: __sidex_types.Checker<T>,
+  ): __sidex_types.Checker<ActionResult<T>> {
+    return __sidex_types.checker(() =>
+      __sidex_types.variant("internal", "result", [
+        [
+          "Ok",
+          __sidex_types.lazy((): __sidex_types.Checker<unknown> => __check_T),
+          "value",
+        ],
+        [
+          "Error",
+          __sidex_types.lazy((): __sidex_types.Checker<unknown> => ActionError),
+          "error",
+        ],
+      ]),
+    )
+  },
+  is<T>(
+    value: unknown,
+    __check_T: __sidex_types.Checker<T>,
+  ): value is ActionResult<T> {
+    return ActionResult.checker(__check_T).is(value)
+  },
+  check<T>(
+    value: unknown,
+    __check_T: __sidex_types.Checker<T>,
+  ): __sidex_types.CheckReport {
+    return ActionResult.checker(__check_T).check(value)
+  },
+}

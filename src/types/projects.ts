@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -31,6 +33,11 @@ export type ProjectId = __sidex_types.Nominal<
   "::nexigon_api::projects::ProjectId"
 >
 
+export const ProjectId = {
+  ...__sidex_types.checker<ProjectId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Unique ID of a deployment token.
  */
@@ -39,6 +46,24 @@ export type DeploymentTokenId = __sidex_types.Nominal<
   "::nexigon_api::projects::DeploymentTokenId"
 >
 
+export const DeploymentTokenId = {
+  ...__sidex_types.checker<DeploymentTokenId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
+/**
+ * Unique ID of a device pairing key.
+ */
+export type DevicePairingKeyId = __sidex_types.Nominal<
+  string,
+  "::nexigon_api::projects::DevicePairingKeyId"
+>
+
+export const DevicePairingKeyId = {
+  ...__sidex_types.checker<DevicePairingKeyId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Deployment token.
  */
@@ -47,11 +72,21 @@ export type DeploymentToken = __sidex_types.Nominal<
   "::nexigon_api::projects::DeploymentToken"
 >
 
+export const DeploymentToken = {
+  ...__sidex_types.checker<DeploymentToken>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Query the projects of the instance.
  */
-export type QueryProjectsAction = Record<string, never>
+export type QueryProjectsAction = Record<string, unknown>
 
+export const QueryProjectsAction = {
+  ...__sidex_types.checker<QueryProjectsAction>(
+    (): __sidex_types.Check => __sidex_types.record([], []),
+  ),
+}
 /**
  * Output of querying the projects of the instance.
  */
@@ -59,9 +94,28 @@ export type QueryProjectsOutput = {
   /**
    * List of projects.
    */
-  projects: __sidex_types.builtins.Sequence<QueryProjectsItem>
+  projects: QueryProjectsItem[]
 }
 
+export const QueryProjectsOutput = {
+  ...__sidex_types.checker<QueryProjectsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projects",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => QueryProjectsItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Project item.
  */
@@ -75,6 +129,22 @@ export type QueryProjectsItem = {
   name: __sidex_types.builtins.String
 }
 
+export const QueryProjectsItem = {
+  ...__sidex_types.checker<QueryProjectsItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Get information about a project.
  */
@@ -85,6 +155,21 @@ export type GetProjectDetailsAction = {
   projectId: ProjectId
 }
 
+export const GetProjectDetailsAction = {
+  ...__sidex_types.checker<GetProjectDetailsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Information about a project.
  */
@@ -101,6 +186,23 @@ export type GetProjectDetailsOutput = {
   deviceCount: __sidex_types.builtins.U32
 }
 
+export const GetProjectDetailsOutput = {
+  ...__sidex_types.checker<GetProjectDetailsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          ["deviceCount", __sidex_types.builtin("u32"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set the name of a project.
  */
@@ -113,7 +215,22 @@ export type SetProjectNameAction = {
    */
   name: __sidex_types.builtins.String
 }
+
 export const SetProjectNameAction = {
+  ...__sidex_types.checker<SetProjectNameAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetProjectNameAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -123,7 +240,7 @@ export const SetProjectNameAction = {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Project name must be between 1 and 128 characters.",
@@ -133,7 +250,7 @@ export const SetProjectNameAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           128,
           "max_size",
           "Project name must be between 1 and 128 characters.",
@@ -188,7 +305,25 @@ export type CreateProjectAction = {
    */
   name: __sidex_types.builtins.String
 }
+
 export const CreateProjectAction = {
+  ...__sidex_types.checker<CreateProjectAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_organizations.OrganizationId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: CreateProjectAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -198,7 +333,7 @@ export const CreateProjectAction = {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Project name must be between 1 and 128 characters.",
@@ -208,7 +343,7 @@ export const CreateProjectAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           128,
           "max_size",
           "Project name must be between 1 and 128 characters.",
@@ -256,6 +391,20 @@ export const CreateProjectAction = {
  */
 export type CreateProjectOutput = { result: "Created" } & CreateProjectSuccess
 
+export const CreateProjectOutput = {
+  ...__sidex_types.checker<CreateProjectOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        [
+          "Created",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => CreateProjectSuccess,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
 /**
  * Project creation has been successful.
  */
@@ -266,6 +415,21 @@ export type CreateProjectSuccess = {
   projectId: ProjectId
 }
 
+export const CreateProjectSuccess = {
+  ...__sidex_types.checker<CreateProjectSuccess>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Delete a project.
  */
@@ -276,31 +440,482 @@ export type DeleteProjectAction = {
   projectId: ProjectId
 }
 
+export const DeleteProjectAction = {
+  ...__sidex_types.checker<DeleteProjectAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
- * Query the devices of a project.
+ * A schema for an exact property name. Schemas never constrain property writes.
  */
-export type QueryProjectDevicesAction = {
+export type PropertySchema = {
+  /**
+   * Exact property name.
+   */
+  name: __sidex_types.builtins.String /**
+   * JSON Schema document.
+   */
+  schema: __schema_json.JsonValue /**
+   * Whether the definition is built in and cannot be changed or removed.
+   */
+  builtin: __sidex_types.builtins.Bool
+}
+
+export const PropertySchema = {
+  ...__sidex_types.checker<PropertySchema>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "schema",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+          ["builtin", __sidex_types.builtin("bool"), false],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * List project definitions and the read-only built-in definitions.
+ */
+export type QueryPropertySchemasAction = {
   /**
    * ID of the project.
    */
   projectId: ProjectId
 }
 
+export const QueryPropertySchemasAction = {
+  ...__sidex_types.checker<QueryPropertySchemasAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Available property schemas, ordered by name.
+ */
+export type QueryPropertySchemasOutput = {
+  /**
+   * Available definitions.
+   */
+  schemas: PropertySchema[]
+}
+
+export const QueryPropertySchemasOutput = {
+  ...__sidex_types.checker<QueryPropertySchemasOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "schemas",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => PropertySchema,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Create or replace a project schema without validating existing property values.
+ *
+ * Requires permission to manage project settings. Built-in definitions are read-only.
+ * The schema must be a JSON object or boolean. Editors report unsupported or invalid
+ * schemas and allow explicit overrides; APIs do not enforce schemas on property writes.
+ */
+export type SetPropertySchemaAction = {
+  /**
+   * ID of the project.
+   */
+  projectId: ProjectId /**
+   * Exact property name.
+   */
+  name: __sidex_types.builtins.String /**
+   * JSON Schema document.
+   */
+  schema: __schema_json.JsonValue
+}
+
+export const SetPropertySchemaAction = {
+  ...__sidex_types.checker<SetPropertySchemaAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "schema",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: SetPropertySchemaAction,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("name")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          1,
+          "min_size",
+          "Property name must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          256,
+          "max_size",
+          "Property name must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.regexMatch(
+          __instance["name"],
+          "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+          "regex",
+          "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    name: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Property name must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            256,
+            "max_size",
+            "Property name must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.regexMatch(
+            __value,
+            "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+            "regex",
+            "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Remove a project definition without changing property values.
+ *
+ * Requires permission to manage project settings. Built-in definitions are read-only.
+ */
+export type RemovePropertySchemaAction = {
+  /**
+   * ID of the project.
+   */
+  projectId: ProjectId /**
+   * Exact property name.
+   */
+  name: __sidex_types.builtins.String
+}
+
+export const RemovePropertySchemaAction = {
+  ...__sidex_types.checker<RemovePropertySchemaAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: RemovePropertySchemaAction,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("name")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          1,
+          "min_size",
+          "Property name must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          256,
+          "max_size",
+          "Property name must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    name: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Property name must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            256,
+            "max_size",
+            "Property name must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Query a page of the devices of a project, newest first.
+ */
+export type QueryProjectDevicesAction = {
+  /**
+   * ID of the project.
+   */
+  projectId: ProjectId /**
+   * Only return devices matching this filter.
+   */
+  filter?: __schema_devices.DeviceFilter /**
+   * Page to return. Without this field, the first page is returned.
+   */
+  page?: __schema_pagination.PageRequest
+}
+
+export const QueryProjectDevicesAction = {
+  ...__sidex_types.checker<QueryProjectDevicesAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+          [
+            "filter",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_devices.DeviceFilter,
+            ),
+            true,
+          ],
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageRequest,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the devices of a project.
  */
 export type QueryProjectDevicesOutput = {
   /**
-   * List of devices.
+   * Devices on this page.
    */
-  devices: __sidex_types.builtins.Sequence<QueryProjectDevicesItem>
+  devices: QueryProjectDevicesItem[] /**
+   * Continuation of the traversal.
+   */
+  page: __schema_pagination.PageInfo
 }
 
+export const QueryProjectDevicesOutput = {
+  ...__sidex_types.checker<QueryProjectDevicesOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "devices",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => QueryProjectDevicesItem,
+              ),
+            ),
+            false,
+          ],
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageInfo,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Count the devices of a project.
+ */
+export type CountProjectDevicesAction = {
+  /**
+   * ID of the project.
+   */
+  projectId: ProjectId /**
+   * Only count devices matching this filter in `matching`.
+   */
+  filter?: __schema_devices.DeviceFilter
+}
+
+export const CountProjectDevicesAction = {
+  ...__sidex_types.checker<CountProjectDevicesAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+          [
+            "filter",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_devices.DeviceFilter,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Output of counting the devices of a project.
+ */
+export type CountProjectDevicesOutput = {
+  /**
+   * Number of devices in the project.
+   */
+  total: __sidex_types.builtins.U32 /**
+   * Number of devices matching the filter.
+   */
+  matching: __sidex_types.builtins.U32
+}
+
+export const CountProjectDevicesOutput = {
+  ...__sidex_types.checker<CountProjectDevicesOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["total", __sidex_types.builtin("u32"), false],
+          ["matching", __sidex_types.builtin("u32"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Device item.
  */
 export type QueryProjectDevicesItem = {
   /**
+   * Groups currently assigned to this device.
+   */
+  groups: __schema_devices.DeviceGroup[] /**
    * ID of the device.
    */
   deviceId: __schema_devices.DeviceId /**
@@ -330,6 +945,60 @@ export type QueryProjectDevicesItem = {
   currentConnectionDurationSecs?: __sidex_types.builtins.U32
 }
 
+export const QueryProjectDevicesItem = {
+  ...__sidex_types.checker<QueryProjectDevicesItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "groups",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  __schema_devices.DeviceGroup,
+              ),
+            ),
+            false,
+          ],
+          [
+            "deviceId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_devices.DeviceId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), true],
+          ["hostname", __sidex_types.builtin("string"), true],
+          [
+            "firstSeen",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_devices.DeviceStatus,
+            ),
+            false,
+          ],
+          ["isConnected", __sidex_types.builtin("bool"), false],
+          ["pendingCertificatesCount", __sidex_types.builtin("u32"), false],
+          [
+            "lastConnectedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          ["currentConnectionDurationSecs", __sidex_types.builtin("u32"), true],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the deployment tokens of a project.
  */
@@ -340,6 +1009,21 @@ export type QueryProjectDeploymentTokensAction = {
   projectId: ProjectId
 }
 
+export const QueryProjectDeploymentTokensAction = {
+  ...__sidex_types.checker<QueryProjectDeploymentTokensAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the deployment tokens of a project.
  */
@@ -347,9 +1031,29 @@ export type QueryProjectDeploymentTokensOutput = {
   /**
    * List of deployment tokens.
    */
-  tokens: __sidex_types.builtins.Sequence<QueryProjectDeploymentTokensItem>
+  tokens: QueryProjectDeploymentTokensItem[]
 }
 
+export const QueryProjectDeploymentTokensOutput = {
+  ...__sidex_types.checker<QueryProjectDeploymentTokensOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "tokens",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  QueryProjectDeploymentTokensItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Deployment token item.
  */
@@ -358,6 +1062,9 @@ export type QueryProjectDeploymentTokensItem = {
    * ID of the token.
    */
   tokenId: DeploymentTokenId /**
+   * Device this deployment token is bound to, if any.
+   */
+  deviceId?: __schema_devices.DeviceId /**
    * Creation date of the token.
    */
   createdAt: __schema_datetime.Timestamp /**
@@ -369,6 +1076,45 @@ export type QueryProjectDeploymentTokensItem = {
   flags: DeploymentTokenFlags
 }
 
+export const QueryProjectDeploymentTokensItem = {
+  ...__sidex_types.checker<QueryProjectDeploymentTokensItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "tokenId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeploymentTokenId,
+            ),
+            false,
+          ],
+          [
+            "deviceId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_devices.DeviceId,
+            ),
+            true,
+          ],
+          [
+            "createdAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), true],
+          [
+            "flags",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeploymentTokenFlags,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query repositories of a project.
  */
@@ -379,6 +1125,21 @@ export type QueryProjectRepositoriesAction = {
   projectId: ProjectId
 }
 
+export const QueryProjectRepositoriesAction = {
+  ...__sidex_types.checker<QueryProjectRepositoriesAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the repositories of a project.
  */
@@ -386,9 +1147,29 @@ export type QueryProjectRepositoriesOutput = {
   /**
    * List of repositories.
    */
-  repositories: __sidex_types.builtins.Sequence<QueryProjectRepositoriesItem>
+  repositories: QueryProjectRepositoriesItem[]
 }
 
+export const QueryProjectRepositoriesOutput = {
+  ...__sidex_types.checker<QueryProjectRepositoriesOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositories",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  QueryProjectRepositoriesItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Repository item.
  */
@@ -412,6 +1193,27 @@ export type QueryProjectRepositoriesItem = {
   publicName: __sidex_types.builtins.String
 }
 
+export const QueryProjectRepositoriesItem = {
+  ...__sidex_types.checker<QueryProjectRepositoriesItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.RepositoryId,
+            ),
+            false,
+          ],
+          ["displayName", __sidex_types.builtin("string"), false],
+          ["slug", __sidex_types.builtin("string"), true],
+          ["publicName", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Flags for deployment tokens.
  */
@@ -422,6 +1224,15 @@ export type DeploymentTokenFlags = {
   autoAccept?: __sidex_types.builtins.Bool
 }
 
+export const DeploymentTokenFlags = {
+  ...__sidex_types.checker<DeploymentTokenFlags>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [["autoAccept", __sidex_types.builtin("bool"), true]],
+        [],
+      ),
+  ),
+}
 /**
  * Create a deployment token.
  */
@@ -437,7 +1248,29 @@ export type CreateDeploymentTokenAction = {
    */
   flags?: DeploymentTokenFlags
 }
+
 export const CreateDeploymentTokenAction = {
+  ...__sidex_types.checker<CreateDeploymentTokenAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "flags",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeploymentTokenFlags,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: CreateDeploymentTokenAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -447,7 +1280,7 @@ export const CreateDeploymentTokenAction = {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Token name must be between 1 and 128 characters.",
@@ -457,7 +1290,7 @@ export const CreateDeploymentTokenAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           128,
           "max_size",
           "Token name must be between 1 and 128 characters.",
@@ -513,6 +1346,30 @@ export type CreateDeploymentTokenOutput = {
   token: DeploymentToken
 }
 
+export const CreateDeploymentTokenOutput = {
+  ...__sidex_types.checker<CreateDeploymentTokenOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "tokenId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeploymentTokenId,
+            ),
+            false,
+          ],
+          [
+            "token",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeploymentToken,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Delete a deployment token.
  */
@@ -523,6 +1380,23 @@ export type DeleteDeploymentTokenAction = {
   tokenId: DeploymentTokenId
 }
 
+export const DeleteDeploymentTokenAction = {
+  ...__sidex_types.checker<DeleteDeploymentTokenAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "tokenId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeploymentTokenId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set the flags of a deployment token.
  */
@@ -536,26 +1410,695 @@ export type SetDeploymentTokenFlagsAction = {
   flags: DeploymentTokenFlags
 }
 
+export const SetDeploymentTokenFlagsAction = {
+  ...__sidex_types.checker<SetDeploymentTokenFlagsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "tokenId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeploymentTokenId,
+            ),
+            false,
+          ],
+          [
+            "flags",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeploymentTokenFlags,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
- * Query the audit log of the project.
+ * Query the device pairing keys of a project.
  */
-export type QueryAuditLogEventsAction = {
+export type QueryDevicePairingKeysAction = {
   /**
    * ID of the project.
    */
   projectId: ProjectId
 }
 
+export const QueryDevicePairingKeysAction = {
+  ...__sidex_types.checker<QueryDevicePairingKeysAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Output of querying the device pairing keys of a project.
+ */
+export type QueryDevicePairingKeysOutput = {
+  /**
+   * List of device pairing keys.
+   */
+  pairingKeys: QueryDevicePairingKeysItem[]
+}
+
+export const QueryDevicePairingKeysOutput = {
+  ...__sidex_types.checker<QueryDevicePairingKeysOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "pairingKeys",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  QueryDevicePairingKeysItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Device pairing key item.
+ */
+export type QueryDevicePairingKeysItem = {
+  /**
+   * ID of the pairing key.
+   */
+  pairingKeyId: DevicePairingKeyId /**
+   * Public lookup selector (first six normalized characters of the key).
+   */
+  selector: __sidex_types.builtins.String /**
+   * Creation date of the pairing key.
+   */
+  createdAt: __schema_datetime.Timestamp /**
+   * Expiration date of the pairing key.
+   */
+  expiresAt: __schema_datetime.Timestamp /**
+   * Timestamp when the pairing key was redeemed.
+   */
+  usedAt?: __schema_datetime.Timestamp /**
+   * Timestamp when the pairing key was revoked.
+   */
+  revokedAt?: __schema_datetime.Timestamp /**
+   * Name of the pairing key.
+   */
+  name?: __sidex_types.builtins.String /**
+   * Device created or associated when the pairing key was redeemed.
+   */
+  deviceId?: __schema_devices.DeviceId /**
+   * Deployment token issued when the pairing key was redeemed.
+   */
+  tokenId?: DeploymentTokenId
+}
+
+export const QueryDevicePairingKeysItem = {
+  ...__sidex_types.checker<QueryDevicePairingKeysItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "pairingKeyId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DevicePairingKeyId,
+            ),
+            false,
+          ],
+          ["selector", __sidex_types.builtin("string"), false],
+          [
+            "createdAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          [
+            "expiresAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          [
+            "usedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          [
+            "revokedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          ["name", __sidex_types.builtin("string"), true],
+          [
+            "deviceId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_devices.DeviceId,
+            ),
+            true,
+          ],
+          [
+            "tokenId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeploymentTokenId,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Create a device pairing key.
+ */
+export type CreateDevicePairingKeyAction = {
+  /**
+   * ID of the project.
+   */
+  projectId: ProjectId /**
+   * Name of the pairing key.
+   */
+  name?: __sidex_types.builtins.String /**
+   * Pairing key validity duration in seconds.
+   *
+   * Defaults to 5 minutes. The maximum is 10 minutes.
+   */
+  validForSecs?: __sidex_types.builtins.U32
+}
+
+export const CreateDevicePairingKeyAction = {
+  ...__sidex_types.checker<CreateDevicePairingKeyAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), true],
+          ["validForSecs", __sidex_types.builtin("u32"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: CreateDevicePairingKeyAction,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    if (__instance["name"] !== undefined && __instance["name"] !== null) {
+      const __field_path = __path.field("name")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          1,
+          "min_size",
+          "Pairing key name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          128,
+          "max_size",
+          "Pairing key name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+    }
+    if (
+      __instance["validForSecs"] !== undefined &&
+      __instance["validForSecs"] !== null
+    ) {
+      const __field_path = __path.field("validForSecs")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.numeric(__instance["validForSecs"] as any),
+          1,
+          "min",
+          "Pairing key validity must be between 1 second and 10 minutes.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.numeric(__instance["validForSecs"] as any),
+          600,
+          "max",
+          "Pairing key validity must be between 1 second and 10 minutes.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    name: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Pairing key name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            128,
+            "max_size",
+            "Pairing key name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+    validForSecs: {
+      validate(
+        __value: __sidex_types.builtins.U32,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.numeric(__value as any),
+            1,
+            "min",
+            "Pairing key validity must be between 1 second and 10 minutes.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.numeric(__value as any),
+            600,
+            "max",
+            "Pairing key validity must be between 1 second and 10 minutes.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Output of creating a device pairing key.
+ */
+export type CreateDevicePairingKeyOutput = {
+  /**
+   * ID of the pairing key.
+   */
+  pairingKeyId: DevicePairingKeyId /**
+   * Pairing key. This is only returned once.
+   */
+  pairingKey: __sidex_types.builtins.String /**
+   * Public lookup selector (first six normalized characters of the key).
+   */
+  selector: __sidex_types.builtins.String /**
+   * Creation date of the pairing key.
+   */
+  createdAt: __schema_datetime.Timestamp /**
+   * Expiration date of the pairing key.
+   */
+  expiresAt: __schema_datetime.Timestamp
+}
+
+export const CreateDevicePairingKeyOutput = {
+  ...__sidex_types.checker<CreateDevicePairingKeyOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "pairingKeyId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DevicePairingKeyId,
+            ),
+            false,
+          ],
+          ["pairingKey", __sidex_types.builtin("string"), false],
+          ["selector", __sidex_types.builtin("string"), false],
+          [
+            "createdAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          [
+            "expiresAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Revoke an unused device pairing key.
+ */
+export type RevokeDevicePairingKeyAction = {
+  /**
+   * ID of the pairing key.
+   */
+  pairingKeyId: DevicePairingKeyId
+}
+
+export const RevokeDevicePairingKeyAction = {
+  ...__sidex_types.checker<RevokeDevicePairingKeyAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "pairingKeyId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DevicePairingKeyId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Redeem a device pairing key.
+ */
+export type RedeemDevicePairingKeyAction = {
+  /**
+   * Pairing key as shown to the user.
+   */
+  pairingKey: __sidex_types.builtins.String /**
+   * Fingerprint generated by the device.
+   */
+  fingerprint: __schema_devices.DeviceFingerprint /**
+   * Optional display name for the device.
+   */
+  deviceName?: __sidex_types.builtins.String
+}
+
+export const RedeemDevicePairingKeyAction = {
+  ...__sidex_types.checker<RedeemDevicePairingKeyAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["pairingKey", __sidex_types.builtin("string"), false],
+          [
+            "fingerprint",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_devices.DeviceFingerprint,
+            ),
+            false,
+          ],
+          ["deviceName", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: RedeemDevicePairingKeyAction,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("pairingKey")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["pairingKey"] as unknown as string),
+          10,
+          "min_size",
+          "Pairing key must be 10 characters, optionally formatted with one dash.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["pairingKey"] as unknown as string),
+          11,
+          "max_size",
+          "Pairing key must be 10 characters, optionally formatted with one dash.",
+          __field_path,
+        ),
+      )
+    }
+    if (
+      __instance["deviceName"] !== undefined &&
+      __instance["deviceName"] !== null
+    ) {
+      const __field_path = __path.field("deviceName")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["deviceName"] as unknown as string),
+          1,
+          "min_size",
+          "Device name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["deviceName"] as unknown as string),
+          128,
+          "max_size",
+          "Device name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    pairingKey: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            10,
+            "min_size",
+            "Pairing key must be 10 characters, optionally formatted with one dash.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            11,
+            "max_size",
+            "Pairing key must be 10 characters, optionally formatted with one dash.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+    deviceName: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Device name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            128,
+            "max_size",
+            "Device name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Output of redeeming a device pairing key.
+ */
+export type RedeemDevicePairingKeyOutput = {
+  /**
+   * Project the device was created in.
+   */
+  projectId: ProjectId /**
+   * Device created for this pairing key.
+   */
+  deviceId: __schema_devices.DeviceId /**
+   * ID of the issued device-bound deployment token.
+   */
+  tokenId: DeploymentTokenId /**
+   * Device-bound deployment token. This is only returned once.
+   */
+  token: DeploymentToken
+}
+
+export const RedeemDevicePairingKeyOutput = {
+  ...__sidex_types.checker<RedeemDevicePairingKeyOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+          [
+            "deviceId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_devices.DeviceId,
+            ),
+            false,
+          ],
+          [
+            "tokenId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeploymentTokenId,
+            ),
+            false,
+          ],
+          [
+            "token",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeploymentToken,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Query the audit log of the project.
+ */
+export type QueryAuditLogEventsAction = {
+  /**
+   * Opt into cursor pagination. Without this field, the existing limit applies.
+   */
+  page?: __schema_pagination.PageRequest /**
+   * ID of the project.
+   */
+  projectId: ProjectId
+}
+
+export const QueryAuditLogEventsAction = {
+  ...__sidex_types.checker<QueryAuditLogEventsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageRequest,
+            ),
+            true,
+          ],
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the audit log of the project.
  */
 export type QueryAuditLogEventsOutput = {
   /**
+   * Present when cursor pagination was requested.
+   */
+  page?: __schema_pagination.PageInfo /**
    * List of audit log events.
    */
-  events: __sidex_types.builtins.Sequence<__schema_audit.AuditLogEvent>
+  events: __schema_audit.AuditLogEvent[]
 }
 
+export const QueryAuditLogEventsOutput = {
+  ...__sidex_types.checker<QueryAuditLogEventsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageInfo,
+            ),
+            true,
+          ],
+          [
+            "events",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  __schema_audit.AuditLogEvent,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Add a repository to the project.
  */
@@ -569,6 +2112,29 @@ export type AddProjectRepositoryAction = {
   repositoryId: __schema_repositories.RepositoryId
 }
 
+export const AddProjectRepositoryAction = {
+  ...__sidex_types.checker<AddProjectRepositoryAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.RepositoryId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Remove a repository from the project.
  */
@@ -582,6 +2148,29 @@ export type RemoveProjectRepositoryAction = {
   repositoryId: __schema_repositories.RepositoryId
 }
 
+export const RemoveProjectRepositoryAction = {
+  ...__sidex_types.checker<RemoveProjectRepositoryAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.RepositoryId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * OTLP event forwarding configuration for a project.
  *
@@ -598,22 +2187,41 @@ export type ProjectOtlpConfig = {
    * HTTP headers to include with OTLP requests (e.g., for authentication).
    * Values are masked when read back.
    */
-  headers: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __sidex_types.builtins.String
-  >
+  headers: { [key: string]: __sidex_types.builtins.String }
 }
+
 export const ProjectOtlpConfig = {
+  ...__sidex_types.checker<ProjectOtlpConfig>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["enabled", __sidex_types.builtin("bool"), false],
+          ["endpoint", __sidex_types.builtin("string"), true],
+          [
+            "headers",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.builtin("string"),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: ProjectOtlpConfig,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
-    if (__instance.endpoint !== undefined && __instance.endpoint !== null) {
+    if (
+      __instance["endpoint"] !== undefined &&
+      __instance["endpoint"] !== null
+    ) {
       const __field_path = __path.field("endpoint")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.endpoint as unknown as string),
+          __validate.charCount(__instance["endpoint"] as unknown as string),
           1,
           "min_size",
           "OTLP endpoint must be between 1 and 2048 characters.",
@@ -623,7 +2231,7 @@ export const ProjectOtlpConfig = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.endpoint as unknown as string),
+          __validate.charCount(__instance["endpoint"] as unknown as string),
           2048,
           "max_size",
           "OTLP endpoint must be between 1 and 2048 characters.",
@@ -633,7 +2241,7 @@ export const ProjectOtlpConfig = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.endpoint,
+          __instance["endpoint"],
           "^https?://",
           "format:url",
           "OTLP endpoint must be an HTTP(S) URL.",
@@ -698,6 +2306,21 @@ export type GetProjectOtlpConfigAction = {
   projectId: ProjectId
 }
 
+export const GetProjectOtlpConfigAction = {
+  ...__sidex_types.checker<GetProjectOtlpConfigAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of getting the OTLP configuration for a project.
  *
@@ -710,6 +2333,23 @@ export type GetProjectOtlpConfigOutput = {
   config: ProjectOtlpConfig
 }
 
+export const GetProjectOtlpConfigOutput = {
+  ...__sidex_types.checker<GetProjectOtlpConfigOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "config",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => ProjectOtlpConfig,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set the OTLP event forwarding configuration for a project.
  *
@@ -723,4 +2363,27 @@ export type SetProjectOtlpConfigAction = {
    * OTLP configuration.
    */
   config: ProjectOtlpConfig
+}
+
+export const SetProjectOtlpConfigAction = {
+  ...__sidex_types.checker<SetProjectOtlpConfigAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => ProjectId),
+            false,
+          ],
+          [
+            "config",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => ProjectOtlpConfig,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
 }

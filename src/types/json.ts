@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -26,4 +28,695 @@ import * as __validate from "@sidex/validate"
 /**
  * JSON value.
  */
-export type JsonValue = unknown
+export type JsonValue = __sidex_types.builtins.Json
+
+export const JsonValue = {
+  ...__sidex_types.checker<JsonValue>(
+    (): __sidex_types.Check => __sidex_types.builtin("json"),
+  ),
+}
+/**
+ * JSON expression evaluated against a context of named JSON values.
+ *
+ * Every expression returns a `JsonValue`; boolean expressions are not a
+ * separate language. A consumer that uses an expression as a condition
+ * requires its result to be a JSON boolean.
+ *
+ * `NamedValue` reads are supplied by the consumer. In device and fleet
+ * operations, each name is an exact device-property name and its value is the
+ * property's JSON value. A missing name is distinct from a name whose value is
+ * JSON `null`.
+ */
+export type JsonExpr =
+  | { kind: "Literal"; value: JsonValue }
+  | { kind: "Current" }
+  | ({ kind: "NamedValue" } & JsonNamedValueExpr)
+  | ({ kind: "Get" } & JsonGetExpr)
+  | ({ kind: "Equals" } & JsonBinaryExpr)
+  | ({ kind: "NotEquals" } & JsonBinaryExpr)
+  | ({ kind: "LessThan" } & JsonBinaryExpr)
+  | ({ kind: "LessThanOrEquals" } & JsonBinaryExpr)
+  | ({ kind: "GreaterThan" } & JsonBinaryExpr)
+  | ({ kind: "GreaterThanOrEquals" } & JsonBinaryExpr)
+  | ({ kind: "In" } & JsonBinaryExpr)
+  | ({ kind: "And" } & JsonVariadicExpr)
+  | ({ kind: "Or" } & JsonVariadicExpr)
+  | ({ kind: "Not" } & JsonUnaryExpr)
+  | ({ kind: "Exists" } & JsonExistsExpr)
+  | ({ kind: "VersionRequirement" } & JsonVersionRequirementExpr)
+
+export const JsonExpr = {
+  ...__sidex_types.checker<JsonExpr>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "kind", [
+        [
+          "Literal",
+          __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonValue),
+          "value",
+        ],
+        ["Current", null, null],
+        [
+          "NamedValue",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonNamedValueExpr,
+          ),
+          null,
+        ],
+        [
+          "Get",
+          __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonGetExpr),
+          null,
+        ],
+        [
+          "Equals",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonBinaryExpr,
+          ),
+          null,
+        ],
+        [
+          "NotEquals",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonBinaryExpr,
+          ),
+          null,
+        ],
+        [
+          "LessThan",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonBinaryExpr,
+          ),
+          null,
+        ],
+        [
+          "LessThanOrEquals",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonBinaryExpr,
+          ),
+          null,
+        ],
+        [
+          "GreaterThan",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonBinaryExpr,
+          ),
+          null,
+        ],
+        [
+          "GreaterThanOrEquals",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonBinaryExpr,
+          ),
+          null,
+        ],
+        [
+          "In",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonBinaryExpr,
+          ),
+          null,
+        ],
+        [
+          "And",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonVariadicExpr,
+          ),
+          null,
+        ],
+        [
+          "Or",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonVariadicExpr,
+          ),
+          null,
+        ],
+        [
+          "Not",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonUnaryExpr,
+          ),
+          null,
+        ],
+        [
+          "Exists",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonExistsExpr,
+          ),
+          null,
+        ],
+        [
+          "VersionRequirement",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonVersionRequirementExpr,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
+/**
+ * Read a named JSON value from the evaluation context.
+ */
+export type JsonNamedValueExpr = {
+  /**
+   * Named value identifier.
+   */
+  name: __sidex_types.builtins.String /**
+   * Fallback expression for a missing named value.
+   *
+   * If set, a missing named value evaluates this expression instead of
+   * raising an evaluation error.
+   */
+  default?: JsonExpr
+}
+
+export const JsonNamedValueExpr = {
+  ...__sidex_types.checker<JsonNamedValueExpr>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "default",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonExpr),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: JsonNamedValueExpr,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("name")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          1,
+          "min_size",
+          "Named value identifier must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          256,
+          "max_size",
+          "Named value identifier must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.regexMatch(
+          __instance["name"],
+          "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+          "format:named_value",
+          "Named value identifier must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    name: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Named value identifier must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            256,
+            "max_size",
+            "Named value identifier must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.regexMatch(
+            __value,
+            "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+            "format:named_value",
+            "Named value identifier must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Get a nested value inside another expression result.
+ */
+export type JsonGetExpr = {
+  /**
+   * Expression that evaluates to the value to read from.
+   */
+  expr: JsonExpr /**
+   * Path to read inside the expression result. An empty path reads the
+   * expression result itself.
+   */
+  path: JsonPath /**
+   * Fallback expression for a missing expression or path.
+   *
+   * If set, missing named values and missing paths evaluate this expression
+   * instead of raising an evaluation error. Other errors still propagate.
+   */
+  default?: JsonExpr
+}
+
+export const JsonGetExpr = {
+  ...__sidex_types.checker<JsonGetExpr>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "expr",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonExpr),
+            false,
+          ],
+          [
+            "path",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonPath),
+            false,
+          ],
+          [
+            "default",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonExpr),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Structured path into a JSON value.
+ *
+ * A JSON array of path segments. String segments address object members;
+ * unsigned integer segments address array elements. The empty path addresses
+ * the expression or mutation root. Operation definitions accept at most 32
+ * segments per path.
+ */
+export type JsonPath = __sidex_types.Nominal<
+  JsonPathSegment[],
+  "::nexigon_api::json::JsonPath"
+>
+
+export const JsonPath = {
+  ...__sidex_types.checker<JsonPath>(
+    (): __sidex_types.Check =>
+      __sidex_types.sequence(
+        __sidex_types.lazy(
+          (): __sidex_types.Checker<unknown> => JsonPathSegment,
+        ),
+      ),
+  ),
+}
+/**
+ * One segment in a structured JSON path.
+ */
+export type JsonPathSegment =
+  | __sidex_types.builtins.String
+  | __sidex_types.builtins.U32
+
+export const JsonPathSegment = {
+  ...__sidex_types.checker<JsonPathSegment>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("implicit", "tag", [
+        ["Key", __sidex_types.builtin("string"), "content"],
+        ["Index", __sidex_types.builtin("u32"), "content"],
+      ]),
+  ),
+}
+/**
+ * Unary expression payload.
+ */
+export type JsonUnaryExpr = {
+  /**
+   * Operand expression.
+   */
+  expr: JsonExpr
+}
+
+export const JsonUnaryExpr = {
+  ...__sidex_types.checker<JsonUnaryExpr>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "expr",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonExpr),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Binary expression payload.
+ */
+export type JsonBinaryExpr = {
+  /**
+   * Left operand.
+   */
+  left: JsonExpr /**
+   * Right operand.
+   */
+  right: JsonExpr
+}
+
+export const JsonBinaryExpr = {
+  ...__sidex_types.checker<JsonBinaryExpr>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "left",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonExpr),
+            false,
+          ],
+          [
+            "right",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonExpr),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Variadic expression payload.
+ */
+export type JsonVariadicExpr = {
+  /**
+   * Operand expressions. At least one is required in an operation
+   * definition.
+   */
+  exprs: JsonExpr[]
+}
+
+export const JsonVariadicExpr = {
+  ...__sidex_types.checker<JsonVariadicExpr>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "exprs",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => JsonExpr,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Path existence expression payload.
+ */
+export type JsonExistsExpr = {
+  /**
+   * Expression to test.
+   */
+  expr: JsonExpr /**
+   * Path to resolve against the expression result. The empty path tests
+   * whether the expression itself resolves.
+   */
+  path: JsonPath
+}
+
+export const JsonExistsExpr = {
+  ...__sidex_types.checker<JsonExistsExpr>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "expr",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonExpr),
+            false,
+          ],
+          [
+            "path",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonPath),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Version requirement expression payload.
+ */
+export type JsonVersionRequirementExpr = {
+  /**
+   * Expression that must evaluate to a version string.
+   */
+  expr: JsonExpr /**
+   * Version requirement, for example `>=1.2.0, <2.0.0`.
+   */
+  requirement: __sidex_types.builtins.String
+}
+
+export const JsonVersionRequirementExpr = {
+  ...__sidex_types.checker<JsonVersionRequirementExpr>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "expr",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonExpr),
+            false,
+          ],
+          ["requirement", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: JsonVersionRequirementExpr,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("requirement")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["requirement"] as unknown as string),
+          1,
+          "min_size",
+          "Version requirement must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["requirement"] as unknown as string),
+          256,
+          "max_size",
+          "Version requirement must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    requirement: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Version requirement must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            256,
+            "max_size",
+            "Version requirement must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Declarative mutation to apply to a JSON value.
+ *
+ * Expressions inside a mutation may use `Current` to read the exact value to
+ * which the mutation is applied. Object parents missing from a `Set` or
+ * `MergePatch` path are created. Array indexes must already exist. Removing a
+ * missing member or index is a successful no-op; removing an array element
+ * shifts later elements left.
+ */
+export type JsonMutation =
+  | ({ mutation: "Set" } & JsonSetMutation)
+  | ({ mutation: "MergePatch" } & JsonMergePatchMutation)
+  | ({ mutation: "Remove" } & JsonRemoveMutation)
+
+export const JsonMutation = {
+  ...__sidex_types.checker<JsonMutation>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "mutation", [
+        [
+          "Set",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonSetMutation,
+          ),
+          null,
+        ],
+        [
+          "MergePatch",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonMergePatchMutation,
+          ),
+          null,
+        ],
+        [
+          "Remove",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => JsonRemoveMutation,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
+/**
+ * Set mutation.
+ */
+export type JsonSetMutation = {
+  /**
+   * Path locating the value to replace. An empty path replaces the root.
+   */
+  path: JsonPath /**
+   * Expression that produces the value to write.
+   */
+  expr: JsonExpr
+}
+
+export const JsonSetMutation = {
+  ...__sidex_types.checker<JsonSetMutation>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "path",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonPath),
+            false,
+          ],
+          [
+            "expr",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonExpr),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * RFC 7396 JSON Merge Patch mutation.
+ */
+export type JsonMergePatchMutation = {
+  /**
+   * Path locating the value to patch. An empty path patches the root.
+   */
+  path: JsonPath /**
+   * Expression that produces the JSON Merge Patch document.
+   */
+  expr: JsonExpr
+}
+
+export const JsonMergePatchMutation = {
+  ...__sidex_types.checker<JsonMergePatchMutation>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "path",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonPath),
+            false,
+          ],
+          [
+            "expr",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonExpr),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Remove mutation.
+ */
+export type JsonRemoveMutation = {
+  /**
+   * Non-empty path to remove in the root value.
+   *
+   * A mutation cannot remove its root because its result is still a JSON
+   * value. Use the operation's `RemoveDeviceProperty` step to delete an
+   * entire property.
+   */
+  path: JsonPath
+}
+
+export const JsonRemoveMutation = {
+  ...__sidex_types.checker<JsonRemoveMutation>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "path",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => JsonPath),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}

@@ -3,7 +3,7 @@
 Node.js SDK for the Nexigon Hub public API.
 
 ```ts
-import { Client, types } from "@nexigon/hub-sdk"
+import { ActionApiError, Client, types } from "@nexigon/hub-sdk"
 
 const client = new Client({
   baseUrl: "https://hub.example.com",
@@ -19,6 +19,25 @@ Action inputs and outputs are typed through the generated public API action map.
 The client authenticates with a Nexigon Hub API token and calls
 `/api/v1/actions/invoke/{action}`.
 
+## Action Errors
+
+Action failures throw `ActionApiError`. Rate-limit and temporary-capacity errors
+include a `retryAfterSeconds` value derived from `Retry-After`, with the structured
+response body as a fallback:
+
+```ts
+try {
+  await client.execute("projects_Query", { organizationId: "o_..." })
+} catch (error) {
+  if (
+    error instanceof ActionApiError &&
+    error.retryAfterSeconds !== undefined
+  ) {
+    console.error(`Retry after ${error.retryAfterSeconds} seconds`)
+  }
+}
+```
+
 ## Device Commands
 
 ```ts
@@ -28,6 +47,10 @@ const done = await client.invokeDeviceCommand("d_...", "reboot", {
   onLog: (frame) => console.log(frame.lines.join("\n")),
 })
 ```
+
+Clients require HTTPS by default so bearer tokens cannot be sent over an
+accidentally plaintext connection. Local development over HTTP requires the explicit
+`dangerousAllowPlaintext: true` option.
 
 Device command streaming uses Node WebSockets and sends the same bearer token
 on the upgrade request.

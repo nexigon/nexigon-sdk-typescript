@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -31,6 +33,11 @@ export type DeviceId = __sidex_types.Nominal<
   "::nexigon_api::devices::DeviceId"
 >
 
+export const DeviceId = {
+  ...__sidex_types.checker<DeviceId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Device fingerprint.
  */
@@ -39,6 +46,11 @@ export type DeviceFingerprint = __sidex_types.Nominal<
   "::nexigon_api::devices::DeviceFingerprint"
 >
 
+export const DeviceFingerprint = {
+  ...__sidex_types.checker<DeviceFingerprint>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Device fingerprint ID.
  */
@@ -47,6 +59,11 @@ export type DeviceFingerprintId = __sidex_types.Nominal<
   "::nexigon_api::devices::DeviceFingerprintId"
 >
 
+export const DeviceFingerprintId = {
+  ...__sidex_types.checker<DeviceFingerprintId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Unique ID of a device certificate.
  */
@@ -55,6 +72,11 @@ export type DeviceCertificateId = __sidex_types.Nominal<
   "::nexigon_api::devices::DeviceCertificateId"
 >
 
+export const DeviceCertificateId = {
+  ...__sidex_types.checker<DeviceCertificateId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Unique ID of a device connection.
  */
@@ -63,6 +85,11 @@ export type DeviceConnectionId = __sidex_types.Nominal<
   "::nexigon_api::devices::DeviceConnectionId"
 >
 
+export const DeviceConnectionId = {
+  ...__sidex_types.checker<DeviceConnectionId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Fingerprint of a device certificate.
  */
@@ -71,6 +98,11 @@ export type CertificateFingerprint = __sidex_types.Nominal<
   "::nexigon_api::devices::CertificateFingerprint"
 >
 
+export const CertificateFingerprint = {
+  ...__sidex_types.checker<CertificateFingerprint>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * ID of a device event (unique per device).
  */
@@ -79,11 +111,21 @@ export type DeviceEventId = __sidex_types.Nominal<
   "::nexigon_api::devices::DeviceEventId"
 >
 
+export const DeviceEventId = {
+  ...__sidex_types.checker<DeviceEventId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Query the devices of the instance.
  */
-export type QueryDevicesAction = Record<string, never>
+export type QueryDevicesAction = Record<string, unknown>
 
+export const QueryDevicesAction = {
+  ...__sidex_types.checker<QueryDevicesAction>(
+    (): __sidex_types.Check => __sidex_types.record([], []),
+  ),
+}
 /**
  * Output of querying the devices of the instance.
  */
@@ -91,9 +133,28 @@ export type QueryDevicesOutput = {
   /**
    * List of devices.
    */
-  devices: __sidex_types.builtins.Sequence<QueryDevicesItem>
+  devices: QueryDevicesItem[]
 }
 
+export const QueryDevicesOutput = {
+  ...__sidex_types.checker<QueryDevicesOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "devices",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => QueryDevicesItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Device item.
  */
@@ -116,6 +177,37 @@ export type QueryDevicesItem = {
   currentConnectionDurationSecs?: __sidex_types.builtins.U32
 }
 
+export const QueryDevicesItem = {
+  ...__sidex_types.checker<QueryDevicesItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          ["isConnected", __sidex_types.builtin("bool"), false],
+          [
+            "lastConnectedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          ["currentConnectionDurationSecs", __sidex_types.builtin("u32"), true],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Get information about a device.
  */
@@ -126,11 +218,29 @@ export type GetDeviceDetailsAction = {
   deviceId: DeviceId
 }
 
+export const GetDeviceDetailsAction = {
+  ...__sidex_types.checker<GetDeviceDetailsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of getting information about a device.
  */
 export type GetDeviceDetailsOutput = {
   /**
+   * Groups currently assigned to this device.
+   */
+  groups: DeviceGroup[] /**
    * ID of the device.
    */
   deviceId: DeviceId /**
@@ -148,12 +258,70 @@ export type GetDeviceDetailsOutput = {
   isConnected: __sidex_types.builtins.Bool /**
    * Certificates of the device.
    */
-  certificates: __sidex_types.builtins.Sequence<DeviceCertificate> /**
+  certificates: DeviceCertificate[] /**
    * Connections of the device.
    */
-  connections: __sidex_types.builtins.Sequence<DeviceConnection>
+  connections: DeviceConnection[]
 }
 
+export const GetDeviceDetailsOutput = {
+  ...__sidex_types.checker<GetDeviceDetailsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "groups",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceGroup,
+              ),
+            ),
+            false,
+          ],
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          [
+            "fingerprintId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceFingerprintId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), true],
+          ["isConnected", __sidex_types.builtin("bool"), false],
+          [
+            "certificates",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceCertificate,
+              ),
+            ),
+            false,
+          ],
+          [
+            "connections",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceConnection,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Device certificate.
  */
@@ -173,6 +341,44 @@ export type DeviceCertificate = {
   firstSeen: __schema_datetime.Timestamp
 }
 
+export const DeviceCertificate = {
+  ...__sidex_types.checker<DeviceCertificate>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "certificateId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceCertificateId,
+            ),
+            false,
+          ],
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceCertificateStatus,
+            ),
+            false,
+          ],
+          [
+            "fingerprint",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => CertificateFingerprint,
+            ),
+            false,
+          ],
+          [
+            "firstSeen",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Device connection.
  */
@@ -192,11 +398,55 @@ export type DeviceConnection = {
   connectedForSecs: __sidex_types.builtins.U32
 }
 
+export const DeviceConnection = {
+  ...__sidex_types.checker<DeviceConnection>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "connectionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceConnectionId,
+            ),
+            false,
+          ],
+          [
+            "nodeId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_cluster.ClusterNodeId,
+            ),
+            false,
+          ],
+          [
+            "connectedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          ["connectedForSecs", __sidex_types.builtin("u32"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Combined device status (connection + health).
  */
 export type DeviceStatus = "healthy" | "warning" | "error" | "offline"
 
+export const DeviceStatus = {
+  ...__sidex_types.checker<DeviceStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["healthy", null, null],
+        ["warning", null, null],
+        ["error", null, null],
+        ["offline", null, null],
+      ]),
+  ),
+}
 /**
  * Status of a device certificate.
  */
@@ -207,6 +457,18 @@ export type DeviceCertificateStatus =
   | "Revoked"
   | "Conflict"
 
+export const DeviceCertificateStatus = {
+  ...__sidex_types.checker<DeviceCertificateStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Pending", null, null],
+        ["Active", null, null],
+        ["Rejected", null, null],
+        ["Revoked", null, null],
+        ["Conflict", null, null],
+      ]),
+  ),
+}
 /**
  * Reason why a device connection ended.
  */
@@ -216,6 +478,17 @@ export type ConnectionEndReason =
   | "NodeCrashed"
   | "ServerShutdown"
 
+export const ConnectionEndReason = {
+  ...__sidex_types.checker<ConnectionEndReason>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Unknown", null, null],
+        ["Disconnected", null, null],
+        ["NodeCrashed", null, null],
+        ["ServerShutdown", null, null],
+      ]),
+  ),
+}
 /**
  * Device connection log entry (for connection history).
  */
@@ -241,6 +514,53 @@ export type DeviceConnectionLog = {
   durationSecs: __sidex_types.builtins.U32
 }
 
+export const DeviceConnectionLog = {
+  ...__sidex_types.checker<DeviceConnectionLog>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "connectionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceConnectionId,
+            ),
+            false,
+          ],
+          [
+            "nodeId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_cluster.ClusterNodeId,
+            ),
+            false,
+          ],
+          [
+            "connectedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          [
+            "endedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          [
+            "endReason",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => ConnectionEndReason,
+            ),
+            true,
+          ],
+          ["durationSecs", __sidex_types.builtin("u32"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Create a new device.
  */
@@ -254,6 +574,30 @@ export type CreateDeviceAction = {
   fingerprint: DeviceFingerprint
 }
 
+export const CreateDeviceAction = {
+  ...__sidex_types.checker<CreateDeviceAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          [
+            "fingerprint",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceFingerprint,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of creating a new device.
  */
@@ -264,6 +608,21 @@ export type CreateDeviceOutput = {
   deviceId: DeviceId
 }
 
+export const CreateDeviceOutput = {
+  ...__sidex_types.checker<CreateDeviceOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Delete a device.
  */
@@ -274,6 +633,21 @@ export type DeleteDeviceAction = {
   deviceId: DeviceId
 }
 
+export const DeleteDeviceAction = {
+  ...__sidex_types.checker<DeleteDeviceAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set the name of a device.
  */
@@ -286,17 +660,32 @@ export type SetDeviceNameAction = {
    */
   name?: __sidex_types.builtins.String
 }
+
 export const SetDeviceNameAction = {
+  ...__sidex_types.checker<SetDeviceNameAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetDeviceNameAction,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
-    if (__instance.name !== undefined && __instance.name !== null) {
+    if (__instance["name"] !== undefined && __instance["name"] !== null) {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Device name must be between 1 and 128 characters.",
@@ -306,7 +695,7 @@ export const SetDeviceNameAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           128,
           "max_size",
           "Device name must be between 1 and 128 characters.",
@@ -366,20 +755,42 @@ export type IssueDeviceTokenAction = {
    */
   claims?: __schema_json.JsonValue
 }
+
 export const IssueDeviceTokenAction = {
+  ...__sidex_types.checker<IssueDeviceTokenAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          ["validForSecs", __sidex_types.builtin("u32"), true],
+          [
+            "claims",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: IssueDeviceTokenAction,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
     if (
-      __instance.validForSecs !== undefined &&
-      __instance.validForSecs !== null
+      __instance["validForSecs"] !== undefined &&
+      __instance["validForSecs"] !== null
     ) {
       const __field_path = __path.field("validForSecs")
       __report.merge(
         __validate.minInclusive(
-          __instance.validForSecs as any,
+          __validate.numeric(__instance["validForSecs"] as any),
           1,
           "min",
           "Token validity must be between 1 second and 1 year.",
@@ -389,7 +800,7 @@ export const IssueDeviceTokenAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __instance.validForSecs as any,
+          __validate.numeric(__instance["validForSecs"] as any),
           31536000,
           "max",
           "Token validity must be between 1 second and 1 year.",
@@ -409,7 +820,7 @@ export const IssueDeviceTokenAction = {
         const __report = __validate.ValidationReport.ok()
         __report.merge(
           __validate.minInclusive(
-            __value as any,
+            __validate.numeric(__value as any),
             1,
             "min",
             "Token validity must be between 1 second and 1 year.",
@@ -419,7 +830,7 @@ export const IssueDeviceTokenAction = {
 
         __report.merge(
           __validate.maxInclusive(
-            __value as any,
+            __validate.numeric(__value as any),
             31536000,
             "max",
             "Token validity must be between 1 second and 1 year.",
@@ -442,6 +853,23 @@ export type IssueDeviceTokenOutput = {
   jwt: __schema_jwt.Jwt
 }
 
+export const IssueDeviceTokenOutput = {
+  ...__sidex_types.checker<IssueDeviceTokenOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "jwt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_jwt.Jwt,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Validate a device JWT.
  *
@@ -454,6 +882,23 @@ export type ValidateDeviceTokenAction = {
   jwt: __schema_jwt.Jwt
 }
 
+export const ValidateDeviceTokenAction = {
+  ...__sidex_types.checker<ValidateDeviceTokenAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "jwt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_jwt.Jwt,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of validating a device JWT.
  */
@@ -461,6 +906,21 @@ export type ValidateDeviceTokenOutput =
   | { result: "Invalid" }
   | ({ result: "Valid" } & ValidateDeviceTokenSuccess)
 
+export const ValidateDeviceTokenOutput = {
+  ...__sidex_types.checker<ValidateDeviceTokenOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["Invalid", null, null],
+        [
+          "Valid",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => ValidateDeviceTokenSuccess,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
 /**
  * Successful validation of a device JWT.
  */
@@ -474,6 +934,28 @@ export type ValidateDeviceTokenSuccess = {
   claims: __schema_json.JsonValue
 }
 
+export const ValidateDeviceTokenSuccess = {
+  ...__sidex_types.checker<ValidateDeviceTokenSuccess>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          [
+            "claims",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Add a device certificate.
  */
@@ -492,6 +974,35 @@ export type AddDeviceCertificateAction = {
   status?: DeviceCertificateStatus
 }
 
+export const AddDeviceCertificateAction = {
+  ...__sidex_types.checker<AddDeviceCertificateAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          [
+            "fingerprint",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => CertificateFingerprint,
+            ),
+            false,
+          ],
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceCertificateStatus,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of adding a device certificate.
  */
@@ -502,6 +1013,23 @@ export type AddDeviceCertificateOutput = {
   certificateId: DeviceCertificateId
 }
 
+export const AddDeviceCertificateOutput = {
+  ...__sidex_types.checker<AddDeviceCertificateOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "certificateId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceCertificateId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Delete a device certificate.
  */
@@ -512,6 +1040,23 @@ export type DeleteDeviceCertificateAction = {
   certificateId: DeviceCertificateId
 }
 
+export const DeleteDeviceCertificateAction = {
+  ...__sidex_types.checker<DeleteDeviceCertificateAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "certificateId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceCertificateId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set the status of a device certificate.
  */
@@ -525,6 +1070,30 @@ export type SetDeviceCertificateStatusAction = {
   status: DeviceCertificateStatus
 }
 
+export const SetDeviceCertificateStatusAction = {
+  ...__sidex_types.checker<SetDeviceCertificateStatusAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "certificateId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceCertificateId,
+            ),
+            false,
+          ],
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceCertificateStatus,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Register a connection of a device to a cluster node.
  */
@@ -541,6 +1110,36 @@ export type RegisterDeviceConnectionAction = {
   connectionId: DeviceConnectionId
 }
 
+export const RegisterDeviceConnectionAction = {
+  ...__sidex_types.checker<RegisterDeviceConnectionAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          [
+            "nodeId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_cluster.ClusterNodeId,
+            ),
+            false,
+          ],
+          [
+            "connectionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceConnectionId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of registering a connection of a device to a cluster node.
  */
@@ -551,6 +1150,23 @@ export type RegisterDeviceConnectionOutput = {
   connectionId: DeviceConnectionId
 }
 
+export const RegisterDeviceConnectionOutput = {
+  ...__sidex_types.checker<RegisterDeviceConnectionOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "connectionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceConnectionId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Unregister a connection of a device to a cluster node.
  */
@@ -564,6 +1180,30 @@ export type UnregisterDeviceConnectionAction = {
   endReason: ConnectionEndReason
 }
 
+export const UnregisterDeviceConnectionAction = {
+  ...__sidex_types.checker<UnregisterDeviceConnectionAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "connectionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceConnectionId,
+            ),
+            false,
+          ],
+          [
+            "endReason",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => ConnectionEndReason,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the connection history of a device.
  */
@@ -579,17 +1219,33 @@ export type QueryDeviceConnectionsAction = {
    */
   activeOnly?: __sidex_types.builtins.Bool
 }
+
 export const QueryDeviceConnectionsAction = {
+  ...__sidex_types.checker<QueryDeviceConnectionsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          ["limit", __sidex_types.builtin("u32"), true],
+          ["activeOnly", __sidex_types.builtin("bool"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: QueryDeviceConnectionsAction,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
-    if (__instance.limit !== undefined && __instance.limit !== null) {
+    if (__instance["limit"] !== undefined && __instance["limit"] !== null) {
       const __field_path = __path.field("limit")
       __report.merge(
         __validate.minInclusive(
-          __instance.limit as any,
+          __validate.numeric(__instance["limit"] as any),
           1,
           "min",
           "Limit must be between 1 and 1000.",
@@ -599,7 +1255,7 @@ export const QueryDeviceConnectionsAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __instance.limit as any,
+          __validate.numeric(__instance["limit"] as any),
           1000,
           "max",
           "Limit must be between 1 and 1000.",
@@ -619,7 +1275,7 @@ export const QueryDeviceConnectionsAction = {
         const __report = __validate.ValidationReport.ok()
         __report.merge(
           __validate.minInclusive(
-            __value as any,
+            __validate.numeric(__value as any),
             1,
             "min",
             "Limit must be between 1 and 1000.",
@@ -629,7 +1285,7 @@ export const QueryDeviceConnectionsAction = {
 
         __report.merge(
           __validate.maxInclusive(
-            __value as any,
+            __validate.numeric(__value as any),
             1000,
             "max",
             "Limit must be between 1 and 1000.",
@@ -649,9 +1305,28 @@ export type QueryDeviceConnectionsOutput = {
   /**
    * List of connections.
    */
-  connections: __sidex_types.builtins.Sequence<DeviceConnectionLog>
+  connections: DeviceConnectionLog[]
 }
 
+export const QueryDeviceConnectionsOutput = {
+  ...__sidex_types.checker<QueryDeviceConnectionsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "connections",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceConnectionLog,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Issue a HTTP proxy JWT.
  */
@@ -666,6 +1341,8 @@ export type IssueDeviceHttpProxyTokenAction = {
    * Hostname to accept requests for.
    *
    * Defaults to a device-specific pseudo-random subdomain of the instance domain.
+   * A custom hostname requires a configured instance URL or legacy domain setting
+   * and must differ from the Nexigon Hub hostname.
    */
   hostname?: __sidex_types.builtins.String /**
    * Device port to proxy to.
@@ -677,20 +1354,38 @@ export type IssueDeviceHttpProxyTokenAction = {
    */
   redirect?: __sidex_types.builtins.String
 }
+
 export const IssueDeviceHttpProxyTokenAction = {
+  ...__sidex_types.checker<IssueDeviceHttpProxyTokenAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          ["validForSecs", __sidex_types.builtin("u32"), true],
+          ["hostname", __sidex_types.builtin("string"), true],
+          ["port", __sidex_types.builtin("u16"), true],
+          ["redirect", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: IssueDeviceHttpProxyTokenAction,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
     if (
-      __instance.validForSecs !== undefined &&
-      __instance.validForSecs !== null
+      __instance["validForSecs"] !== undefined &&
+      __instance["validForSecs"] !== null
     ) {
       const __field_path = __path.field("validForSecs")
       __report.merge(
         __validate.minInclusive(
-          __instance.validForSecs as any,
+          __validate.numeric(__instance["validForSecs"] as any),
           1,
           "min",
           "Token validity must be between 1 second and 1 year.",
@@ -700,7 +1395,7 @@ export const IssueDeviceHttpProxyTokenAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __instance.validForSecs as any,
+          __validate.numeric(__instance["validForSecs"] as any),
           31536000,
           "max",
           "Token validity must be between 1 second and 1 year.",
@@ -708,11 +1403,14 @@ export const IssueDeviceHttpProxyTokenAction = {
         ),
       )
     }
-    if (__instance.hostname !== undefined && __instance.hostname !== null) {
+    if (
+      __instance["hostname"] !== undefined &&
+      __instance["hostname"] !== null
+    ) {
       const __field_path = __path.field("hostname")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.hostname as unknown as string),
+          __validate.charCount(__instance["hostname"] as unknown as string),
           1,
           "min_size",
           "Hostname must be between 1 and 253 characters.",
@@ -722,7 +1420,7 @@ export const IssueDeviceHttpProxyTokenAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.hostname as unknown as string),
+          __validate.charCount(__instance["hostname"] as unknown as string),
           253,
           "max_size",
           "Hostname must be between 1 and 253 characters.",
@@ -732,7 +1430,7 @@ export const IssueDeviceHttpProxyTokenAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.hostname,
+          __instance["hostname"],
           "^[A-Za-z0-9][A-Za-z0-9.-]*$",
           "format:hostname",
           "Hostname must be a valid DNS hostname.",
@@ -740,11 +1438,11 @@ export const IssueDeviceHttpProxyTokenAction = {
         ),
       )
     }
-    if (__instance.port !== undefined && __instance.port !== null) {
+    if (__instance["port"] !== undefined && __instance["port"] !== null) {
       const __field_path = __path.field("port")
       __report.merge(
         __validate.minInclusive(
-          __instance.port as any,
+          __validate.numeric(__instance["port"] as any),
           1,
           "min",
           "Port must be between 1 and 65535.",
@@ -754,7 +1452,7 @@ export const IssueDeviceHttpProxyTokenAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __instance.port as any,
+          __validate.numeric(__instance["port"] as any),
           65535,
           "max",
           "Port must be between 1 and 65535.",
@@ -762,11 +1460,14 @@ export const IssueDeviceHttpProxyTokenAction = {
         ),
       )
     }
-    if (__instance.redirect !== undefined && __instance.redirect !== null) {
+    if (
+      __instance["redirect"] !== undefined &&
+      __instance["redirect"] !== null
+    ) {
       const __field_path = __path.field("redirect")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.redirect as unknown as string),
+          __validate.charCount(__instance["redirect"] as unknown as string),
           1,
           "min_size",
           "Redirect URL must be between 1 and 2048 characters.",
@@ -776,7 +1477,7 @@ export const IssueDeviceHttpProxyTokenAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.redirect as unknown as string),
+          __validate.charCount(__instance["redirect"] as unknown as string),
           2048,
           "max_size",
           "Redirect URL must be between 1 and 2048 characters.",
@@ -796,7 +1497,7 @@ export const IssueDeviceHttpProxyTokenAction = {
         const __report = __validate.ValidationReport.ok()
         __report.merge(
           __validate.minInclusive(
-            __value as any,
+            __validate.numeric(__value as any),
             1,
             "min",
             "Token validity must be between 1 second and 1 year.",
@@ -806,7 +1507,7 @@ export const IssueDeviceHttpProxyTokenAction = {
 
         __report.merge(
           __validate.maxInclusive(
-            __value as any,
+            __validate.numeric(__value as any),
             31536000,
             "max",
             "Token validity must be between 1 second and 1 year.",
@@ -864,7 +1565,7 @@ export const IssueDeviceHttpProxyTokenAction = {
         const __report = __validate.ValidationReport.ok()
         __report.merge(
           __validate.minInclusive(
-            __value as any,
+            __validate.numeric(__value as any),
             1,
             "min",
             "Port must be between 1 and 65535.",
@@ -874,7 +1575,7 @@ export const IssueDeviceHttpProxyTokenAction = {
 
         __report.merge(
           __validate.maxInclusive(
-            __value as any,
+            __validate.numeric(__value as any),
             65535,
             "max",
             "Port must be between 1 and 65535.",
@@ -929,6 +1630,24 @@ export type IssueDeviceHttpProxyTokenOutput = {
   url: __sidex_types.builtins.String
 }
 
+export const IssueDeviceHttpProxyTokenOutput = {
+  ...__sidex_types.checker<IssueDeviceHttpProxyTokenOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "jwt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_jwt.Jwt,
+            ),
+            false,
+          ],
+          ["url", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Validate a HTTP proxy JWT.
  */
@@ -939,6 +1658,23 @@ export type ValidateDeviceHttpProxyTokenAction = {
   jwt: __schema_jwt.Jwt
 }
 
+export const ValidateDeviceHttpProxyTokenAction = {
+  ...__sidex_types.checker<ValidateDeviceHttpProxyTokenAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "jwt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_jwt.Jwt,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of validating a HTTP proxy JWT.
  */
@@ -946,6 +1682,29 @@ export type ValidateDeviceHttpProxyTokenOutput =
   | ({ result: "Invalid" } & ValidateDeviceHttpProxyTokenInvalid)
   | ({ result: "Valid" } & ValidateDeviceHttpProxyTokenSuccess)
 
+export const ValidateDeviceHttpProxyTokenOutput = {
+  ...__sidex_types.checker<ValidateDeviceHttpProxyTokenOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        [
+          "Invalid",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> =>
+              ValidateDeviceHttpProxyTokenInvalid,
+          ),
+          null,
+        ],
+        [
+          "Valid",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> =>
+              ValidateDeviceHttpProxyTokenSuccess,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
 /**
  * Validation of a HTTP proxy JWT failed.
  */
@@ -956,6 +1715,15 @@ export type ValidateDeviceHttpProxyTokenInvalid = {
   redirect?: __sidex_types.builtins.String
 }
 
+export const ValidateDeviceHttpProxyTokenInvalid = {
+  ...__sidex_types.checker<ValidateDeviceHttpProxyTokenInvalid>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [["redirect", __sidex_types.builtin("string"), true]],
+        [],
+      ),
+  ),
+}
 /**
  * Successful validation of a HTTP proxy JWT.
  */
@@ -964,6 +1732,11 @@ export type ValidateDeviceHttpProxyTokenSuccess = {
    * ID of the device.
    */
   deviceId: DeviceId /**
+   * Actor that issued the token.
+   *
+   * Missing on proxy tokens issued before issuer tracking was introduced.
+   */
+  issuer?: __schema_actor.Actor /**
    * Hostname to accept requests for.
    */
   hostname?: __sidex_types.builtins.String /**
@@ -972,6 +1745,30 @@ export type ValidateDeviceHttpProxyTokenSuccess = {
   port?: __sidex_types.builtins.U16
 }
 
+export const ValidateDeviceHttpProxyTokenSuccess = {
+  ...__sidex_types.checker<ValidateDeviceHttpProxyTokenSuccess>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          [
+            "issuer",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_actor.Actor,
+            ),
+            true,
+          ],
+          ["hostname", __sidex_types.builtin("string"), true],
+          ["port", __sidex_types.builtin("u16"), true],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Publish device events.
  */
@@ -982,14 +1779,41 @@ export type PublishDeviceEventsAction = {
   deviceId: DeviceId /**
    * Events to push.
    */
-  events: __sidex_types.builtins.Sequence<DeviceEvent>
+  events: DeviceEvent[]
 }
 
+export const PublishDeviceEventsAction = {
+  ...__sidex_types.checker<PublishDeviceEventsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          [
+            "events",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceEvent,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query device events.
  */
 export type QueryDeviceEventsAction = {
   /**
+   * Opt into cursor pagination. Without this field, the existing limit applies.
+   */
+  page?: __schema_pagination.PageRequest /**
    * ID of the device.
    */
   deviceId: DeviceId /**
@@ -999,17 +1823,40 @@ export type QueryDeviceEventsAction = {
    */
   limit?: __sidex_types.builtins.U32
 }
+
 export const QueryDeviceEventsAction = {
+  ...__sidex_types.checker<QueryDeviceEventsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageRequest,
+            ),
+            true,
+          ],
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          ["limit", __sidex_types.builtin("u32"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: QueryDeviceEventsAction,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
-    if (__instance.limit !== undefined && __instance.limit !== null) {
+    if (__instance["limit"] !== undefined && __instance["limit"] !== null) {
       const __field_path = __path.field("limit")
       __report.merge(
         __validate.minInclusive(
-          __instance.limit as any,
+          __validate.numeric(__instance["limit"] as any),
           1,
           "min",
           "Limit must be between 1 and 1000.",
@@ -1019,7 +1866,7 @@ export const QueryDeviceEventsAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __instance.limit as any,
+          __validate.numeric(__instance["limit"] as any),
           1000,
           "max",
           "Limit must be between 1 and 1000.",
@@ -1039,7 +1886,7 @@ export const QueryDeviceEventsAction = {
         const __report = __validate.ValidationReport.ok()
         __report.merge(
           __validate.minInclusive(
-            __value as any,
+            __validate.numeric(__value as any),
             1,
             "min",
             "Limit must be between 1 and 1000.",
@@ -1049,7 +1896,7 @@ export const QueryDeviceEventsAction = {
 
         __report.merge(
           __validate.maxInclusive(
-            __value as any,
+            __validate.numeric(__value as any),
             1000,
             "max",
             "Limit must be between 1 and 1000.",
@@ -1067,11 +1914,41 @@ export const QueryDeviceEventsAction = {
  */
 export type QueryDeviceEventsOutput = {
   /**
+   * Present when cursor pagination was requested.
+   */
+  page?: __schema_pagination.PageInfo /**
    * List of events.
    */
-  events: __sidex_types.builtins.Sequence<DeviceEvent>
+  events: DeviceEvent[]
 }
 
+export const QueryDeviceEventsOutput = {
+  ...__sidex_types.checker<QueryDeviceEventsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageInfo,
+            ),
+            true,
+          ],
+          [
+            "events",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceEvent,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Event emitted by a device.
  */
@@ -1091,10 +1968,7 @@ export type DeviceEvent = {
   body: __schema_json.JsonValue /**
    * Event attributes.
    */
-  attributes: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __schema_json.JsonValue
-  > /**
+  attributes: { [key: string]: __schema_json.JsonValue } /**
    * Timestamp when the event was emitted.
    */
   emittedAt: __schema_datetime.Timestamp /**
@@ -1102,17 +1976,75 @@ export type DeviceEvent = {
    */
   receivedAt?: __schema_datetime.Timestamp
 }
+
 export const DeviceEvent = {
+  ...__sidex_types.checker<DeviceEvent>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "eventId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceEventId,
+            ),
+            false,
+          ],
+          ["category", __sidex_types.builtin("string"), true],
+          [
+            "severity",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceEventSeverity,
+            ),
+            false,
+          ],
+          [
+            "body",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+          [
+            "attributes",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+              ),
+            ),
+            false,
+          ],
+          [
+            "emittedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          [
+            "receivedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: DeviceEvent,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
-    if (__instance.category !== undefined && __instance.category !== null) {
+    if (
+      __instance["category"] !== undefined &&
+      __instance["category"] !== null
+    ) {
       const __field_path = __path.field("category")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.category as unknown as string),
+          __validate.charCount(__instance["category"] as unknown as string),
           1,
           "min_size",
           "Event category must be between 1 and 128 characters.",
@@ -1122,7 +2054,7 @@ export const DeviceEvent = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.category as unknown as string),
+          __validate.charCount(__instance["category"] as unknown as string),
           128,
           "max_size",
           "Event category must be between 1 and 128 characters.",
@@ -1176,6 +2108,19 @@ export type DeviceEventSeverity =
   | "Error"
   | "Critical"
 
+export const DeviceEventSeverity = {
+  ...__sidex_types.checker<DeviceEventSeverity>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Trace", null, null],
+        ["Debug", null, null],
+        ["Info", null, null],
+        ["Warning", null, null],
+        ["Error", null, null],
+        ["Critical", null, null],
+      ]),
+  ),
+}
 /**
  * Set a property of a device.
  */
@@ -1199,7 +2144,31 @@ export type SetDevicePropertyAction = {
    */
   expectedVersion?: __sidex_types.builtins.U64
 }
+
 export const SetDevicePropertyAction = {
+  ...__sidex_types.checker<SetDevicePropertyAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "value",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+          ["protected", __sidex_types.builtin("bool"), true],
+          ["expectedVersion", __sidex_types.builtin("u64"), true],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: SetDevicePropertyAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -1209,7 +2178,7 @@ export const SetDevicePropertyAction = {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Property name must be between 1 and 256 characters.",
@@ -1219,7 +2188,7 @@ export const SetDevicePropertyAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           256,
           "max_size",
           "Property name must be between 1 and 256 characters.",
@@ -1229,7 +2198,7 @@ export const SetDevicePropertyAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.name,
+          __instance["name"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:property_name",
           "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -1290,6 +2259,23 @@ export type SetDevicePropertyOutput =
   | ({ result: "VersionConflict" } & SetDevicePropertyVersionConflict)
   | { result: "Deleted" }
 
+export const SetDevicePropertyOutput = {
+  ...__sidex_types.checker<SetDevicePropertyOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["Set", null, null],
+        [
+          "VersionConflict",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> =>
+              SetDevicePropertyVersionConflict,
+          ),
+          null,
+        ],
+        ["Deleted", null, null],
+      ]),
+  ),
+}
 /**
  * Details of a version conflict when setting a device property.
  */
@@ -1300,6 +2286,15 @@ export type SetDevicePropertyVersionConflict = {
   currentVersion: __sidex_types.builtins.U64
 }
 
+export const SetDevicePropertyVersionConflict = {
+  ...__sidex_types.checker<SetDevicePropertyVersionConflict>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [["currentVersion", __sidex_types.builtin("u64"), false]],
+        [],
+      ),
+  ),
+}
 /**
  * Get a property of a device.
  */
@@ -1312,7 +2307,22 @@ export type GetDevicePropertyAction = {
    */
   name: __sidex_types.builtins.String
 }
+
 export const GetDevicePropertyAction = {
+  ...__sidex_types.checker<GetDevicePropertyAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: GetDevicePropertyAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -1322,7 +2332,7 @@ export const GetDevicePropertyAction = {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Property name must be between 1 and 256 characters.",
@@ -1332,7 +2342,7 @@ export const GetDevicePropertyAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           256,
           "max_size",
           "Property name must be between 1 and 256 characters.",
@@ -1342,7 +2352,7 @@ export const GetDevicePropertyAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.name,
+          __instance["name"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:property_name",
           "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -1402,6 +2412,21 @@ export type GetDevicePropertyOutput =
   | { result: "NotFound" }
   | ({ result: "Found" } & DeviceProperty)
 
+export const GetDevicePropertyOutput = {
+  ...__sidex_types.checker<GetDevicePropertyOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["NotFound", null, null],
+        [
+          "Found",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => DeviceProperty,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
 /**
  * Remove a property from a device.
  */
@@ -1414,7 +2439,22 @@ export type RemoveDevicePropertyAction = {
    */
   name: __sidex_types.builtins.String
 }
+
 export const RemoveDevicePropertyAction = {
+  ...__sidex_types.checker<RemoveDevicePropertyAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: RemoveDevicePropertyAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -1424,7 +2464,7 @@ export const RemoveDevicePropertyAction = {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Property name must be between 1 and 256 characters.",
@@ -1434,7 +2474,7 @@ export const RemoveDevicePropertyAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           256,
           "max_size",
           "Property name must be between 1 and 256 characters.",
@@ -1444,7 +2484,7 @@ export const RemoveDevicePropertyAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.name,
+          __instance["name"],
           "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
           "format:property_name",
           "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
@@ -1504,6 +2544,15 @@ export type RemoveDevicePropertyOutput =
   | { result: "NotFound" }
   | { result: "Removed" }
 
+export const RemoveDevicePropertyOutput = {
+  ...__sidex_types.checker<RemoveDevicePropertyOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["NotFound", null, null],
+        ["Removed", null, null],
+      ]),
+  ),
+}
 /**
  * Query the properties of a device.
  */
@@ -1514,6 +2563,21 @@ export type QueryDevicePropertiesAction = {
   deviceId: DeviceId
 }
 
+export const QueryDevicePropertiesAction = {
+  ...__sidex_types.checker<QueryDevicePropertiesAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the properties of a device.
  */
@@ -1521,12 +2585,29 @@ export type QueryDevicePropertiesOutput = {
   /**
    * List of properties.
    */
-  properties: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    DeviceProperty
-  >
+  properties: { [key: string]: DeviceProperty }
 }
 
+export const QueryDevicePropertiesOutput = {
+  ...__sidex_types.checker<QueryDevicePropertiesOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "properties",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceProperty,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Device property.
  */
@@ -1549,26 +2630,110 @@ export type DeviceProperty = {
   lastUpdated: __schema_datetime.Timestamp
 }
 
+export const DeviceProperty = {
+  ...__sidex_types.checker<DeviceProperty>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "value",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+          ["protected", __sidex_types.builtin("bool"), false],
+          ["version", __sidex_types.builtin("u64"), false],
+          [
+            "lastUpdated",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the audit log of a device.
  */
 export type QueryDeviceAuditLogAction = {
   /**
+   * Opt into cursor pagination. Without this field, the existing limit applies.
+   */
+  page?: __schema_pagination.PageRequest /**
    * ID of the device.
    */
   deviceId: DeviceId
 }
 
+export const QueryDeviceAuditLogAction = {
+  ...__sidex_types.checker<QueryDeviceAuditLogAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageRequest,
+            ),
+            true,
+          ],
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the audit log of a device.
  */
 export type QueryDeviceAuditLogOutput = {
   /**
+   * Present when cursor pagination was requested.
+   */
+  page?: __schema_pagination.PageInfo /**
    * List of audit log events.
    */
-  events: __sidex_types.builtins.Sequence<__schema_audit.AuditLogEvent>
+  events: __schema_audit.AuditLogEvent[]
 }
 
+export const QueryDeviceAuditLogOutput = {
+  ...__sidex_types.checker<QueryDeviceAuditLogOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageInfo,
+            ),
+            true,
+          ],
+          [
+            "events",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  __schema_audit.AuditLogEvent,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the on-demand commands supported by a device.
  *
@@ -1581,6 +2746,21 @@ export type QueryDeviceCommandsAction = {
   deviceId: DeviceId
 }
 
+export const QueryDeviceCommandsAction = {
+  ...__sidex_types.checker<QueryDeviceCommandsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying device commands.
  *
@@ -1593,6 +2773,24 @@ export type QueryDeviceCommandsOutput = {
   manifest: __schema_properties.DeviceCommandManifest
 }
 
+export const QueryDeviceCommandsOutput = {
+  ...__sidex_types.checker<QueryDeviceCommandsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "manifest",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_properties.DeviceCommandManifest,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Status of a device command invocation.
  *
@@ -1600,6 +2798,15 @@ export type QueryDeviceCommandsOutput = {
  */
 export type DeviceCommandStatus = "Ok" | "Error"
 
+export const DeviceCommandStatus = {
+  ...__sidex_types.checker<DeviceCommandStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Ok", null, null],
+        ["Error", null, null],
+      ]),
+  ),
+}
 /**
  * Hub-to-device frame.
  *
@@ -1607,6 +2814,20 @@ export type DeviceCommandStatus = "Ok" | "Error"
  */
 export type DeviceCommandHubFrame = { type: "Invoke" } & DeviceCommandInvokeData
 
+export const DeviceCommandHubFrame = {
+  ...__sidex_types.checker<DeviceCommandHubFrame>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "type", [
+        [
+          "Invoke",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => DeviceCommandInvokeData,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
 /**
  * Command invocation parameters.
  *
@@ -1628,6 +2849,26 @@ export type DeviceCommandInvokeData = {
   timeoutSecs?: __sidex_types.builtins.U32
 }
 
+export const DeviceCommandInvokeData = {
+  ...__sidex_types.checker<DeviceCommandInvokeData>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["command", __sidex_types.builtin("string"), false],
+          [
+            "input",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+          ["streamLog", __sidex_types.builtin("bool"), true],
+          ["timeoutSecs", __sidex_types.builtin("u32"), true],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Device-to-hub frame.
  *
@@ -1637,6 +2878,27 @@ export type DeviceCommandDeviceFrame =
   | ({ type: "Log" } & DeviceCommandLogData)
   | ({ type: "Done" } & DeviceCommandDoneData)
 
+export const DeviceCommandDeviceFrame = {
+  ...__sidex_types.checker<DeviceCommandDeviceFrame>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "type", [
+        [
+          "Log",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => DeviceCommandLogData,
+          ),
+          null,
+        ],
+        [
+          "Done",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => DeviceCommandDoneData,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
 /**
  * Log data.
  *
@@ -1646,9 +2908,24 @@ export type DeviceCommandLogData = {
   /**
    * Lines of diagnostic output from the command.
    */
-  lines: __sidex_types.builtins.Sequence<__sidex_types.builtins.String>
+  lines: __sidex_types.builtins.String[]
 }
 
+export const DeviceCommandLogData = {
+  ...__sidex_types.checker<DeviceCommandLogData>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "lines",
+            __sidex_types.sequence(__sidex_types.builtin("string")),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Command completion.
  *
@@ -1667,22 +2944,52 @@ export type DeviceCommandDoneData = {
   error?: __sidex_types.builtins.String /**
    * Last lines of the command's diagnostic log output.
    */
-  logTail: __sidex_types.builtins.Sequence<__sidex_types.builtins.String> /**
+  logTail: __sidex_types.builtins.String[] /**
    * Execution duration in milliseconds.
    */
   durationMs: __sidex_types.builtins.U64
 }
+
 export const DeviceCommandDoneData = {
+  ...__sidex_types.checker<DeviceCommandDoneData>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceCommandStatus,
+            ),
+            false,
+          ],
+          [
+            "output",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            true,
+          ],
+          ["error", __sidex_types.builtin("string"), true],
+          [
+            "logTail",
+            __sidex_types.sequence(__sidex_types.builtin("string")),
+            false,
+          ],
+          ["durationMs", __sidex_types.builtin("u64"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: DeviceCommandDoneData,
     __path: __validate.Path = __validate.Path.root(),
   ): __validate.ValidationReport {
     const __report = __validate.ValidationReport.ok()
-    if (__instance.error !== undefined && __instance.error !== null) {
+    if (__instance["error"] !== undefined && __instance["error"] !== null) {
       const __field_path = __path.field("error")
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.error as unknown as string),
+          __validate.charCount(__instance["error"] as unknown as string),
           4096,
           "max_size",
           "Error message must be at most 4096 characters.",
@@ -1714,4 +3021,2673 @@ export const DeviceCommandDoneData = {
       },
     },
   },
+}
+/**
+ * Stable identity of a group. Renaming does not change its identity.
+ */
+export type DeviceGroupId = __sidex_types.Nominal<
+  string,
+  "::nexigon_api::devices::DeviceGroupId"
+>
+
+export const DeviceGroupId = {
+  ...__sidex_types.checker<DeviceGroupId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
+/**
+ * Opaque RGB background color in hexadecimal notation, such as `#3b82f6`.
+ * Group text uses black or white, whichever has higher contrast.
+ */
+export type DeviceGroupColor = __sidex_types.Nominal<
+  __sidex_types.builtins.String,
+  "::nexigon_api::devices::DeviceGroupColor"
+>
+
+export const DeviceGroupColor = {
+  ...__sidex_types.checker<DeviceGroupColor>(
+    (): __sidex_types.Check => __sidex_types.builtin("string"),
+  ),
+  validate(
+    __value: DeviceGroupColor,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    __report.merge(
+      __validate.regexMatch(
+        __value,
+        "^#[0-9a-fA-F]{6}$",
+        "regex",
+        "Group color must be a six-digit hexadecimal color, such as #3b82f6.",
+        __path,
+      ),
+    )
+
+    return __report
+  },
+  tryNew(
+    __value: __sidex_types.builtins.String,
+  ):
+    | { ok: true; value: DeviceGroupColor }
+    | { ok: false; report: __validate.ValidationReport } {
+    const __path = __validate.Path.root()
+    const __report = __validate.ValidationReport.ok()
+    __report.merge(
+      __validate.regexMatch(
+        __value,
+        "^#[0-9a-fA-F]{6}$",
+        "regex",
+        "Group color must be a six-digit hexadecimal color, such as #3b82f6.",
+        __path,
+      ),
+    )
+
+    if (__report.isOk()) {
+      return { ok: true, value: __value as unknown as DeviceGroupColor }
+    }
+    return { ok: false, report: __report }
+  },
+}
+/**
+ * A project-owned group that may be assigned to any number of its devices.
+ */
+export type DeviceGroup = {
+  groupId: DeviceGroupId
+  projectId: __schema_projects.ProjectId /**
+   * Unique within the project, ignoring case and surrounding whitespace.
+   */
+  name: __sidex_types.builtins.String
+  color?: DeviceGroupColor
+  description?: __sidex_types.builtins.String
+}
+
+export const DeviceGroup = {
+  ...__sidex_types.checker<DeviceGroup>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "groupId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceGroupId,
+            ),
+            false,
+          ],
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "color",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceGroupColor,
+            ),
+            true,
+          ],
+          ["description", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * List a project's group catalog, including groups without assignments.
+ */
+export type QueryDeviceGroupsAction = { projectId: __schema_projects.ProjectId }
+
+export const QueryDeviceGroupsAction = {
+  ...__sidex_types.checker<QueryDeviceGroupsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+export type QueryDeviceGroupsOutput = { groups: DeviceGroup[] }
+
+export const QueryDeviceGroupsOutput = {
+  ...__sidex_types.checker<QueryDeviceGroupsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "groups",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceGroup,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Create a group. Case-insensitive name collisions are rejected.
+ */
+export type CreateDeviceGroupAction = {
+  projectId: __schema_projects.ProjectId
+  name: __sidex_types.builtins.String
+  color?: DeviceGroupColor
+  description?: __sidex_types.builtins.String
+}
+
+export const CreateDeviceGroupAction = {
+  ...__sidex_types.checker<CreateDeviceGroupAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "color",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceGroupColor,
+            ),
+            true,
+          ],
+          ["description", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: CreateDeviceGroupAction,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("name")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          1,
+          "min_size",
+          "Group name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          128,
+          "max_size",
+          "Group name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+    }
+    if (
+      __instance["description"] !== undefined &&
+      __instance["description"] !== null
+    ) {
+      const __field_path = __path.field("description")
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["description"] as unknown as string),
+          4096,
+          "max_size",
+          "Group description must be at most 4096 characters.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    name: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Group name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            128,
+            "max_size",
+            "Group name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+    description: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            4096,
+            "max_size",
+            "Group description must be at most 4096 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Replace group metadata while retaining its identity and assignments.
+ */
+export type UpdateDeviceGroupAction = {
+  projectId: __schema_projects.ProjectId
+  groupId: DeviceGroupId
+  name: __sidex_types.builtins.String
+  color?: DeviceGroupColor
+  description?: __sidex_types.builtins.String
+}
+
+export const UpdateDeviceGroupAction = {
+  ...__sidex_types.checker<UpdateDeviceGroupAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          [
+            "groupId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceGroupId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "color",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceGroupColor,
+            ),
+            true,
+          ],
+          ["description", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: UpdateDeviceGroupAction,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("name")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          1,
+          "min_size",
+          "Group name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          128,
+          "max_size",
+          "Group name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+    }
+    if (
+      __instance["description"] !== undefined &&
+      __instance["description"] !== null
+    ) {
+      const __field_path = __path.field("description")
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["description"] as unknown as string),
+          4096,
+          "max_size",
+          "Group description must be at most 4096 characters.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    name: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Group name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            128,
+            "max_size",
+            "Group name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+    description: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            4096,
+            "max_size",
+            "Group description must be at most 4096 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Delete a group and its assignments.
+ *
+ * Existing operation selectors retain the group identity and continue evaluating
+ * membership. A deleted group is absent from every device.
+ */
+export type DeleteDeviceGroupAction = {
+  projectId: __schema_projects.ProjectId
+  groupId: DeviceGroupId
+}
+
+export const DeleteDeviceGroupAction = {
+  ...__sidex_types.checker<DeleteDeviceGroupAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          [
+            "groupId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceGroupId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Atomically add and remove memberships on explicit devices in one project.
+ *
+ * Adding an existing membership or removing an absent one is a no-op. A group
+ * cannot appear in both lists. Unrelated memberships are preserved. All devices
+ * and groups must belong to the project; otherwise no memberships change.
+ * Device credentials cannot change groups. Removing a membership does not cancel
+ * work that an operation has already assigned to the device.
+ */
+export type UpdateDeviceGroupsAction = {
+  projectId: __schema_projects.ProjectId
+  deviceIds: DeviceId[]
+  add: DeviceGroupId[]
+  remove: DeviceGroupId[]
+}
+
+export const UpdateDeviceGroupsAction = {
+  ...__sidex_types.checker<UpdateDeviceGroupsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          [
+            "deviceIds",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceId,
+              ),
+            ),
+            false,
+          ],
+          [
+            "add",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceGroupId,
+              ),
+            ),
+            false,
+          ],
+          [
+            "remove",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceGroupId,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: UpdateDeviceGroupsAction,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("deviceIds")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.itemCount(
+            __instance["deviceIds"] as unknown as readonly unknown[],
+          ),
+          1,
+          "min_size",
+          "Select at least one device.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    deviceIds: {
+      validate(
+        __value: DeviceId[],
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.itemCount(__value as unknown as readonly unknown[]),
+            1,
+            "min_size",
+            "Select at least one device.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Device list filter. All supplied conditions must hold.
+ */
+export type DeviceFilter = {
+  /**
+   * Case-insensitive substring of device name, hostname, or ID.
+   */
+  search?: __sidex_types.builtins.String /**
+   * Current combined health and connection status.
+   */
+  status?: DeviceStatus /**
+   * Group membership conditions.
+   */
+  groups?: DeviceGroupSelector
+}
+
+export const DeviceFilter = {
+  ...__sidex_types.checker<DeviceFilter>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["search", __sidex_types.builtin("string"), true],
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceStatus,
+            ),
+            true,
+          ],
+          [
+            "groups",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceGroupSelector,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Group membership conditions, combined with AND.
+ */
+export type DeviceGroupSelector = {
+  /**
+   * Every listed group must be present. Empty or absent imposes no condition.
+   */
+  all?: DeviceGroupId[] /**
+   * At least one listed group must be present. Empty matches no devices;
+   * absence imposes no condition.
+   */
+  any?: DeviceGroupId[] /**
+   * Every listed group must be absent. Empty or absent imposes no condition.
+   */
+  none?: DeviceGroupId[]
+}
+
+export const DeviceGroupSelector = {
+  ...__sidex_types.checker<DeviceGroupSelector>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "all",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceGroupId,
+              ),
+            ),
+            true,
+          ],
+          [
+            "any",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceGroupId,
+              ),
+            ),
+            true,
+          ],
+          [
+            "none",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceGroupId,
+              ),
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * A device whose property predicates could not be evaluated.
+ */
+export type DeviceSelectionError = {
+  deviceId: DeviceId
+  error: __sidex_types.builtins.String
+}
+
+export const DeviceSelectionError = {
+  ...__sidex_types.checker<DeviceSelectionError>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          ["error", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Unique ID of a device operation.
+ */
+export type DeviceOperationId = __sidex_types.Nominal<
+  string,
+  "::nexigon_api::devices::DeviceOperationId"
+>
+
+export const DeviceOperationId = {
+  ...__sidex_types.checker<DeviceOperationId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
+/**
+ * Unique claim for one lease of a device operation work item.
+ */
+export type DeviceOperationWorkClaimId = __sidex_types.Nominal<
+  string,
+  "::nexigon_api::devices::DeviceOperationWorkClaimId"
+>
+
+export const DeviceOperationWorkClaimId = {
+  ...__sidex_types.checker<DeviceOperationWorkClaimId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
+/**
+ * One step in a device operation.
+ */
+export type DeviceOperationStep =
+  | ({ kind: "SetDeviceProperty" } & DeviceOperationSetDevicePropertyStep)
+  | ({ kind: "UpdateDeviceProperty" } & DeviceOperationUpdateDevicePropertyStep)
+  | ({ kind: "RemoveDeviceProperty" } & DeviceOperationRemoveDevicePropertyStep)
+  | ({ kind: "DeviceCommand" } & DeviceOperationDeviceCommandStep)
+  | ({ kind: "DeviceTask" } & DeviceOperationDeviceTaskStep)
+  | ({
+      kind: "WaitForDeviceProperty"
+    } & DeviceOperationWaitForDevicePropertyStep)
+
+export const DeviceOperationStep = {
+  ...__sidex_types.checker<DeviceOperationStep>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "kind", [
+        [
+          "SetDeviceProperty",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> =>
+              DeviceOperationSetDevicePropertyStep,
+          ),
+          null,
+        ],
+        [
+          "UpdateDeviceProperty",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> =>
+              DeviceOperationUpdateDevicePropertyStep,
+          ),
+          null,
+        ],
+        [
+          "RemoveDeviceProperty",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> =>
+              DeviceOperationRemoveDevicePropertyStep,
+          ),
+          null,
+        ],
+        [
+          "DeviceCommand",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> =>
+              DeviceOperationDeviceCommandStep,
+          ),
+          null,
+        ],
+        [
+          "DeviceTask",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => DeviceOperationDeviceTaskStep,
+          ),
+          null,
+        ],
+        [
+          "WaitForDeviceProperty",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> =>
+              DeviceOperationWaitForDevicePropertyStep,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
+/**
+ * Server-side device property set.
+ */
+export type DeviceOperationSetDevicePropertyStep = {
+  /**
+   * Run the step only when this expression evaluates to JSON `true`.
+   * A false result skips the step; an evaluation error fails it.
+   */
+  when?: __schema_json.JsonExpr /**
+   * Property name.
+   */
+  name: __sidex_types.builtins.String /**
+   * Desired property value.
+   */
+  value: __schema_json.JsonValue /**
+   * Whether the property should be protected.
+   */
+  protected?: __sidex_types.builtins.Bool
+}
+
+export const DeviceOperationSetDevicePropertyStep = {
+  ...__sidex_types.checker<DeviceOperationSetDevicePropertyStep>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "when",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonExpr,
+            ),
+            true,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "value",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+          ["protected", __sidex_types.builtin("bool"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: DeviceOperationSetDevicePropertyStep,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("name")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          1,
+          "min_size",
+          "Property name must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          256,
+          "max_size",
+          "Property name must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.regexMatch(
+          __instance["name"],
+          "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+          "format:property_name",
+          "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    name: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Property name must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            256,
+            "max_size",
+            "Property name must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.regexMatch(
+            __value,
+            "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+            "format:property_name",
+            "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Server-side device property update.
+ */
+export type DeviceOperationUpdateDevicePropertyStep = {
+  /**
+   * Run the step only when this expression evaluates to JSON `true`.
+   * A false result skips the step; an evaluation error fails it.
+   */
+  when?: __schema_json.JsonExpr /**
+   * Property name.
+   */
+  name: __sidex_types.builtins.String /**
+   * Mutation to apply to the current property value.
+   */
+  mutation: __schema_json.JsonMutation /**
+   * Whether the property should be protected.
+   *
+   * When omitted, the existing protection flag is preserved. If the property
+   * does not exist yet, it defaults to unprotected.
+   */
+  protected?: __sidex_types.builtins.Bool
+}
+
+export const DeviceOperationUpdateDevicePropertyStep = {
+  ...__sidex_types.checker<DeviceOperationUpdateDevicePropertyStep>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "when",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonExpr,
+            ),
+            true,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "mutation",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonMutation,
+            ),
+            false,
+          ],
+          ["protected", __sidex_types.builtin("bool"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: DeviceOperationUpdateDevicePropertyStep,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("name")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          1,
+          "min_size",
+          "Property name must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          256,
+          "max_size",
+          "Property name must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.regexMatch(
+          __instance["name"],
+          "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+          "format:property_name",
+          "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    name: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Property name must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            256,
+            "max_size",
+            "Property name must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.regexMatch(
+            __value,
+            "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+            "format:property_name",
+            "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Server-side device property removal.
+ */
+export type DeviceOperationRemoveDevicePropertyStep = {
+  /**
+   * Run the step only when this expression evaluates to JSON `true`.
+   * A false result skips the step; an evaluation error fails it.
+   */
+  when?: __schema_json.JsonExpr /**
+   * Property name.
+   */
+  name: __sidex_types.builtins.String
+}
+
+export const DeviceOperationRemoveDevicePropertyStep = {
+  ...__sidex_types.checker<DeviceOperationRemoveDevicePropertyStep>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "when",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonExpr,
+            ),
+            true,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: DeviceOperationRemoveDevicePropertyStep,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("name")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          1,
+          "min_size",
+          "Property name must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          256,
+          "max_size",
+          "Property name must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.regexMatch(
+          __instance["name"],
+          "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+          "format:property_name",
+          "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    name: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Property name must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            256,
+            "max_size",
+            "Property name must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.regexMatch(
+            __value,
+            "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+            "format:property_name",
+            "Property name must start with a letter or digit and contain only letters, digits, dots, underscores, or hyphens.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Device-polled command step.
+ */
+export type DeviceOperationDeviceCommandStep = {
+  /**
+   * Run the step only when this expression evaluates to JSON `true`.
+   * A false result skips the step; an evaluation error fails it.
+   */
+  when?: __schema_json.JsonExpr /**
+   * Command name from the device command manifest.
+   */
+  command: __sidex_types.builtins.String /**
+   * Command input.
+   */
+  input: __schema_json.JsonValue /**
+   * Step deadline in seconds. Defaults to one hour.
+   *
+   * The hub starts this clock when the command step becomes current work
+   * for the device. The same value is also passed to the device command
+   * handler as its execution timeout. If the device does not report before
+   * the deadline, the operation driver marks the step and operation as timed out.
+   *
+   * The deadline is *noticed* by a background driver tick rather than at the
+   * instant it passes, so a step times out within one tick of its deadline, not
+   * exactly on it. Timeouts far shorter than the tick interval will therefore
+   * overshoot considerably.
+   */
+  timeoutSecs?: __sidex_types.builtins.U32
+}
+
+export const DeviceOperationDeviceCommandStep = {
+  ...__sidex_types.checker<DeviceOperationDeviceCommandStep>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "when",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonExpr,
+            ),
+            true,
+          ],
+          ["command", __sidex_types.builtin("string"), false],
+          [
+            "input",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+          ["timeoutSecs", __sidex_types.builtin("u32"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: DeviceOperationDeviceCommandStep,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("command")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["command"] as unknown as string),
+          1,
+          "min_size",
+          "Command name must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["command"] as unknown as string),
+          256,
+          "max_size",
+          "Command name must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+    }
+    if (
+      __instance["timeoutSecs"] !== undefined &&
+      __instance["timeoutSecs"] !== null
+    ) {
+      const __field_path = __path.field("timeoutSecs")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.numeric(__instance["timeoutSecs"] as any),
+          1,
+          "min",
+          "Command timeout must be between 1 second and 1 day.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.numeric(__instance["timeoutSecs"] as any),
+          86400,
+          "max",
+          "Command timeout must be between 1 second and 1 day.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    command: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Command name must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            256,
+            "max_size",
+            "Command name must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+    timeoutSecs: {
+      validate(
+        __value: __sidex_types.builtins.U32,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.numeric(__value as any),
+            1,
+            "min",
+            "Command timeout must be between 1 second and 1 day.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.numeric(__value as any),
+            86400,
+            "max",
+            "Command timeout must be between 1 second and 1 day.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Durable device task step.
+ *
+ * The Hub exposes task polling, progress, checkpoint, and report semantics for custom
+ * on-device clients. The bundled Nexigon agent requests command work only and has no
+ * task executor, so without such a client this step remains running until its timeout.
+ */
+export type DeviceOperationDeviceTaskStep = {
+  /**
+   * Run the step only when this expression evaluates to JSON `true`.
+   * A false result skips the step; an evaluation error fails it.
+   */
+  when?: __schema_json.JsonExpr /**
+   * Task name.
+   *
+   * A task is durable work scoped to this device operation step and intended for an
+   * on-device worker. The bundled agent has no task executor; see
+   * [`DeviceOperationStep::DeviceTask`].
+   */
+  task: __sidex_types.builtins.String /**
+   * Task input.
+   */
+  input: __schema_json.JsonValue /**
+   * Step deadline in seconds. Defaults to one day.
+   *
+   * The hub starts this clock when the task step becomes current work for
+   * the device. If no terminal outcome is reported before the deadline,
+   * the operation driver marks the step and operation as timed out. The deadline
+   * is noticed by a background driver tick rather than at the instant it passes,
+   * so a step times out within one tick of its deadline, not exactly on it. A restarted
+   * worker may resume from the latest checkpoint while the same step is
+   * still current.
+   */
+  timeoutSecs?: __sidex_types.builtins.U32
+}
+
+export const DeviceOperationDeviceTaskStep = {
+  ...__sidex_types.checker<DeviceOperationDeviceTaskStep>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "when",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonExpr,
+            ),
+            true,
+          ],
+          ["task", __sidex_types.builtin("string"), false],
+          [
+            "input",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            false,
+          ],
+          ["timeoutSecs", __sidex_types.builtin("u32"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: DeviceOperationDeviceTaskStep,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("task")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["task"] as unknown as string),
+          1,
+          "min_size",
+          "Device task name must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["task"] as unknown as string),
+          256,
+          "max_size",
+          "Device task name must be between 1 and 256 characters.",
+          __field_path,
+        ),
+      )
+    }
+    if (
+      __instance["timeoutSecs"] !== undefined &&
+      __instance["timeoutSecs"] !== null
+    ) {
+      const __field_path = __path.field("timeoutSecs")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.numeric(__instance["timeoutSecs"] as any),
+          1,
+          "min",
+          "Device task timeout must be between 1 second and 7 days.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.numeric(__instance["timeoutSecs"] as any),
+          604800,
+          "max",
+          "Device task timeout must be between 1 second and 7 days.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    task: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Device task name must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            256,
+            "max_size",
+            "Device task name must be between 1 and 256 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+    timeoutSecs: {
+      validate(
+        __value: __sidex_types.builtins.U32,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.numeric(__value as any),
+            1,
+            "min",
+            "Device task timeout must be between 1 second and 7 days.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.numeric(__value as any),
+            604800,
+            "max",
+            "Device task timeout must be between 1 second and 7 days.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Server-observed property wait step.
+ */
+export type DeviceOperationWaitForDevicePropertyStep = {
+  /**
+   * Run the step only when this expression evaluates to JSON `true`.
+   * A false result skips the step; an evaluation error fails it.
+   */
+  when?: __schema_json.JsonExpr /**
+   * Expression that must evaluate to JSON `true` to complete the wait.
+   *
+   * A missing named value or path keeps the step waiting because the device
+   * may report it later. Any other evaluation error fails the step.
+   */
+  predicate: __schema_json.JsonExpr /**
+   * Optional deadline in seconds.
+   *
+   * The hub starts this clock when the wait step becomes current for the
+   * device. If the predicate does not match before the deadline,
+   * the operation driver marks the step and operation as timed out.
+   */
+  timeoutSecs?: __sidex_types.builtins.U32
+}
+
+export const DeviceOperationWaitForDevicePropertyStep = {
+  ...__sidex_types.checker<DeviceOperationWaitForDevicePropertyStep>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "when",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonExpr,
+            ),
+            true,
+          ],
+          [
+            "predicate",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonExpr,
+            ),
+            false,
+          ],
+          ["timeoutSecs", __sidex_types.builtin("u32"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: DeviceOperationWaitForDevicePropertyStep,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    if (
+      __instance["timeoutSecs"] !== undefined &&
+      __instance["timeoutSecs"] !== null
+    ) {
+      const __field_path = __path.field("timeoutSecs")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.numeric(__instance["timeoutSecs"] as any),
+          1,
+          "min",
+          "Wait timeout must be between 1 second and 7 days.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.numeric(__instance["timeoutSecs"] as any),
+          604800,
+          "max",
+          "Wait timeout must be between 1 second and 7 days.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    timeoutSecs: {
+      validate(
+        __value: __sidex_types.builtins.U32,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.numeric(__value as any),
+            1,
+            "min",
+            "Wait timeout must be between 1 second and 7 days.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.numeric(__value as any),
+            604800,
+            "max",
+            "Wait timeout must be between 1 second and 7 days.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Device operation lifecycle status.
+ */
+export type DeviceOperationStatus =
+  | "Pending"
+  | "Running"
+  | "Succeeded"
+  | "Failed"
+  | "TimedOut"
+  | "Cancelled"
+
+export const DeviceOperationStatus = {
+  ...__sidex_types.checker<DeviceOperationStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Pending", null, null],
+        ["Running", null, null],
+        ["Succeeded", null, null],
+        ["Failed", null, null],
+        ["TimedOut", null, null],
+        ["Cancelled", null, null],
+      ]),
+  ),
+}
+/**
+ * Step execution status.
+ */
+export type DeviceOperationStepStatus =
+  | "Pending"
+  | "Running"
+  | "Succeeded"
+  | "Failed"
+  | "TimedOut"
+  | "Skipped"
+
+export const DeviceOperationStepStatus = {
+  ...__sidex_types.checker<DeviceOperationStepStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Pending", null, null],
+        ["Running", null, null],
+        ["Succeeded", null, null],
+        ["Failed", null, null],
+        ["TimedOut", null, null],
+        ["Skipped", null, null],
+      ]),
+  ),
+}
+/**
+ * Summary of a device operation.
+ */
+export type DeviceOperationSummary = {
+  /**
+   * ID of the operation.
+   */
+  deviceOperationId: DeviceOperationId /**
+   * Project the device belongs to.
+   */
+  projectId: __schema_projects.ProjectId /**
+   * Device the operation is bound to.
+   */
+  deviceId: DeviceId /**
+   * Actor that created the operation.
+   *
+   * For an operation created directly against a device, this is whoever created it. For
+   * one belonging to a fleet operation, it is whoever created *that*, since the rollout
+   * is what caused the work to exist. Either way it answers "who is responsible for this
+   * device doing this", which is what a reader of a device's history wants to know.
+   */
+  createdBy?: __schema_actor.Actor /**
+   * Fleet operation that materialized this operation, if any.
+   *
+   * Absent for operations created directly against the device.
+   */
+  fleetOperationId?: __schema_fleet.FleetOperationId /**
+   * Operation name.
+   *
+   * A standalone device operation owns this name. A fleet-owned device operation
+   * inherits it from its fleet operation.
+   */
+  name: __sidex_types.builtins.String /**
+   * Optional description.
+   */
+  description?: __sidex_types.builtins.String /**
+   * Lifecycle status.
+   */
+  status: DeviceOperationStatus /**
+   * Current step index.
+   */
+  stepIndex: __sidex_types.builtins.U32 /**
+   * Number of configured steps.
+   */
+  stepCount: __sidex_types.builtins.U32 /**
+   * Last step or operation error.
+   */
+  lastError?: __sidex_types.builtins.String /**
+   * Creation time.
+   */
+  createdAt: __schema_datetime.Timestamp /**
+   * Start time.
+   */
+  startedAt?: __schema_datetime.Timestamp /**
+   * Completion time.
+   */
+  completedAt?: __schema_datetime.Timestamp /**
+   * Last update time.
+   */
+  updatedAt: __schema_datetime.Timestamp
+}
+
+export const DeviceOperationSummary = {
+  ...__sidex_types.checker<DeviceOperationSummary>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceOperationId,
+            ),
+            false,
+          ],
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          [
+            "createdBy",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_actor.Actor,
+            ),
+            true,
+          ],
+          [
+            "fleetOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_fleet.FleetOperationId,
+            ),
+            true,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          ["description", __sidex_types.builtin("string"), true],
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceOperationStatus,
+            ),
+            false,
+          ],
+          ["stepIndex", __sidex_types.builtin("u32"), false],
+          ["stepCount", __sidex_types.builtin("u32"), false],
+          ["lastError", __sidex_types.builtin("string"), true],
+          [
+            "createdAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+          [
+            "startedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          [
+            "completedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          [
+            "updatedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Device operation details.
+ */
+export type DeviceOperationDetails = {
+  /**
+   * Summary.
+   */
+  summary: DeviceOperationSummary /**
+   * Ordered steps.
+   */
+  steps: DeviceOperationStep[] /**
+   * State for steps that have started, one entry per step reached so far.
+   *
+   * A step with no entry here has not been reached yet. Correlate entries
+   * with `steps` by `step_index`, not array position or length — this list
+   * isn't guaranteed to stay dense or gapless as a matter of API contract,
+   * even though the current driver happens to fill it in strictly in
+   * order.
+   */
+  stepStates: DeviceOperationStepState[]
+}
+
+export const DeviceOperationDetails = {
+  ...__sidex_types.checker<DeviceOperationDetails>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "summary",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceOperationSummary,
+            ),
+            false,
+          ],
+          [
+            "steps",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceOperationStep,
+              ),
+            ),
+            false,
+          ],
+          [
+            "stepStates",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceOperationStepState,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Persisted state for one device operation step.
+ *
+ * Look up `DeviceOperationDetails.steps[step_index]` for the step's kind and
+ * configuration; this only carries the step's execution state.
+ */
+export type DeviceOperationStepState = {
+  /**
+   * Index into `DeviceOperationDetails.steps` of the step this state is for.
+   */
+  stepIndex: __sidex_types.builtins.U32 /**
+   * Step execution status.
+   */
+  status: DeviceOperationStepStatus /**
+   * Step or device-reported command output.
+   */
+  output?: __schema_json.JsonValue /**
+   * Error message when the step failed or timed out.
+   */
+  error?: __sidex_types.builtins.String /**
+   * When the step started running.
+   */
+  startedAt?: __schema_datetime.Timestamp /**
+   * When the step reached a terminal status.
+   */
+  completedAt?: __schema_datetime.Timestamp /**
+   * Durable checkpoint reported by the device while running a task step.
+   *
+   * Only ever set for `DeviceTask` steps; always absent for every other
+   * step kind, since only device tasks can report checkpoints (see
+   * `ReportDeviceOperationStepAction`).
+   */
+  checkpoint?: __schema_json.JsonValue
+}
+
+export const DeviceOperationStepState = {
+  ...__sidex_types.checker<DeviceOperationStepState>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["stepIndex", __sidex_types.builtin("u32"), false],
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceOperationStepStatus,
+            ),
+            false,
+          ],
+          [
+            "output",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            true,
+          ],
+          ["error", __sidex_types.builtin("string"), true],
+          [
+            "startedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          [
+            "completedAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          [
+            "checkpoint",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Work item returned to a device when it polls.
+ */
+export type DeviceOperationWorkItem = {
+  deviceOperationId: DeviceOperationId /**
+   * Claim that must accompany reports for this delivery of the work.
+   *
+   * A later poll after the lease expires replaces this claim, fencing reports from
+   * the older worker.
+   */
+  claimId: DeviceOperationWorkClaimId /**
+   * Name of the standalone or fleet operation that defined this work.
+   */
+  operationName: __sidex_types.builtins.String
+  stepIndex: __sidex_types.builtins.U32 /**
+   * Durable checkpoint from a previous report for this step.
+   */
+  checkpoint?: __schema_json.JsonValue
+  step: DeviceOperationWorkStep
+}
+
+export const DeviceOperationWorkItem = {
+  ...__sidex_types.checker<DeviceOperationWorkItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceOperationId,
+            ),
+            false,
+          ],
+          [
+            "claimId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceOperationWorkClaimId,
+            ),
+            false,
+          ],
+          ["operationName", __sidex_types.builtin("string"), false],
+          ["stepIndex", __sidex_types.builtin("u32"), false],
+          [
+            "checkpoint",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            true,
+          ],
+          [
+            "step",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceOperationWorkStep,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Device-executable operation step.
+ */
+export type DeviceOperationWorkStep =
+  | ({ kind: "DeviceCommand" } & DeviceOperationDeviceCommandStep)
+  | ({ kind: "DeviceTask" } & DeviceOperationDeviceTaskStep)
+
+export const DeviceOperationWorkStep = {
+  ...__sidex_types.checker<DeviceOperationWorkStep>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "kind", [
+        [
+          "DeviceCommand",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> =>
+              DeviceOperationDeviceCommandStep,
+          ),
+          null,
+        ],
+        [
+          "DeviceTask",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => DeviceOperationDeviceTaskStep,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
+/**
+ * Kind of device operation work to return from a poll.
+ */
+export type DeviceOperationWorkKind = "DeviceCommand" | "DeviceTask"
+
+export const DeviceOperationWorkKind = {
+  ...__sidex_types.checker<DeviceOperationWorkKind>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["DeviceCommand", null, null],
+        ["DeviceTask", null, null],
+      ]),
+  ),
+}
+/**
+ * Report from a device after executing a polled step.
+ */
+export type DeviceOperationStepReport = {
+  /**
+   * Result status.
+   */
+  status: DeviceOperationStepReportStatus /**
+   * Command or step output.
+   */
+  output?: __schema_json.JsonValue /**
+   * Durable checkpoint to return with future work polls for this step.
+   */
+  checkpoint?: __schema_json.JsonValue /**
+   * Error message when the step failed.
+   */
+  error?: __sidex_types.builtins.String
+}
+
+export const DeviceOperationStepReport = {
+  ...__sidex_types.checker<DeviceOperationStepReport>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                DeviceOperationStepReportStatus,
+            ),
+            false,
+          ],
+          [
+            "output",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            true,
+          ],
+          [
+            "checkpoint",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            true,
+          ],
+          ["error", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: DeviceOperationStepReport,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    if (__instance["error"] !== undefined && __instance["error"] !== null) {
+      const __field_path = __path.field("error")
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["error"] as unknown as string),
+          4096,
+          "max_size",
+          "Error message must be at most 4096 characters.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    error: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            4096,
+            "max_size",
+            "Error message must be at most 4096 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Device-reported step result status.
+ */
+export type DeviceOperationStepReportStatus = "Running" | "Succeeded" | "Failed"
+
+export const DeviceOperationStepReportStatus = {
+  ...__sidex_types.checker<DeviceOperationStepReportStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["Running", null, null],
+        ["Succeeded", null, null],
+        ["Failed", null, null],
+      ]),
+  ),
+}
+/**
+ * Query device operations for a device.
+ */
+export type QueryDeviceOperationsAction = {
+  /**
+   * ID of the device.
+   */
+  deviceId: DeviceId
+}
+
+export const QueryDeviceOperationsAction = {
+  ...__sidex_types.checker<QueryDeviceOperationsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Output of querying device operations.
+ */
+export type QueryDeviceOperationsOutput = {
+  /**
+   * Device operations.
+   */
+  operations: DeviceOperationSummary[]
+}
+
+export const QueryDeviceOperationsOutput = {
+  ...__sidex_types.checker<QueryDeviceOperationsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "operations",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceOperationSummary,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Get device operation details.
+ */
+export type GetDeviceOperationAction = {
+  /**
+   * ID of the operation.
+   */
+  deviceOperationId: DeviceOperationId
+}
+
+export const GetDeviceOperationAction = {
+  ...__sidex_types.checker<GetDeviceOperationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceOperationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Output of getting device operation details.
+ */
+export type GetDeviceOperationOutput =
+  | { result: "NotFound" }
+  | ({ result: "Found" } & DeviceOperationDetails)
+
+export const GetDeviceOperationOutput = {
+  ...__sidex_types.checker<GetDeviceOperationOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "result", [
+        ["NotFound", null, null],
+        [
+          "Found",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => DeviceOperationDetails,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
+/**
+ * Create a device operation.
+ */
+export type CreateDeviceOperationAction = {
+  /**
+   * Device the operation is bound to.
+   */
+  deviceId: DeviceId /**
+   * Operation name.
+   */
+  name: __sidex_types.builtins.String /**
+   * Optional description.
+   */
+  description?: __sidex_types.builtins.String /**
+   * Ordered steps.
+   */
+  steps: DeviceOperationStep[]
+}
+
+export const CreateDeviceOperationAction = {
+  ...__sidex_types.checker<CreateDeviceOperationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+          ["description", __sidex_types.builtin("string"), true],
+          [
+            "steps",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceOperationStep,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: CreateDeviceOperationAction,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("name")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          1,
+          "min_size",
+          "Device operation name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["name"] as unknown as string),
+          128,
+          "max_size",
+          "Device operation name must be between 1 and 128 characters.",
+          __field_path,
+        ),
+      )
+    }
+    if (
+      __instance["description"] !== undefined &&
+      __instance["description"] !== null
+    ) {
+      const __field_path = __path.field("description")
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.charCount(__instance["description"] as unknown as string),
+          4096,
+          "max_size",
+          "Device operation description must be at most 4096 characters.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    name: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.charCount(__value as unknown as string),
+            1,
+            "min_size",
+            "Device operation name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            128,
+            "max_size",
+            "Device operation name must be between 1 and 128 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+    description: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.charCount(__value as unknown as string),
+            4096,
+            "max_size",
+            "Device operation description must be at most 4096 characters.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Output of creating a device operation.
+ */
+export type CreateDeviceOperationOutput = {
+  /**
+   * ID of the created operation.
+   */
+  deviceOperationId: DeviceOperationId
+}
+
+export const CreateDeviceOperationOutput = {
+  ...__sidex_types.checker<CreateDeviceOperationOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceOperationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Start a pending device operation.
+ */
+export type StartDeviceOperationAction = {
+  /**
+   * ID of the operation.
+   */
+  deviceOperationId: DeviceOperationId
+}
+
+export const StartDeviceOperationAction = {
+  ...__sidex_types.checker<StartDeviceOperationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceOperationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Cancel a device operation.
+ */
+export type CancelDeviceOperationAction = {
+  /**
+   * ID of the operation.
+   */
+  deviceOperationId: DeviceOperationId
+}
+
+export const CancelDeviceOperationAction = {
+  ...__sidex_types.checker<CancelDeviceOperationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceOperationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Atomically claim device operation work for a device.
+ */
+export type ClaimDeviceOperationWorkAction = {
+  /**
+   * ID of the device claiming work.
+   */
+  deviceId: DeviceId /**
+   * Maximum number of work items to claim. Defaults to 1.
+   */
+  limit?: __sidex_types.builtins.U32 /**
+   * Work kinds to return. Defaults to all device-executable work.
+   */
+  kinds?: DeviceOperationWorkKind[]
+}
+
+export const ClaimDeviceOperationWorkAction = {
+  ...__sidex_types.checker<ClaimDeviceOperationWorkAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          ["limit", __sidex_types.builtin("u32"), true],
+          [
+            "kinds",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceOperationWorkKind,
+              ),
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: ClaimDeviceOperationWorkAction,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    if (__instance["limit"] !== undefined && __instance["limit"] !== null) {
+      const __field_path = __path.field("limit")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.numeric(__instance["limit"] as any),
+          1,
+          "min",
+          "Claim limit must be between 1 and 20.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.numeric(__instance["limit"] as any),
+          20,
+          "max",
+          "Claim limit must be between 1 and 20.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    limit: {
+      validate(
+        __value: __sidex_types.builtins.U32,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.numeric(__value as any),
+            1,
+            "min",
+            "Claim limit must be between 1 and 20.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.numeric(__value as any),
+            20,
+            "max",
+            "Claim limit must be between 1 and 20.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Output of claiming operation work for a device.
+ */
+export type ClaimDeviceOperationWorkOutput = {
+  /**
+   * Work items leased to the device.
+   */
+  work: DeviceOperationWorkItem[]
+}
+
+export const ClaimDeviceOperationWorkOutput = {
+  ...__sidex_types.checker<ClaimDeviceOperationWorkOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "work",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceOperationWorkItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Report the result of a device operation step.
+ *
+ * Repeating a report after it was already applied is a successful no-op. A report whose
+ * claim has been superseded is also ignored, so an expired worker cannot overwrite the
+ * current attempt.
+ */
+export type ReportDeviceOperationStepAction = {
+  /**
+   * ID of the reporting device.
+   */
+  deviceId: DeviceId /**
+   * ID of the operation.
+   */
+  deviceOperationId: DeviceOperationId /**
+   * Step index being reported.
+   */
+  stepIndex: __sidex_types.builtins.U32 /**
+   * Claim returned by the poll that delivered this work item.
+   */
+  claimId: DeviceOperationWorkClaimId /**
+   * Reported step outcome.
+   */
+  report: DeviceOperationStepReport
+}
+
+export const ReportDeviceOperationStepAction = {
+  ...__sidex_types.checker<ReportDeviceOperationStepAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "deviceId",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => DeviceId),
+            false,
+          ],
+          [
+            "deviceOperationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceOperationId,
+            ),
+            false,
+          ],
+          ["stepIndex", __sidex_types.builtin("u32"), false],
+          [
+            "claimId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceOperationWorkClaimId,
+            ),
+            false,
+          ],
+          [
+            "report",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceOperationStepReport,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
 }

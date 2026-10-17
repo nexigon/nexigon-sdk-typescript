@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -48,13 +50,13 @@ export type SystemInfo = {
   memory: MemoryInfo /**
    * Network information.
    */
-  networks: __sidex_types.builtins.Sequence<NetworkInterfaceInfo> /**
+  networks: NetworkInterfaceInfo[] /**
    * Disk information.
    */
-  disks: __sidex_types.builtins.Sequence<DiskInfo> /**
+  disks: DiskInfo[] /**
    * Exported services.
    */
-  exports?: __sidex_types.builtins.Sequence<ExportInfo> /**
+  exports?: ExportInfo[] /**
    * Rugix-specific system information.
    */
   rugix?: RugixSystemInfo /**
@@ -66,6 +68,74 @@ export type SystemInfo = {
   agent?: AgentInfo
 }
 
+export const SystemInfo = {
+  ...__sidex_types.checker<SystemInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), true],
+          ["version", __sidex_types.builtin("string"), true],
+          ["kernel", __sidex_types.builtin("string"), true],
+          ["hostname", __sidex_types.builtin("string"), true],
+          ["arch", __sidex_types.builtin("string"), true],
+          [
+            "memory",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => MemoryInfo,
+            ),
+            false,
+          ],
+          [
+            "networks",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => NetworkInterfaceInfo,
+              ),
+            ),
+            false,
+          ],
+          [
+            "disks",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DiskInfo,
+              ),
+            ),
+            false,
+          ],
+          [
+            "exports",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => ExportInfo,
+              ),
+            ),
+            true,
+          ],
+          [
+            "rugix",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RugixSystemInfo,
+            ),
+            true,
+          ],
+          [
+            "yocto",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => YoctoSystemInfo,
+            ),
+            true,
+          ],
+          [
+            "agent",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => AgentInfo),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Memory information.
  */
@@ -76,6 +146,15 @@ export type MemoryInfo = {
   total: __sidex_types.builtins.U64
 }
 
+export const MemoryInfo = {
+  ...__sidex_types.checker<MemoryInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [["total", __sidex_types.builtin("u64"), false]],
+        [],
+      ),
+  ),
+}
 /**
  * Network interface information.
  */
@@ -89,9 +168,26 @@ export type NetworkInterfaceInfo = {
   macAddress: __sidex_types.builtins.String /**
    * IP addresses of the network interface.
    */
-  ipAddresses: __sidex_types.builtins.Sequence<__sidex_types.builtins.String>
+  ipAddresses: __sidex_types.builtins.String[]
 }
 
+export const NetworkInterfaceInfo = {
+  ...__sidex_types.checker<NetworkInterfaceInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), false],
+          ["macAddress", __sidex_types.builtin("string"), false],
+          [
+            "ipAddresses",
+            __sidex_types.sequence(__sidex_types.builtin("string")),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Disk information.
  */
@@ -114,61 +210,749 @@ export type DiskInfo = {
   availableSpace: __sidex_types.builtins.U64
 }
 
-/**
- * OTA update status (`dev.nexigon.ota.status`).
- *
- * Published by the device agent to report the effective OTA configuration
- * and the current state of the update process.
- *
- * @experimental (feature `ota_updates`)
- */
-export type OtaUpdateStatus = {
-  /**
-   * Effective OTA configuration (TOML defaults merged with device overrides).
-   */
-  config?: OtaUpdateConfig /**
-   * Currently installed version (matches a repository version tag).
-   */
-  currentVersion?: __sidex_types.builtins.String /**
-   * Current state of the update process.
-   */
-  state?: OtaUpdateState /**
-   * Target version being installed, if an update is in progress.
-   */
-  targetVersion?: __sidex_types.builtins.String /**
-   * Number of consecutive failed update attempts for the current target.
-   * Reset to zero when the config changes or an update succeeds.
-   */
-  failureCount?: __sidex_types.builtins.U32 /**
-   * Error message from the last failed attempt, if any.
-   */
-  lastError?: __sidex_types.builtins.String
+export const DiskInfo = {
+  ...__sidex_types.checker<DiskInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), false],
+          ["filesystem", __sidex_types.builtin("string"), false],
+          ["mountPoint", __sidex_types.builtin("string"), false],
+          ["totalSpace", __sidex_types.builtin("u64"), false],
+          ["availableSpace", __sidex_types.builtin("u64"), false],
+        ],
+        [],
+      ),
+  ),
 }
-
 /**
- * OTA update configuration identifying the update source.
+ * OTA update configuration (`dev.nexigon.ota.config`).
  *
- * Used as the shape of `/etc/nexigon-rugix-ota.json` and the
- * `dev.nexigon.ota.config` device property. The device property is
- * merged on top of the file-based defaults.
+ * Desired state of a device. Integrations apply the property to defaults
+ * built into the image as a JSON merge patch (RFC 7396): objects merge
+ * recursively, `null` removes a default, and any other value, including an
+ * array, replaces the default.
  *
  * @experimental (feature `ota_updates`)
  */
 export type OtaUpdateConfig = {
   /**
-   * Repository path prefix for locating update artifacts.
+   * Version path in the format `<repository>/<package>/<version>`.
+   *
+   * `<version>` is a tag or a version ID. A tag tracks the version the tag
+   * points to. A version ID pins a single version.
    */
-  path?: __sidex_types.builtins.String
+  path?: __sidex_types.builtins.String /**
+   * Hold the device at its current version.
+   *
+   * While set, the device starts no new update. An update in progress
+   * completes, including its activation. Defaults to false.
+   */
+  hold?: __sidex_types.builtins.Bool /**
+   * Maintenance window restricting when updates are activated.
+   *
+   * Updates can be activated at any time when absent.
+   */
+  window?: OtaUpdateWindow /**
+   * Retry policy for failed update attempts.
+   */
+  retry?: OtaUpdateRetryPolicy /**
+   * Spreading of updates across devices.
+   *
+   * Devices update without waiting when absent.
+   */
+  spread?: OtaUpdateSpread
 }
 
+export const OtaUpdateConfig = {
+  ...__sidex_types.checker<OtaUpdateConfig>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["path", __sidex_types.builtin("string"), true],
+          ["hold", __sidex_types.builtin("bool"), true],
+          [
+            "window",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OtaUpdateWindow,
+            ),
+            true,
+          ],
+          [
+            "retry",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OtaUpdateRetryPolicy,
+            ),
+            true,
+          ],
+          [
+            "spread",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OtaUpdateSpread,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Maintenance window in the device's local time.
+ *
+ * The window restricts activation, the step that interrupts the device's
+ * operation, such as the reboot into the new version. Integrations may
+ * download and install an update outside the window if doing so does not
+ * interrupt operation.
+ *
+ * @experimental (feature `ota_updates`)
+ */
+export type OtaUpdateWindow = {
+  /**
+   * Time ranges in which updates can be activated.
+   *
+   * An empty list never allows activation.
+   */
+  ranges: OtaUpdateWindowRange[]
+}
+
+export const OtaUpdateWindow = {
+  ...__sidex_types.checker<OtaUpdateWindow>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "ranges",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => OtaUpdateWindowRange,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Recurring time range of a maintenance window.
+ *
+ * @experimental (feature `ota_updates`)
+ */
+export type OtaUpdateWindowRange = {
+  /**
+   * Days on which the range starts.
+   *
+   * Defaults to every day.
+   */
+  days?: Weekday[] /**
+   * Start of the range (inclusive).
+   */
+  start: TimeOfDay /**
+   * End of the range (exclusive).
+   *
+   * An end at or before the start lies on the following day. A range whose
+   * end equals its start therefore spans 24 hours.
+   */
+  end: TimeOfDay
+}
+
+export const OtaUpdateWindowRange = {
+  ...__sidex_types.checker<OtaUpdateWindowRange>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "days",
+            __sidex_types.sequence(
+              __sidex_types.lazy((): __sidex_types.Checker<unknown> => Weekday),
+            ),
+            true,
+          ],
+          [
+            "start",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => TimeOfDay),
+            false,
+          ],
+          [
+            "end",
+            __sidex_types.lazy((): __sidex_types.Checker<unknown> => TimeOfDay),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Time of day in the format `HH:MM` (24-hour clock).
+ *
+ * @experimental (feature `ota_updates`)
+ */
+export type TimeOfDay = __sidex_types.Nominal<
+  __sidex_types.builtins.String,
+  "::nexigon_api::properties::TimeOfDay"
+>
+
+export const TimeOfDay = {
+  ...__sidex_types.checker<TimeOfDay>(
+    (): __sidex_types.Check => __sidex_types.builtin("string"),
+  ),
+  validate(
+    __value: TimeOfDay,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    __report.merge(
+      __validate.regexMatch(
+        __value,
+        "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+        "regex",
+        "Time must have the format HH:MM (24-hour clock).",
+        __path,
+      ),
+    )
+
+    return __report
+  },
+  tryNew(
+    __value: __sidex_types.builtins.String,
+  ):
+    | { ok: true; value: TimeOfDay }
+    | { ok: false; report: __validate.ValidationReport } {
+    const __path = __validate.Path.root()
+    const __report = __validate.ValidationReport.ok()
+    __report.merge(
+      __validate.regexMatch(
+        __value,
+        "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+        "regex",
+        "Time must have the format HH:MM (24-hour clock).",
+        __path,
+      ),
+    )
+
+    if (__report.isOk()) {
+      return { ok: true, value: __value as unknown as TimeOfDay }
+    }
+    return { ok: false, report: __report }
+  },
+}
+/**
+ * Day of the week.
+ *
+ * @experimental (feature `ota_updates`)
+ */
+export type Weekday =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday"
+
+export const Weekday = {
+  ...__sidex_types.checker<Weekday>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["monday", null, null],
+        ["tuesday", null, null],
+        ["wednesday", null, null],
+        ["thursday", null, null],
+        ["friday", null, null],
+        ["saturday", null, null],
+        ["sunday", null, null],
+      ]),
+  ),
+}
+/**
+ * Spreading of updates across devices.
+ *
+ * Each device derives its position `u` from the SHA-256 hash of
+ * `<device-id>/<target-version-id>`: the first 8 bytes, read as a big-endian
+ * unsigned integer `n`, give `u = floor(n / 2^11) / 2^53`, which a
+ * double-precision number represents exactly. A device may start updating to the
+ * target once both of the following hold:
+ *
+ * - With `duration_secs`, its turn has begun at
+ * `start + floor(duration_secs * sqrt(u))`. The share of eligible devices
+ * thus grows quadratically from 0 at the start to 1 after `duration_secs`.
+ * - With `percentage`, its position is below `percentage / 100`.
+ *
+ * @experimental (feature `ota_updates`)
+ */
+export type OtaUpdateSpread = {
+  /**
+   * Time over which updates are spread, in seconds.
+   */
+  durationSecs?: __sidex_types.builtins.U32 /**
+   * Start of the spread over time.
+   *
+   * Defaults to the time at which the tag in the configured path was assigned
+   * to its current version. Without an explicit start, updates to versions
+   * configured by version ID are not spread over time.
+   */
+  startAt?: __schema_datetime.Timestamp /**
+   * Share of devices that may update, in percent.
+   *
+   * Raising the percentage only adds devices. Without `duration_secs`, it
+   * releases the update to the given share right away. With `duration_secs`,
+   * it caps the share of the spread over time.
+   */
+  percentage?: __sidex_types.builtins.F64
+}
+
+export const OtaUpdateSpread = {
+  ...__sidex_types.checker<OtaUpdateSpread>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["durationSecs", __sidex_types.builtin("u32"), true],
+          [
+            "startAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          ["percentage", __sidex_types.builtin("f64"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: OtaUpdateSpread,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    if (
+      __instance["percentage"] !== undefined &&
+      __instance["percentage"] !== null
+    ) {
+      const __field_path = __path.field("percentage")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.numeric(__instance["percentage"] as any),
+          0,
+          "min",
+          "Percentage must be between 0 and 100.",
+          __field_path,
+        ),
+      )
+
+      __report.merge(
+        __validate.maxInclusive(
+          __validate.numeric(__instance["percentage"] as any),
+          100,
+          "max",
+          "Percentage must be between 0 and 100.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    percentage: {
+      validate(
+        __value: __sidex_types.builtins.F64,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.numeric(__value as any),
+            0,
+            "min",
+            "Percentage must be between 0 and 100.",
+            __path,
+          ),
+        )
+
+        __report.merge(
+          __validate.maxInclusive(
+            __validate.numeric(__value as any),
+            100,
+            "max",
+            "Percentage must be between 0 and 100.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * Retry policy for failed update attempts.
+ *
+ * An attempt starts when the device begins downloading a version. Failures
+ * before that, such as an unreachable Nexigon Hub, do not count as attempts.
+ * The delay between attempts starts at `initial_delay_secs` and doubles after
+ * each failed attempt, up to `max_delay_secs`.
+ *
+ * @experimental (feature `ota_updates`)
+ */
+export type OtaUpdateRetryPolicy = {
+  /**
+   * Maximum number of failed attempts for a version.
+   *
+   * Unlimited when absent.
+   */
+  maxAttempts?: __sidex_types.builtins.U32 /**
+   * Delay before the first retry in seconds.
+   */
+  initialDelaySecs?: __sidex_types.builtins.U32 /**
+   * Maximum delay between attempts in seconds.
+   */
+  maxDelaySecs?: __sidex_types.builtins.U32 /**
+   * Time in seconds after reaching `max_attempts` before the failure count
+   * resets and a new round of attempts begins.
+   *
+   * Without a cooldown, the device stops attempting the version until the
+   * configuration is written again.
+   */
+  cooldownSecs?: __sidex_types.builtins.U32
+}
+
+export const OtaUpdateRetryPolicy = {
+  ...__sidex_types.checker<OtaUpdateRetryPolicy>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["maxAttempts", __sidex_types.builtin("u32"), true],
+          ["initialDelaySecs", __sidex_types.builtin("u32"), true],
+          ["maxDelaySecs", __sidex_types.builtin("u32"), true],
+          ["cooldownSecs", __sidex_types.builtin("u32"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: OtaUpdateRetryPolicy,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    if (
+      __instance["maxAttempts"] !== undefined &&
+      __instance["maxAttempts"] !== null
+    ) {
+      const __field_path = __path.field("maxAttempts")
+      __report.merge(
+        __validate.minInclusive(
+          __validate.numeric(__instance["maxAttempts"] as any),
+          1,
+          "min",
+          "Maximum attempts must be at least 1.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    maxAttempts: {
+      validate(
+        __value: __sidex_types.builtins.U32,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.minInclusive(
+            __validate.numeric(__value as any),
+            1,
+            "min",
+            "Maximum attempts must be at least 1.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
+/**
+ * OTA update status (`dev.nexigon.ota.status`).
+ *
+ * Actual state of a device, published by its update integration.
+ *
+ * @experimental (feature `ota_updates`)
+ */
+export type OtaUpdateStatus = {
+  /**
+   * Optional features of the OTA update contract that the integration supports.
+   */
+  capabilities?: OtaUpdateCapability[] /**
+   * Effective configuration, including the defaults the integration applies.
+   */
+  config?: OtaUpdateConfig /**
+   * Version of the `dev.nexigon.ota.config` property that the integration
+   * last read.
+   *
+   * Absent when the property does not exist. Every write to the property,
+   * even with an unchanged value, increments its version.
+   */
+  configVersion?: __sidex_types.builtins.U64 /**
+   * Version string of the running system, as built into the image.
+   *
+   * By convention, a locked tag of the corresponding package version.
+   */
+  currentVersion?: __sidex_types.builtins.String /**
+   * Package version of the running system.
+   *
+   * Resolved by looking up `current_version` as a tag in the configured package.
+   * Absent when the tag does not resolve.
+   */
+  currentVersionId?: __schema_repositories.PackageVersionId /**
+   * Current state of the update process.
+   */
+  state?: OtaUpdateState /**
+   * Why the update is blocked. Present when `state` is `blocked`.
+   */
+  blocked?: OtaUpdateBlocked /**
+   * Version string of the target version, as built into its image.
+   */
+  targetVersion?: __sidex_types.builtins.String /**
+   * Package version that the configured path resolves to.
+   */
+  targetVersionId?: __schema_repositories.PackageVersionId /**
+   * Package version that the device installs next.
+   *
+   * Differs from `target_version_id` when the device must install a
+   * checkpoint before the target.
+   */
+  nextVersionId?: __schema_repositories.PackageVersionId /**
+   * Number of consecutive failed attempts for the next version.
+   *
+   * Resets to zero when the next version or `config_version` changes, when
+   * the retry cooldown ends, or when an update succeeds.
+   */
+  failureCount?: __sidex_types.builtins.U32 /**
+   * Error message of the last failure, if any.
+   */
+  lastError?: __sidex_types.builtins.String /**
+   * Earliest time of the next attempt.
+   *
+   * Set while the device waits for a spread, a maintenance window, a retry
+   * delay, or a retry cooldown. Absent when the time of the next attempt is
+   * unknown or no further attempt is scheduled.
+   */
+  nextAttemptAt?: __schema_datetime.Timestamp /**
+   * Update system that installs versions on the device.
+   */
+  updater?: OtaUpdater
+}
+
+export const OtaUpdateStatus = {
+  ...__sidex_types.checker<OtaUpdateStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "capabilities",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => OtaUpdateCapability,
+              ),
+            ),
+            true,
+          ],
+          [
+            "config",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OtaUpdateConfig,
+            ),
+            true,
+          ],
+          ["configVersion", __sidex_types.builtin("u64"), true],
+          ["currentVersion", __sidex_types.builtin("string"), true],
+          [
+            "currentVersionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.PackageVersionId,
+            ),
+            true,
+          ],
+          [
+            "state",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OtaUpdateState,
+            ),
+            true,
+          ],
+          [
+            "blocked",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OtaUpdateBlocked,
+            ),
+            true,
+          ],
+          ["targetVersion", __sidex_types.builtin("string"), true],
+          [
+            "targetVersionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.PackageVersionId,
+            ),
+            true,
+          ],
+          [
+            "nextVersionId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.PackageVersionId,
+            ),
+            true,
+          ],
+          ["failureCount", __sidex_types.builtin("u32"), true],
+          ["lastError", __sidex_types.builtin("string"), true],
+          [
+            "nextAttemptAt",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_datetime.Timestamp,
+            ),
+            true,
+          ],
+          [
+            "updater",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OtaUpdater,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Update system that installs versions on a device, such as Rugix Ctrl or RAUC.
+ *
+ * Slot names, states, and health values are those of the update system.
+ *
+ * @experimental (feature `ota_updates`)
+ */
+export type OtaUpdater = {
+  /**
+   * Name of the update system, such as `rugix` or `rauc`.
+   */
+  name: __sidex_types.builtins.String /**
+   * Version of the update system.
+   */
+  version?: __sidex_types.builtins.String /**
+   * Slot that the running system booted from.
+   */
+  bootedSlot?: __sidex_types.builtins.String /**
+   * Slot that the device boots from next.
+   *
+   * Differs from `booted_slot` when the device runs a version on trial or
+   * has installed a version that it has not booted yet.
+   */
+  primarySlot?: __sidex_types.builtins.String /**
+   * Whether the running system awaits its commit.
+   */
+  awaitingCommit?: __sidex_types.builtins.Bool /**
+   * Slots that the update system installs versions into.
+   */
+  slots?: OtaUpdaterSlot[]
+}
+
+export const OtaUpdater = {
+  ...__sidex_types.checker<OtaUpdater>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), false],
+          ["version", __sidex_types.builtin("string"), true],
+          ["bootedSlot", __sidex_types.builtin("string"), true],
+          ["primarySlot", __sidex_types.builtin("string"), true],
+          ["awaitingCommit", __sidex_types.builtin("bool"), true],
+          [
+            "slots",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => OtaUpdaterSlot,
+              ),
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Slot of an update system.
+ *
+ * @experimental (feature `ota_updates`)
+ */
+export type OtaUpdaterSlot = {
+  /**
+   * Name of the slot.
+   */
+  name: __sidex_types.builtins.String /**
+   * State of the slot, such as `booted` or `inactive`.
+   */
+  state?: __sidex_types.builtins.String /**
+   * Health of the slot, such as `good` or `bad`.
+   */
+  health?: __sidex_types.builtins.String /**
+   * Version installed in the slot, if the update system records it.
+   */
+  version?: __sidex_types.builtins.String
+}
+
+export const OtaUpdaterSlot = {
+  ...__sidex_types.checker<OtaUpdaterSlot>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), false],
+          ["state", __sidex_types.builtin("string"), true],
+          ["health", __sidex_types.builtin("string"), true],
+          ["version", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Optional feature of the OTA update contract.
+ *
+ * @experimental (feature `ota_updates`)
+ */
+export type OtaUpdateCapability =
+  | "window"
+  | "retry"
+  | "checkpoints"
+  | "spread"
+  | "hold"
+
+export const OtaUpdateCapability = {
+  ...__sidex_types.checker<OtaUpdateCapability>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["window", null, null],
+        ["retry", null, null],
+        ["checkpoints", null, null],
+        ["spread", null, null],
+        ["hold", null, null],
+      ]),
+  ),
+}
 /**
  * OTA update state.
  *
  * The resting states are `idle`, `completed`, `failed`, and `blocked`.
- * The agent remains in one of these until the next check cycle begins
- * or the blocking condition clears. `idle` means no update has been
- * attempted yet; `completed` and `failed` retain the outcome of the
- * last cycle; `blocked` indicates an update is available but deferred.
+ * The integration remains in one of these until the next check begins or
+ * the blocking condition clears.
  *
  * @experimental (feature `ota_updates`)
  */
@@ -182,6 +966,103 @@ export type OtaUpdateState =
   | "blocked"
   | "rollback"
 
+export const OtaUpdateState = {
+  ...__sidex_types.checker<OtaUpdateState>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["idle", null, null],
+        ["installing", null, null],
+        ["rebooting", null, null],
+        ["committing", null, null],
+        ["completed", null, null],
+        ["failed", null, null],
+        ["blocked", null, null],
+        ["rollback", null, null],
+      ]),
+  ),
+}
+/**
+ * Information about a blocked update.
+ *
+ * @experimental (feature `ota_updates`)
+ */
+export type OtaUpdateBlocked = {
+  /**
+   * Machine-readable reason in kebab case.
+   *
+   * Nexigon defines these codes:
+   *
+   * - `hold`: The configuration holds the device at its current version.
+   * - `spread`: The device waits for its turn in a spread or is outside the
+   * released percentage.
+   * - `window`: The device waits for its maintenance window.
+   * - `no-update-path`: The target is unreachable without going back across
+   * a checkpoint.
+   * - `unknown-current-version`: The target has a base version, but
+   * `current_version` does not resolve to a package version.
+   *
+   * Integrations may define their own codes for conditions specific to the
+   * device, such as `awaiting-approval`.
+   */
+  code: __sidex_types.builtins.String /**
+   * Human-readable explanation.
+   */
+  message?: __sidex_types.builtins.String
+}
+
+export const OtaUpdateBlocked = {
+  ...__sidex_types.checker<OtaUpdateBlocked>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["code", __sidex_types.builtin("string"), false],
+          ["message", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+  validate(
+    __instance: OtaUpdateBlocked,
+    __path: __validate.Path = __validate.Path.root(),
+  ): __validate.ValidationReport {
+    const __report = __validate.ValidationReport.ok()
+    {
+      const __field_path = __path.field("code")
+      __report.merge(
+        __validate.regexMatch(
+          __instance["code"],
+          "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "regex",
+          "Code must be in kebab case.",
+          __field_path,
+        ),
+      )
+    }
+
+    return __report
+  },
+  fields: {
+    code: {
+      validate(
+        __value: __sidex_types.builtins.String,
+        __path: __validate.Path = __validate.Path.root(),
+      ): __validate.ValidationReport {
+        const __report = __validate.ValidationReport.ok()
+        __report.merge(
+          __validate.regexMatch(
+            __value,
+            "^[a-z0-9]+(-[a-z0-9]+)*$",
+            "regex",
+            "Code must be in kebab case.",
+            __path,
+          ),
+        )
+
+        return __report
+      },
+    },
+  },
+}
 /**
  * Device health information (`dev.nexigon.system.health`).
  */
@@ -192,16 +1073,57 @@ export type DeviceHealth = {
   status: DeviceHealthStatus
 }
 
+export const DeviceHealth = {
+  ...__sidex_types.checker<DeviceHealth>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "status",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => DeviceHealthStatus,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Device health status.
  */
 export type DeviceHealthStatus = "healthy" | "degraded" | "error"
 
+export const DeviceHealthStatus = {
+  ...__sidex_types.checker<DeviceHealthStatus>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("external", "tag", [
+        ["healthy", null, null],
+        ["degraded", null, null],
+        ["error", null, null],
+      ]),
+  ),
+}
 /**
  * Service export information.
  */
 export type ExportInfo = { protocol: "http" } & HttpExportInfo
 
+export const ExportInfo = {
+  ...__sidex_types.checker<ExportInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "protocol", [
+        [
+          "http",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> => HttpExportInfo,
+          ),
+          null,
+        ],
+      ]),
+  ),
+}
 /**
  * HTTP export information.
  */
@@ -218,6 +1140,19 @@ export type HttpExportInfo = {
   path?: __sidex_types.builtins.String
 }
 
+export const HttpExportInfo = {
+  ...__sidex_types.checker<HttpExportInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), false],
+          ["port", __sidex_types.builtin("u16"), false],
+          ["path", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Rugix-specific system information.
  */
@@ -225,10 +1160,7 @@ export type RugixSystemInfo = {
   /**
    * Information about the update slots.
    */
-  slots: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    RugixSlotInfo
-  > /**
+  slots: { [key: string]: RugixSlotInfo } /**
    * Rugix-specific boot information.
    */
   boot?: RugixBootInfo /**
@@ -240,6 +1172,47 @@ export type RugixSystemInfo = {
   build?: RugixBakeryBuildInfo
 }
 
+export const RugixSystemInfo = {
+  ...__sidex_types.checker<RugixSystemInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "slots",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => RugixSlotInfo,
+              ),
+            ),
+            false,
+          ],
+          [
+            "boot",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RugixBootInfo,
+            ),
+            true,
+          ],
+          [
+            "state",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RugixStateManagementInfo,
+            ),
+            false,
+          ],
+          [
+            "build",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RugixBakeryBuildInfo,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Information about a Rugix update slot.
  */
@@ -250,10 +1223,7 @@ export type RugixSlotInfo = {
   active?: __sidex_types.builtins.Bool /**
    * Hashes of the slot data according to the slot database.
    */
-  hashes?: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __sidex_types.builtins.String
-  > /**
+  hashes?: { [key: string]: __sidex_types.builtins.String } /**
    * Size of the slot data according to the slot database.
    */
   size?: __sidex_types.builtins.U64 /**
@@ -262,6 +1232,27 @@ export type RugixSlotInfo = {
   updatedAt?: __sidex_types.builtins.String
 }
 
+export const RugixSlotInfo = {
+  ...__sidex_types.checker<RugixSlotInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["active", __sidex_types.builtin("bool"), true],
+          [
+            "hashes",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.builtin("string"),
+            ),
+            true,
+          ],
+          ["size", __sidex_types.builtin("u64"), true],
+          ["updatedAt", __sidex_types.builtin("string"), true],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Rugix-specific boot information.
  */
@@ -278,17 +1269,42 @@ export type RugixBootInfo = {
   defaultGroup?: __sidex_types.builtins.String /**
    * Information about the boot groups.
    */
-  groups: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    RugixBootGroupInfo
-  >
+  groups: { [key: string]: RugixBootGroupInfo }
 }
 
+export const RugixBootInfo = {
+  ...__sidex_types.checker<RugixBootInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["bootFlow", __sidex_types.builtin("string"), false],
+          ["activeGroup", __sidex_types.builtin("string"), true],
+          ["defaultGroup", __sidex_types.builtin("string"), true],
+          [
+            "groups",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => RugixBootGroupInfo,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Information about a Rugix boot group.
  */
-export type RugixBootGroupInfo = Record<string, never>
+export type RugixBootGroupInfo = Record<string, unknown>
 
+export const RugixBootGroupInfo = {
+  ...__sidex_types.checker<RugixBootGroupInfo>(
+    (): __sidex_types.Check => __sidex_types.record([], []),
+  ),
+}
 /**
  * Information about Rugix's state management mechanism.
  */
@@ -297,6 +1313,23 @@ export type RugixStateManagementInfo =
   | ({ status: "Active" } & RugixActiveStateManagementInfo)
   | { status: "Error" }
 
+export const RugixStateManagementInfo = {
+  ...__sidex_types.checker<RugixStateManagementInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.variant("internal", "status", [
+        ["Disabled", null, null],
+        [
+          "Active",
+          __sidex_types.lazy(
+            (): __sidex_types.Checker<unknown> =>
+              RugixActiveStateManagementInfo,
+          ),
+          null,
+        ],
+        ["Error", null, null],
+      ]),
+  ),
+}
 /**
  * Information about the state management mechanism, if state management is active.
  */
@@ -307,6 +1340,15 @@ export type RugixActiveStateManagementInfo = {
   dataPartition?: __sidex_types.builtins.String
 }
 
+export const RugixActiveStateManagementInfo = {
+  ...__sidex_types.checker<RugixActiveStateManagementInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [["dataPartition", __sidex_types.builtin("string"), true]],
+        [],
+      ),
+  ),
+}
 /**
  * Rugix Bakery build information.
  */
@@ -320,6 +1362,24 @@ export type RugixBakeryBuildInfo = {
   release: RugixBakeryReleaseInfo
 }
 
+export const RugixBakeryBuildInfo = {
+  ...__sidex_types.checker<RugixBakeryBuildInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "release",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => RugixBakeryReleaseInfo,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Rugix Bakery build release information.
  */
@@ -333,6 +1393,18 @@ export type RugixBakeryReleaseInfo = {
   version: __sidex_types.builtins.String
 }
 
+export const RugixBakeryReleaseInfo = {
+  ...__sidex_types.checker<RugixBakeryReleaseInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["id", __sidex_types.builtin("string"), false],
+          ["version", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Yocto-specific system information.
  */
@@ -340,12 +1412,27 @@ export type YoctoSystemInfo = {
   /**
    * Build information key-value pairs read from `/etc/buildinfo`.
    */
-  buildInfo: __sidex_types.builtins.ObjectMap<
-    __sidex_types.builtins.String,
-    __sidex_types.builtins.String
-  >
+  buildInfo: { [key: string]: __sidex_types.builtins.String }
 }
 
+export const YoctoSystemInfo = {
+  ...__sidex_types.checker<YoctoSystemInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "buildInfo",
+            __sidex_types.map(
+              __sidex_types.builtin("string"),
+              __sidex_types.builtin("string"),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Agent information.
  */
@@ -359,6 +1446,24 @@ export type AgentInfo = {
   config: AgentConfig
 }
 
+export const AgentInfo = {
+  ...__sidex_types.checker<AgentInfo>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["version", __sidex_types.builtin("string"), false],
+          [
+            "config",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => AgentConfig,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Agent feature configuration.
  */
@@ -372,6 +1477,30 @@ export type AgentConfig = {
   commands?: AgentCommandsConfig
 }
 
+export const AgentConfig = {
+  ...__sidex_types.checker<AgentConfig>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "terminal",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => AgentTerminalConfig,
+            ),
+            true,
+          ],
+          [
+            "commands",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => AgentCommandsConfig,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Agent terminal feature configuration.
  */
@@ -382,9 +1511,25 @@ export type AgentTerminalConfig = {
   enabled?: __sidex_types.builtins.Bool /**
    * Available terminal users.
    */
-  users?: __sidex_types.builtins.Sequence<__sidex_types.builtins.String>
+  users?: __sidex_types.builtins.String[]
 }
 
+export const AgentTerminalConfig = {
+  ...__sidex_types.checker<AgentTerminalConfig>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["enabled", __sidex_types.builtin("bool"), true],
+          [
+            "users",
+            __sidex_types.sequence(__sidex_types.builtin("string")),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Agent commands feature configuration.
  */
@@ -395,6 +1540,15 @@ export type AgentCommandsConfig = {
   enabled?: __sidex_types.builtins.Bool
 }
 
+export const AgentCommandsConfig = {
+  ...__sidex_types.checker<AgentCommandsConfig>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [["enabled", __sidex_types.builtin("bool"), true]],
+        [],
+      ),
+  ),
+}
 /**
  * Command manifest (`dev.nexigon.commands` property).
  *
@@ -404,9 +1558,28 @@ export type DeviceCommandManifest = {
   /**
    * Available commands.
    */
-  commands: __sidex_types.builtins.Sequence<DeviceCommandDescriptor>
+  commands: DeviceCommandDescriptor[]
 }
 
+export const DeviceCommandManifest = {
+  ...__sidex_types.checker<DeviceCommandManifest>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "commands",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => DeviceCommandDescriptor,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Descriptor for an on-demand command.
  *
@@ -429,4 +1602,32 @@ export type DeviceCommandDescriptor = {
    * JSON Schema for the command output.
    */
   output?: __schema_json.JsonValue
+}
+
+export const DeviceCommandDescriptor = {
+  ...__sidex_types.checker<DeviceCommandDescriptor>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), false],
+          ["description", __sidex_types.builtin("string"), true],
+          ["category", __sidex_types.builtin("string"), true],
+          [
+            "input",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            true,
+          ],
+          [
+            "output",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_json.JsonValue,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
 }

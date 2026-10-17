@@ -4,6 +4,7 @@
 import * as __sidex_types from "@sidex/types"
 import * as __schema_actor from "./actor"
 import * as __schema_audit from "./audit"
+import * as __schema_authorization from "./authorization"
 import * as __schema_cluster from "./cluster"
 import * as __schema_datetime from "./datetime"
 import * as __schema_devices from "./devices"
@@ -16,6 +17,7 @@ import * as __schema_json from "./json"
 import * as __schema_jwt from "./jwt"
 import * as __schema_organizations from "./organizations"
 import * as __schema_outputs from "./outputs"
+import * as __schema_pagination from "./pagination"
 import * as __schema_projects from "./projects"
 import * as __schema_properties from "./properties"
 import * as __schema_repositories from "./repositories"
@@ -31,6 +33,11 @@ export type OrganizationId = __sidex_types.Nominal<
   "::nexigon_api::organizations::OrganizationId"
 >
 
+export const OrganizationId = {
+  ...__sidex_types.checker<OrganizationId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Unique ID of an invitation to an organization.
  */
@@ -39,6 +46,11 @@ export type OrganizationInvitationId = __sidex_types.Nominal<
   "::nexigon_api::organizations::OrganizationInvitationId"
 >
 
+export const OrganizationInvitationId = {
+  ...__sidex_types.checker<OrganizationInvitationId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Unique ID of an organization API token.
  */
@@ -47,11 +59,21 @@ export type OrganizationApiTokenId = __sidex_types.Nominal<
   "::nexigon_api::organizations::OrganizationApiTokenId"
 >
 
+export const OrganizationApiTokenId = {
+  ...__sidex_types.checker<OrganizationApiTokenId>(
+    (): __sidex_types.Check => __sidex_types.jsonShape(["string"]),
+  ),
+}
 /**
  * Query the organizations of the instance.
  */
-export type QueryOrganizationsAction = Record<string, never>
+export type QueryOrganizationsAction = Record<string, unknown>
 
+export const QueryOrganizationsAction = {
+  ...__sidex_types.checker<QueryOrganizationsAction>(
+    (): __sidex_types.Check => __sidex_types.record([], []),
+  ),
+}
 /**
  * Output of querying the organizations of the instance.
  */
@@ -59,9 +81,28 @@ export type QueryOrganizationsOutput = {
   /**
    * List of organizations.
    */
-  organizations: __sidex_types.builtins.Sequence<QueryOrganizationsItem>
+  organizations: QueryOrganizationsItem[]
 }
 
+export const QueryOrganizationsOutput = {
+  ...__sidex_types.checker<QueryOrganizationsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizations",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => QueryOrganizationsItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Organization item.
  */
@@ -75,6 +116,24 @@ export type QueryOrganizationsItem = {
   name: __sidex_types.builtins.String
 }
 
+export const QueryOrganizationsItem = {
+  ...__sidex_types.checker<QueryOrganizationsItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the members of an organization.
  */
@@ -85,6 +144,23 @@ export type QueryOrganizationMembersAction = {
   organizationId: OrganizationId
 }
 
+export const QueryOrganizationMembersAction = {
+  ...__sidex_types.checker<QueryOrganizationMembersAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the members of an organization.
  */
@@ -92,9 +168,29 @@ export type QueryOrganizationMembersOutput = {
   /**
    * List of members.
    */
-  members: __sidex_types.builtins.Sequence<QueryOrganizationMembersItem>
+  members: QueryOrganizationMembersItem[]
 }
 
+export const QueryOrganizationMembersOutput = {
+  ...__sidex_types.checker<QueryOrganizationMembersOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "members",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  QueryOrganizationMembersItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Member item.
  */
@@ -114,6 +210,26 @@ export type QueryOrganizationMembersItem = {
   isAdmin: __sidex_types.builtins.Bool
 }
 
+export const QueryOrganizationMembersItem = {
+  ...__sidex_types.checker<QueryOrganizationMembersItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "userId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_users.UserId,
+            ),
+            false,
+          ],
+          ["displayName", __sidex_types.builtin("string"), true],
+          ["email", __sidex_types.builtin("string"), false],
+          ["isAdmin", __sidex_types.builtin("bool"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the projects of an organization.
  */
@@ -124,6 +240,23 @@ export type QueryOrganizationProjectsAction = {
   organizationId: OrganizationId
 }
 
+export const QueryOrganizationProjectsAction = {
+  ...__sidex_types.checker<QueryOrganizationProjectsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the projects of an organization.
  */
@@ -131,9 +264,29 @@ export type QueryOrganizationProjectsOutput = {
   /**
    * List of projects.
    */
-  projects: __sidex_types.builtins.Sequence<QueryOrganizationProjectsItem>
+  projects: QueryOrganizationProjectsItem[]
 }
 
+export const QueryOrganizationProjectsOutput = {
+  ...__sidex_types.checker<QueryOrganizationProjectsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projects",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  QueryOrganizationProjectsItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Project item.
  */
@@ -147,6 +300,24 @@ export type QueryOrganizationProjectsItem = {
   name: __sidex_types.builtins.String
 }
 
+export const QueryOrganizationProjectsItem = {
+  ...__sidex_types.checker<QueryOrganizationProjectsItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "projectId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_projects.ProjectId,
+            ),
+            false,
+          ],
+          ["name", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the repositories of an organization.
  */
@@ -157,6 +328,23 @@ export type QueryOrganizationRepositoriesAction = {
   organizationId: OrganizationId
 }
 
+export const QueryOrganizationRepositoriesAction = {
+  ...__sidex_types.checker<QueryOrganizationRepositoriesAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the repositories of an organization.
  */
@@ -164,9 +352,29 @@ export type QueryOrganizationRepositoriesOutput = {
   /**
    * List of repositories.
    */
-  repositories: __sidex_types.builtins.Sequence<QueryOrganizationRepositoriesItem>
+  repositories: QueryOrganizationRepositoriesItem[]
 }
 
+export const QueryOrganizationRepositoriesOutput = {
+  ...__sidex_types.checker<QueryOrganizationRepositoriesOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositories",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  QueryOrganizationRepositoriesItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Repository item.
  */
@@ -190,6 +398,27 @@ export type QueryOrganizationRepositoriesItem = {
   publicName: __sidex_types.builtins.String
 }
 
+export const QueryOrganizationRepositoriesItem = {
+  ...__sidex_types.checker<QueryOrganizationRepositoriesItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "repositoryId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.RepositoryId,
+            ),
+            false,
+          ],
+          ["displayName", __sidex_types.builtin("string"), false],
+          ["slug", __sidex_types.builtin("string"), true],
+          ["publicName", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the invitations of an organization.
  */
@@ -200,6 +429,23 @@ export type QueryOrganizationInvitationsAction = {
   organizationId: OrganizationId
 }
 
+export const QueryOrganizationInvitationsAction = {
+  ...__sidex_types.checker<QueryOrganizationInvitationsAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the invitations of an organization.
  */
@@ -207,9 +453,29 @@ export type QueryOrganizationInvitationsOutput = {
   /**
    * List of outstanding invitations.
    */
-  invitations: __sidex_types.builtins.Sequence<QueryOrganizationInvitationsItem>
+  invitations: QueryOrganizationInvitationsItem[]
 }
 
+export const QueryOrganizationInvitationsOutput = {
+  ...__sidex_types.checker<QueryOrganizationInvitationsOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "invitations",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  QueryOrganizationInvitationsItem,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Organization invitation item.
  */
@@ -226,6 +492,31 @@ export type QueryOrganizationInvitationsItem = {
   invitingUserId?: __schema_users.UserId
 }
 
+export const QueryOrganizationInvitationsItem = {
+  ...__sidex_types.checker<QueryOrganizationInvitationsItem>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "invitationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationInvitationId,
+            ),
+            false,
+          ],
+          ["email", __sidex_types.builtin("string"), false],
+          [
+            "invitingUserId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_users.UserId,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Create an organization.
  */
@@ -236,12 +527,32 @@ export type CreateOrganizationAction = {
   name: __sidex_types.builtins.String /**
    * Admins of the organization.
    */
-  admins?: __sidex_types.builtins.Sequence<__schema_users.UserId> /**
+  admins?: __schema_users.UserId[] /**
    * Whether the organization requires a subscription.
    */
   requiresSubscription: __sidex_types.builtins.Bool
 }
+
 export const CreateOrganizationAction = {
+  ...__sidex_types.checker<CreateOrganizationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          ["name", __sidex_types.builtin("string"), false],
+          [
+            "admins",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> => __schema_users.UserId,
+              ),
+            ),
+            true,
+          ],
+          ["requiresSubscription", __sidex_types.builtin("bool"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: CreateOrganizationAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -251,7 +562,7 @@ export const CreateOrganizationAction = {
       const __field_path = __path.field("name")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           1,
           "min_size",
           "Organization name must be between 1 and 128 characters.",
@@ -261,7 +572,7 @@ export const CreateOrganizationAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.name as unknown as string),
+          __validate.charCount(__instance["name"] as unknown as string),
           128,
           "max_size",
           "Organization name must be between 1 and 128 characters.",
@@ -314,6 +625,23 @@ export type CreateOrganizationOutput = {
   organizationId: OrganizationId
 }
 
+export const CreateOrganizationOutput = {
+  ...__sidex_types.checker<CreateOrganizationOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Delete an organization.
  */
@@ -324,6 +652,23 @@ export type DeleteOrganizationAction = {
   organizationId: OrganizationId
 }
 
+export const DeleteOrganizationAction = {
+  ...__sidex_types.checker<DeleteOrganizationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Add a user to an organization.
  */
@@ -340,6 +685,31 @@ export type AddOrganizationMemberAction = {
   isAdmin?: __sidex_types.builtins.Bool
 }
 
+export const AddOrganizationMemberAction = {
+  ...__sidex_types.checker<AddOrganizationMemberAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+          [
+            "userId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_users.UserId,
+            ),
+            false,
+          ],
+          ["isAdmin", __sidex_types.builtin("bool"), true],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Remove a user from an organization.
  */
@@ -353,6 +723,30 @@ export type RemoveOrganizationMemberAction = {
   userId: __schema_users.UserId
 }
 
+export const RemoveOrganizationMemberAction = {
+  ...__sidex_types.checker<RemoveOrganizationMemberAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+          [
+            "userId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_users.UserId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Set whether the user is an administrator of the organization.
  */
@@ -369,6 +763,31 @@ export type SetOrganizationMemberIsAdminAction = {
   isAdmin: __sidex_types.builtins.Bool
 }
 
+export const SetOrganizationMemberIsAdminAction = {
+  ...__sidex_types.checker<SetOrganizationMemberIsAdminAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+          [
+            "userId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => __schema_users.UserId,
+            ),
+            false,
+          ],
+          ["isAdmin", __sidex_types.builtin("bool"), false],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Invite a user to an organization.
  */
@@ -381,7 +800,24 @@ export type InviteOrganizationMemberAction = {
    */
   email: __sidex_types.builtins.String
 }
+
 export const InviteOrganizationMemberAction = {
+  ...__sidex_types.checker<InviteOrganizationMemberAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+          ["email", __sidex_types.builtin("string"), false],
+        ],
+        [],
+      ),
+  ),
   validate(
     __instance: InviteOrganizationMemberAction,
     __path: __validate.Path = __validate.Path.root(),
@@ -391,7 +827,7 @@ export const InviteOrganizationMemberAction = {
       const __field_path = __path.field("email")
       __report.merge(
         __validate.minInclusive(
-          __validate.charCount(__instance.email as unknown as string),
+          __validate.charCount(__instance["email"] as unknown as string),
           3,
           "min_size",
           "Email must be between 3 and 254 characters.",
@@ -401,7 +837,7 @@ export const InviteOrganizationMemberAction = {
 
       __report.merge(
         __validate.maxInclusive(
-          __validate.charCount(__instance.email as unknown as string),
+          __validate.charCount(__instance["email"] as unknown as string),
           254,
           "max_size",
           "Email must be between 3 and 254 characters.",
@@ -411,7 +847,7 @@ export const InviteOrganizationMemberAction = {
 
       __report.merge(
         __validate.regexMatch(
-          __instance.email,
+          __instance["email"],
           "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
           "format:email",
           "Email must be a valid email address.",
@@ -474,6 +910,23 @@ export type InviteOrganizationMemberOutput = {
   invitationId: OrganizationInvitationId
 }
 
+export const InviteOrganizationMemberOutput = {
+  ...__sidex_types.checker<InviteOrganizationMemberOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "invitationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationInvitationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Delete an invitation to an organization.
  */
@@ -484,22 +937,200 @@ export type DeleteOrganizationInvitationAction = {
   invitationId: OrganizationInvitationId
 }
 
+export const DeleteOrganizationInvitationAction = {
+  ...__sidex_types.checker<DeleteOrganizationInvitationAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "invitationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationInvitationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Query the audit log of an organization.
  */
 export type QueryOrganizationAuditLogAction = {
   /**
+   * Opt into cursor pagination. Without this field, the existing limit applies.
+   */
+  page?: __schema_pagination.PageRequest /**
    * ID of the organization.
    */
   organizationId: OrganizationId
 }
 
+export const QueryOrganizationAuditLogAction = {
+  ...__sidex_types.checker<QueryOrganizationAuditLogAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageRequest,
+            ),
+            true,
+          ],
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
 /**
  * Output of querying the audit log of an organization.
  */
 export type QueryOrganizationAuditLogOutput = {
   /**
+   * Present when cursor pagination was requested.
+   */
+  page?: __schema_pagination.PageInfo /**
    * List of audit log events.
    */
-  events: __sidex_types.builtins.Sequence<__schema_audit.AuditLogEvent>
+  events: __schema_audit.AuditLogEvent[]
+}
+
+export const QueryOrganizationAuditLogOutput = {
+  ...__sidex_types.checker<QueryOrganizationAuditLogOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "page",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_pagination.PageInfo,
+            ),
+            true,
+          ],
+          [
+            "events",
+            __sidex_types.sequence(
+              __sidex_types.lazy(
+                (): __sidex_types.Checker<unknown> =>
+                  __schema_audit.AuditLogEvent,
+              ),
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Organization S3 defaults for repositories without their own configuration.
+ */
+export type SetOrganizationS3ConfigAction = {
+  organizationId: OrganizationId
+  s3Config: __schema_repositories.RepositoryS3Config
+}
+
+export const SetOrganizationS3ConfigAction = {
+  ...__sidex_types.checker<SetOrganizationS3ConfigAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+          [
+            "s3Config",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.RepositoryS3Config,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Get organization storage settings. Secret credentials are never returned.
+ */
+export type GetOrganizationS3ConfigAction = { organizationId: OrganizationId }
+
+export const GetOrganizationS3ConfigAction = {
+  ...__sidex_types.checker<GetOrganizationS3ConfigAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+export type GetOrganizationS3ConfigOutput = {
+  s3Config?: __schema_repositories.RepositoryS3Config
+}
+
+export const GetOrganizationS3ConfigOutput = {
+  ...__sidex_types.checker<GetOrganizationS3ConfigOutput>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "s3Config",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> =>
+                __schema_repositories.RepositoryS3Config,
+            ),
+            true,
+          ],
+        ],
+        [],
+      ),
+  ),
+}
+/**
+ * Remove organization storage defaults without deleting stored objects.
+ */
+export type DeleteOrganizationS3ConfigAction = {
+  organizationId: OrganizationId
+}
+
+export const DeleteOrganizationS3ConfigAction = {
+  ...__sidex_types.checker<DeleteOrganizationS3ConfigAction>(
+    (): __sidex_types.Check =>
+      __sidex_types.record(
+        [
+          [
+            "organizationId",
+            __sidex_types.lazy(
+              (): __sidex_types.Checker<unknown> => OrganizationId,
+            ),
+            false,
+          ],
+        ],
+        [],
+      ),
+  ),
 }
